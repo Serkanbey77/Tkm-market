@@ -3,177 +3,257 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Emanet &amp; Sargytlar — TKM Market</title>
+  <title>Pul Çek & Emanet — TKM Market</title>
   <link rel="stylesheet" href="assets/tkm.css" />
 </head>
 <body>
   <div id="playerok-shell"></div>
 
   <main class="page-wrap">
-    <div class="panel" id="orders">
-      <h2>Emanet (Escrow) Sargytlary</h2>
-      <p class="muted">Diňe <strong>Satyjy "Satdym"</strong> we <strong>Alyjy "Aldym"</strong> tassyklanyndan soň pul geçýär.</p>
-      <div id="orders-list"></div>
+    <div class="panel">
+      <h2>Pul Çek (Satyjy Gazanjy)</h2>
+      <p class="muted">İki tarapyň hem tassyklan emanet sargytlaryndan gelen serişdäni çekip bilersiňiz.</p>
+
+      <div class="form-grid">
+        <div class="list-row" style="margin-top:0;">
+          <div>
+            <div class="muted">Çekip Bolýan Bakiýe</div>
+            <strong id="available-balance" style="font-size:18px; color:#34d399;">0 TMT</strong>
+          </div>
+        </div>
+        <div class="list-row" style="margin-top:0;">
+          <div>
+            <div class="muted">Emanetde Saklanýan</div>
+            <strong id="escrow-balance" style="font-size:18px; color:#fbbf24;">0 TMT</strong>
+          </div>
+        </div>
+      </div>
+
+      <form id="withdraw-form" style="margin-top:12px;">
+        <div class="form-grid">
+          <div class="field">
+            <label>Satyjy Ady</label>
+            <input id="w-seller" type="text" placeholder="Serkanbey77" />
+          </div>
+          <div class="field">
+            <label>Çekjek Möçberiňiz (TMT)</label>
+            <input id="w-amount" type="number" min="1" step="0.01" placeholder="100" required />
+          </div>
+          <div class="field">
+            <label>Çekiş Usuly</label>
+            <select id="w-method">
+              <option value="USDT BEP20">USDT BEP20</option>
+              <option value="Visa">Visa</option>
+              <option value="Mastercard">Mastercard</option>
+            </select>
+          </div>
+          <div class="field">
+            <label>Karta / Gapjyňyz (BEP20 Adresi ýa-da Karta)</label>
+            <input id="w-target" type="text" placeholder="0x... ýa-da 4111 ••••" required />
+          </div>
+        </div>
+
+        <div class="btn-row">
+          <button class="btn btn-main" type="submit">Pul Çekmek İsledigini Iber</button>
+        </div>
+      </form>
+
+      <div id="withdrawals-list" style="margin-top:14px;"></div>
     </div>
 
     <div class="panel">
-      <h3>Pul Çekmek</h3>
-      <div class="form-grid">
-        <div class="field">
-          <label>Satyjy</label>
-          <input id="w-seller" type="text" oninput="this.dataset.edited='1'" />
-        </div>
-        <div class="field">
-          <label>Mukdar we usul</label>
-          <input id="w-amount" type="text" placeholder="Mysal: 500 TMT / 25 USDT" />
-        </div>
-      </div>
-      <div class="btn-row">
-        <button class="btn btn-main" id="w-btn" type="button" style="flex:1;">Ýüz Tutma Iber</button>
-      </div>
-      <div id="w-list" style="margin-top:10px;"></div>
+      <h2>Çift Tara replay Emanet (Escrow) Sargytlary</h2>
+      <p class="muted">Satyjy we alyjy ikisi hem tassyklamasa, serişde emanetde saklanýar.</p>
+      <div id="orders-list"></div>
     </div>
   </main>
 
-  <div class="modal-bg" id="escrow-modal">
-    <div class="modal-card">
-      <div class="modal-head">
-        <h3 id="em-title">Hasap &amp; Tassyklama</h3>
-        <button class="btn btn-soft" type="button" onclick="document.getElementById('escrow-modal').classList.remove('open')">Ýap</button>
-      </div>
-      <div id="em-body"></div>
-    </div>
-  </div>
-
   <script src="assets/tkm.js"></script>
   <script>
-    const isOrdersHash = window.location.hash === "#orders";
-    mountPlayerokShell(isOrdersHash ? "orders" : "escrow", "");
+    mountPlayerokShell("orders", "", true);
+
     let orders = [];
     let withdrawals = [];
+    const focusOrderId = new URLSearchParams(window.location.search).get("order") || "";
 
-    async function loadEscrow() {
+    function getActiveSeller() {
+      const inp = document.getElementById("w-seller");
+      return (inp && inp.value.trim()) || getUser().username || "Serkanbey77";
+    }
+
+    function computeBalances() {
+      const seller = getActiveSeller().toLowerCase();
+      let releasedSum = 0;
+      let holdSum = 0;
+      let withdrawnSum = 0;
+
+      for (const o of orders) {
+        const oSeller = String(o.seller || "Serkanbey77").toLowerCase();
+        if (oSeller !== seller) continue;
+        const amt = Number(o.price_tmt || 0);
+        if (o.seller_confirmed && o.buyer_confirmed) releasedSum += amt;
+        else holdSum += amt;
+      }
+
+      for (const w of withdrawals) {
+        const wSeller = String(w.seller || "Serkanbey77").toLowerCase();
+        if (wSeller !== seller) continue;
+        if (w.status !== "rejected") withdrawnSum += Number(w.amount_tmt || 0);
+      }
+
+      const avail = Math.max(0, releasedSum - withdrawnSum);
+      document.getElementById("available-balance").textContent = `${avail.toLocaleString()} TMT`;
+      document.getElementById("escrow-balance").textContent = `${holdSum.toLocaleString()} TMT`;
+      return avail;
+    }
+
+    async function loadAll() {
       try {
-        const [o, w] = await Promise.all([sbGet("orders"), sbGet("withdrawals")]);
-        orders = Array.isArray(o) ? o : [];
-        withdrawals = Array.isArray(w) ? w : [];
+        orders = await sbGet("orders");
         setDbPill(true, "Onlaýn");
-      } catch (err) {
+      } catch (_) {
+        orders = [];
         setDbPill(false, "Ýerli");
-        showToast("Duýduryş: " + err.message);
       }
-      renderOrders();
-      renderWithdrawals();
 
-      const focusId = new URLSearchParams(window.location.search).get("order");
-      if (focusId && orders.some(x => String(x.id) === String(focusId))) {
-        openEscrow(focusId);
+      try {
+        withdrawals = await sbGet("withdrawals");
+      } catch (_) {
+        try {
+          withdrawals = JSON.parse(localStorage.getItem("tkm_withdrawals_cache") || "[]");
+        } catch (__) {
+          withdrawals = [];
+        }
       }
+
+      computeBalances();
+      renderWithdrawals();
+      renderOrders();
+    }
+
+    function renderWithdrawals() {
+      const wrap = document.getElementById("withdrawals-list");
+      if (!withdrawals.length) {
+        wrap.innerHTML = `<p class="muted">Heniz pul çekiş islegi ýok.</p>`;
+        return;
+      }
+      wrap.innerHTML = withdrawals.map(w => `
+        <div class="list-row">
+          <div>
+            <strong>${Number(w.amount_tmt || 0).toLocaleString()} TMT</strong> — <span class="chip-cat">${esc(w.method)}</span>
+            <div class="muted">Satyjy: ${esc(w.seller)} · Salgy/Karta: ${esc(w.wallet_or_card)}</div>
+          </div>
+          <span class="badge-status ${w.status === "approved" ? "ok" : ""}">${esc(w.status === "approved" ? "Tassyklanyldy ✅" : "Garaşylýar ⏳")}</span>
+        </div>
+      `).join("");
     }
 
     function renderOrders() {
-      const el = document.getElementById("orders-list");
+      const wrap = document.getElementById("orders-list");
       if (!orders.length) {
-        el.innerHTML = `<p class="muted" style="margin-top:8px;">Heniz sargyt ýok.</p>`;
+        wrap.innerHTML = `<p class="muted">Heniz emanet sargyt ýok.</p>`;
         return;
       }
-      el.innerHTML = orders.map(o => {
-        const both = Boolean(o.seller_confirmed) && Boolean(o.buyer_confirmed);
+
+      wrap.innerHTML = orders.map(o => {
+        const sOk = Boolean(o.seller_confirmed);
+        const bOk = Boolean(o.buyer_confirmed);
+        const bothDone = sOk && bOk;
+        const hi = focusOrderId && String(o.id) === String(focusOrderId);
+
         return `
-          <div class="list-row">
-            <div>
-              <strong>${esc(o.order_code)}</strong> — ${esc(o.product_title)}
-              <div class="muted">${Number(o.price_tmt || 0).toLocaleString()} TMT · Satyjy: ${o.seller_confirmed ? "✅" : "⏳"} · Alyjy: ${o.buyer_confirmed ? "✅" : "⏳"}</div>
+          <div class="panel" style="margin-top:12px; ${hi ? "border-color:#34d399; box-shadow:0 0 22px rgba(52,211,153,0.35);" : ""}">
+            <div style="display:flex; justify-content:space-between; align-items:center; gap:8px; flex-wrap:wrap;">
+              <div>
+                <strong>${esc(o.order_code || ("Sargyt #" + o.id))}</strong> — ${esc(o.product_title)}
+                <div class="muted">${Number(o.price_tmt || 0).toLocaleString()} TMT · Satyjy: <strong>${esc(o.seller || "Serkanbey77")}</strong></div>
+              </div>
+              <span class="badge-status ${bothDone ? "ok" : ""}">${bothDone ? "Tamamlandy ✅" : "Emanetde Saklanýar 🔒"}</span>
             </div>
-            <div class="btn-row" style="margin-top:0;">
-              <span class="badge-status ${both ? "ok" : ""}">${both ? "Geçirildi" : "Emanetde"}</span>
-              <button class="btn btn-soft" type="button" onclick="openEscrow(${o.id})">Hasap &amp; Onay</button>
+
+            <div class="cred-card">
+              <div><strong>Hasap Girişi:</strong> ${esc(o.account_login || "Satyjy tarapyndan berler")}</div>
+              <div><strong>Hasap Paroly:</strong> ${esc(o.account_password || "Satyjy tarapyndan berler")}</div>
+              ${o.account_extra ? `<div><strong>Goşmaça:</strong> ${esc(o.account_extra)}</div>` : ""}
+              <div><strong>Tassyklama Ýagdaýy:</strong> Satyjy: ${sOk ? "✅ Tassyklady" : "⏳ Garaşylýar"} · Alyjy: ${bOk ? "✅ Tassyklady" : "⏳ Garaşylýar"}</div>
+            </div>
+
+            <div class="btn-row">
+              ${!sOk ? `<button class="btn btn-soft" type="button" onclick="confirmSide(${o.id}, 'seller')">Satyjy Tassyklasy</button>` : ""}
+              ${!bOk ? `<button class="btn btn-green" type="button" onclick="confirmSide(${o.id}, 'buyer')">Alyjy Tassyklasy (Hasap Sag)</button>` : ""}
             </div>
           </div>
         `;
       }).join("");
     }
 
-    function openEscrow(id) {
-      const o = orders.find(x => String(x.id) === String(id));
-      if (!o) return;
-      const both = Boolean(o.seller_confirmed) && Boolean(o.buyer_confirmed);
+    async function confirmSide(id, side) {
+      const target = orders.find(x => String(x.id) === String(id));
+      if (!target) return;
 
-      document.getElementById("em-title").textContent = `Sargyt ${o.order_code}`;
-      document.getElementById("em-body").innerHTML = `
-        <div class="muted">Haryt: <strong>${esc(o.product_title)}</strong> · Baha: <strong>${Number(o.price_tmt || 0).toLocaleString()} TMT</strong></div>
-        <div class="muted" style="margin-top:4px;">Pul: <strong>${both ? "Satyja geçirildi ✅" : "ORTADA EMANETDE 🔒"}</strong></div>
+      const nextSeller = side === "seller" ? true : Boolean(target.seller_confirmed);
+      const nextBuyer = side === "buyer" ? true : Boolean(target.buyer_confirmed);
+      const completed = nextSeller && nextBuyer;
 
-        <div class="cred-card">
-          <div><strong>Hasap Ady / Login:</strong> ${esc(o.account_login || "Görkezilmedik")}</div>
-          <div><strong>Hasap Paroly:</strong> ${esc(o.account_password || "Görkezilmedik")}</div>
-          ${o.account_extra ? `<div><strong>Goşmaça:</strong> ${esc(o.account_extra)}</div>` : ""}
-          <div><strong>Kod:</strong> ${esc(o.secret_code || "")}</div>
-        </div>
-
-        <div class="cred-card">
-          <div>1. Satyjy ("Satdym"): <strong>${o.seller_confirmed ? "Tassyklanyldy ✅" : "Garaşylýar ⏳"}</strong></div>
-          <div>2. Alyjy ("Aldym"): <strong>${o.buyer_confirmed ? "Tassyklanyldy ✅" : "Garaşylýar ⏳"}</strong></div>
-        </div>
-
-        <div class="btn-row">
-          ${!o.seller_confirmed ? `<button class="btn btn-soft" type="button" style="flex:1;" onclick="setConfirm(${o.id}, 'seller')">Satyjy: Satdym</button>` : ""}
-          ${!o.buyer_confirmed ? `<button class="btn btn-green" type="button" style="flex:1;" onclick="setConfirm(${o.id}, 'buyer')">Alyjy: Aldym</button>` : ""}
-        </div>
-      `;
-      document.getElementById("escrow-modal").classList.add("open");
+      try {
+        await sbPatch("orders", id, {
+          seller_confirmed: nextSeller,
+          buyer_confirmed: nextBuyer,
+          escrow_status: completed ? "released" : "escrow_hold",
+          status: completed ? "completed" : "pending_confirmation"
+        });
+        showToast(completed ? "İki tarap hem tassyklady — Serişde açyldy!" : "Tassygyňyz ýazdyryldy.");
+        loadAll();
+      } catch (err) {
+        showToast("Tassyklap bolmady: " + err.message);
+      }
     }
 
-    async function setConfirm(id, side) {
-      const o = orders.find(x => String(x.id) === String(id));
-      if (!o) return;
-      const sConf = side === "seller" ? true : Boolean(o.seller_confirmed);
-      const bConf = side === "buyer" ? true : Boolean(o.buyer_confirmed);
-      const both = sConf && bConf;
-      const patch = {
-        seller_confirmed: sConf,
-        buyer_confirmed: bConf,
-        escrow_status: both ? "released_to_seller" : "escrow_hold",
-        status: both ? "completed" : "pending_dual_confirmation"
+    document.getElementById("w-seller").addEventListener("input", () => {
+      document.getElementById("w-seller").dataset.edited = "1";
+      computeBalances();
+    });
+
+    document.getElementById("withdraw-form").addEventListener("submit", async (e) => {
+      e.preventDefault();
+      const seller = getActiveSeller();
+      const amount = Number(document.getElementById("w-amount").value || 0);
+      const method = document.getElementById("w-method").value;
+      const target = document.getElementById("w-target").value.trim();
+      const avail = computeBalances();
+
+      if (amount <= 0 || !target) {
+        showToast("Möçberi we karta/gapjyk maglumatyny giriziň!");
+        return;
+      }
+      if (amount > avail) {
+        showToast(`Çekip bolýan bakiýe ýeterlik däl (${avail.toLocaleString()} TMT).`);
+        return;
+      }
+
+      const payload = {
+        seller,
+        amount_tmt: amount,
+        method,
+        wallet_or_card: target,
+        status: "pending"
       };
+
       try {
-        const upd = await sbPatch("orders", id, patch);
-        orders = orders.map(x => String(x.id) === String(id) ? { ...x, ...patch, ...(upd || {}) } : x);
-        renderOrders();
-        openEscrow(id);
-        showToast(both ? "Iki onay hem boldy! Pul satyja geçdi." : "Onay ýazyldy.");
-      } catch (err) {
-        showToast("Ýalňyşlyk: " + err.message);
+        await sbInsert("withdrawals", payload);
+        showToast("Pul çekiş islegi iberildi!");
+      } catch (_) {
+        withdrawals.unshift({ id: Date.now(), ...payload });
+        localStorage.setItem("tkm_withdrawals_cache", JSON.stringify(withdrawals));
+        showToast("İsleg ýerli ýatda ýazdyryldy.");
       }
-    }
 
-    async function sendW() {
-      const seller = document.getElementById("w-seller").value.trim() || getUser().username;
-      const amount_label = document.getElementById("w-amount").value.trim();
-      if (!amount_label) { showToast("Mukdary giriziň."); return; }
-      try {
-        await sbInsert("withdrawals", { seller, amount_label, status: "Garaşylýar" });
-        document.getElementById("w-amount").value = "";
-        showToast("Ýüz tutma iberildi.");
-        await loadEscrow();
-      } catch (err) {
-        showToast("Ýalňyşlyk: " + err.message);
-      }
-    }
+      e.target.reset();
+      document.getElementById("w-seller").value = seller;
+      loadAll();
+    });
 
-    function renderWithdrawals() {
-      const el = document.getElementById("w-list");
-      if (!withdrawals.length) { el.innerHTML = `<p class="muted">Heniz ýüz tutma ýok.</p>`; return; }
-      el.innerHTML = withdrawals.map(w => `
-        <div class="list-row">
-          <div><strong>${esc(w.seller)}</strong> — ${esc(w.amount_label)}</div>
-          <span class="badge-status">${esc(w.status)}</span>
-        </div>
-      `).join("");
-    }
-
-    document.getElementById("w-btn").addEventListener("click", sendW);
-    loadEscrow();
+    loadAll();
   </script>
 </body>
 </html>
