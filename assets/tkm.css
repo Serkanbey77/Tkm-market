@@ -1,12 +1,12 @@
 :root {
-  --bg: #070b18;
-  --surface: #0f172a;
-  --surface-2: #17223b;
-  --border: rgba(129, 140, 248, 0.24);
+  --bg: #050814;
+  --surface: #0d1426;
+  --surface-2: #15203b;
+  --border: rgba(139, 92, 246, 0.32);
   --text: #f8fafc;
   --muted: #94a3b8;
   --primary: #6366f1;
-  --primary-2: #a855f7;
+  --primary-2: #ec4899;
   --accent: #10b981;
   --danger: #ef4444;
 }
@@ -15,23 +15,22 @@ body:not(.dark) {
   --bg: #eef2ff;
   --surface: #ffffff;
   --surface-2: #f1f5f9;
-  --border: rgba(79, 70, 229, 0.16);
+  --border: rgba(79, 70, 229, 0.2);
   --text: #0f172a;
   --muted: #64748b;
 }
 
 * { box-sizing: border-box; margin: 0; padding: 0; font-family: system-ui, -apple-system, sans-serif; }
 body {
-  background: radial-gradient(circle at 20% 0%, rgba(99, 102, 241, 0.24), transparent 45%),
-              radial-gradient(circle at 85% 15%, rgba(236, 72, 153, 0.16), transparent 45%),
+  background: radial-gradient(circle at 15% 5%, rgba(99, 102, 241, 0.28), transparent 45%),
+              radial-gradient(circle at 85% 15%, rgba(236, 72, 153, 0.22), transparent 45%),
               var(--bg);
   color: var(--text);
   min-height: 100vh;
-  padding-bottom: 90px;
+  padding-bottom: 92px;
   overflow-x: hidden;
 }
 
-/* Kış Kar Yağışı Katmanı */
 .snow-layer {
   position: fixed;
   inset: 0;
@@ -42,28 +41,28 @@ body {
 .snowflake {
   position: absolute;
   top: -12px;
-  color: #fff;
-  opacity: 0.75;
-  text-shadow: 0 0 8px rgba(186, 230, 253, 0.9);
+  color: #e0f2fe;
+  opacity: 0.72;
+  text-shadow: 0 0 8px rgba(125, 211, 252, 0.85);
   animation: snowFall linear infinite;
 }
 @keyframes snowFall {
   0% { transform: translate3d(0, -10px, 0) rotate(0deg); }
-  100% { transform: translate3d(28px, 105vh, 0) rotate(360deg); }
+  100% { transform: translate3d(26px, 105vh, 0) rotate(360deg); }
 }
 
 .top-head {
   position: sticky;
   top: 0;
   z-index: 40;
-  background: rgba(15, 23, 42, 0.88);
+  background: rgba(13, 20, 38, 0.88);
   backdrop-filter: blur(12px);
   border-bottom: 1px solid var(--border);
   padding: 10px 14px;
 }
-body:not(.dark) .top-head { background: rgba(255, 255, 255, 0.9); }
+body:not(.dark) .top-head { background: rgba(255, 255, 255, 0.92); }
 
-.top-inner { max-width: 960px; margin: 0 auto; }
+.top-inner { max-width: 980px; margin: 0 auto; }
 .top-row {
   display: flex;
   align-items: center;
@@ -79,8 +78,8 @@ body:not(.dark) .top-head { background: rgba(255, 255, 255, 0.9); }
   text-decoration: none;
 }
 .brand-link {
-  text-decoration: none; font-size: 19px; font-weight: 900;
-  background: linear-gradient(90deg, #818cf8, #e879f9, #38bdf8);
+  text-decoration: none; font-size: 19px; font-weight: 900; letter-spacing: 0.3px;
+  background: linear-gradient(90deg, #38bdf8, #a855f7, #f472b6);
   -webkit-background-clip: text; -webkit-text-fill-color: transparent;
 }
 .top-right { display: flex; align-items: center; gap: 6px; }
@@ -103,27 +102,77 @@ body:not(.dark) .top-head { background: rgba(255, 255, 255, 0.9); }
   font-size: 14px; color: var(--text); width: 100%; outline: none;
 }
 
-.page-wrap { max-width: 960px; margin: 0 auto; padding: 14px 16px 24px; position: relative; z-index: 10; }
+.page-wrap { max-width: 980px; margin: 0 auto; padding: 14px 16px 24px; position: relative; z-index: 10; }
 
-/* 4K Işıklı Oyun Bannerı */
-.promo-banner {
+/* 4K Animasyonlu Gamer Hero Banner */
+.gamer-hero {
   position: relative;
-  border-radius: 20px;
+  border-radius: 22px;
   padding: 22px 18px;
-  background: linear-gradient(125deg, #1e1b4b 0%, #581c87 48%, #9d174d 100%);
-  border: 1px solid rgba(192, 132, 252, 0.45);
-  box-shadow: 0 0 28px rgba(139, 92, 246, 0.35), 0 14px 30px rgba(2, 6, 23, 0.5);
+  background: linear-gradient(125deg, #090d1e 0%, #3b0764 45%, #831843 80%, #1e1b4b 100%);
+  background-size: 220% 220%;
+  animation: gamerAura 7s ease infinite;
+  border: 1.5px solid rgba(168, 85, 247, 0.55);
+  box-shadow: 0 0 32px rgba(168, 85, 247, 0.35), inset 0 0 24px rgba(56, 189, 248, 0.14);
   color: #fff;
   margin-bottom: 16px;
   overflow: hidden;
 }
-.promo-tag {
-  display: inline-block; font-size: 10px; font-weight: 800; letter-spacing: 0.5px;
-  background: rgba(255, 255, 255, 0.18); border: 1px solid rgba(255, 255, 255, 0.3);
-  padding: 3px 10px; border-radius: 999px; margin-bottom: 8px;
+@keyframes gamerAura {
+  0% { background-position: 0% 50%; }
+  50% { background-position: 100% 50%; }
+  100% { background-position: 0% 50%; }
 }
-.promo-banner h1 { font-size: 22px; line-height: 1.25; margin-bottom: 6px; text-shadow: 0 2px 14px rgba(232, 121, 249, 0.5); }
-.promo-banner p { font-size: 13px; opacity: 0.94; margin-bottom: 14px; }
+.gamer-scanline {
+  position: absolute;
+  left: 0; right: 0; height: 2px;
+  background: linear-gradient(90deg, transparent, rgba(56, 189, 248, 0.85), rgba(244, 114, 182, 0.85), transparent);
+  animation: scanMove 3.6s linear infinite;
+  pointer-events: none;
+}
+@keyframes scanMove {
+  0% { top: -4px; opacity: 0; }
+  20% { opacity: 0.9; }
+  80% { opacity: 0.9; }
+  100% { top: 100%; opacity: 0; }
+}
+.gamer-hero h1 {
+  position: relative; z-index: 2;
+  font-size: 22px; line-height: 1.25; margin-bottom: 6px;
+  text-shadow: 0 0 18px rgba(168, 85, 247, 0.7);
+}
+.gamer-hero p {
+  position: relative; z-index: 2;
+  font-size: 13px; color: #e2e8f0; margin-bottom: 16px;
+}
+
+.split-action-row {
+  position: relative; z-index: 2;
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 12px;
+}
+.gamer-btn-sell {
+  display: flex; align-items: center; justify-content: center; gap: 6px;
+  text-decoration: none; text-align: center;
+  padding: 12px 14px; border-radius: 13px;
+  font-weight: 800; font-size: 13px; color: #fff;
+  background: linear-gradient(135deg, #6366f1, #a855f7);
+  box-shadow: 0 0 18px rgba(139, 92, 246, 0.55);
+  border: 1px solid rgba(255, 255, 255, 0.25);
+  transition: transform 0.15s ease;
+}
+.gamer-btn-ask {
+  display: flex; align-items: center; justify-content: center; gap: 6px;
+  text-decoration: none; text-align: center;
+  padding: 12px 14px; border-radius: 13px;
+  font-weight: 800; font-size: 13px; color: #052e16;
+  background: linear-gradient(135deg, #34d399, #22d3ee);
+  box-shadow: 0 0 18px rgba(52, 211, 153, 0.45);
+  border: 1px solid rgba(255, 255, 255, 0.35);
+  transition: transform 0.15s ease;
+}
+.gamer-btn-sell:hover, .gamer-btn-ask:hover { transform: translateY(-2px); }
 
 .sec-header {
   display: flex; align-items: center; justify-content: space-between;
@@ -131,28 +180,28 @@ body:not(.dark) .top-head { background: rgba(255, 255, 255, 0.9); }
 }
 .sec-header h2, .sec-header h3 { font-size: 16px; font-weight: 800; }
 
-/* Ana Sayfa 5'li Hızlı Şerit */
 .home-quick-5 {
   display: grid; grid-template-columns: repeat(5, 1fr); gap: 8px; margin-bottom: 16px;
 }
 .quick-tile {
   background: var(--surface);
   border: 1.5px solid var(--border);
-  box-shadow: 0 0 14px rgba(99, 102, 241, 0.16);
+  box-shadow: 0 0 15px rgba(99, 102, 241, 0.2);
   border-radius: 15px; padding: 9px 5px; text-align: center;
   color: var(--text); cursor: pointer;
   display: flex; flex-direction: column; align-items: center; gap: 6px;
+  transition: transform 0.15s ease, box-shadow 0.15s ease;
 }
+.quick-tile:hover { transform: translateY(-2px); box-shadow: 0 0 22px rgba(168, 85, 247, 0.45); }
 .quick-tile.active {
-  border-color: #c084fc;
-  box-shadow: 0 0 18px rgba(192, 132, 252, 0.45);
+  border-color: #e879f9;
+  box-shadow: 0 0 20px rgba(232, 121, 249, 0.45);
 }
 .quick-tile span {
   font-size: 10px; font-weight: 700; max-width: 100%;
   overflow: hidden; text-overflow: ellipsis; white-space: nowrap;
 }
 
-/* 4 Sütunlu Kare Logo Gridi */
 .app-grid-4 {
   display: grid; grid-template-columns: repeat(4, 1fr); gap: 12px; margin-bottom: 18px;
 }
@@ -164,11 +213,13 @@ body:not(.dark) .top-head { background: rgba(255, 255, 255, 0.9); }
 .app-icon-box {
   position: relative;
   width: 68px; height: 68px; border-radius: 18px; overflow: hidden;
-  border: 1.5px solid rgba(165, 180, 252, 0.35);
-  box-shadow: 0 0 16px rgba(99, 102, 241, 0.28);
+  border: 1.5px solid rgba(168, 85, 247, 0.45);
+  box-shadow: 0 0 18px rgba(99, 102, 241, 0.32);
   display: flex; align-items: center; justify-content: center;
   background: var(--surface-2);
+  transition: transform 0.16s ease;
 }
+.app-tile:hover .app-icon-box { transform: scale(1.05); }
 .app-icon-box .custom-asset {
   position: absolute; inset: 0; width: 100%; height: 100%; object-fit: cover; z-index: 2;
 }
@@ -181,8 +232,8 @@ body:not(.dark) .top-head { background: rgba(255, 255, 255, 0.9); }
 }
 
 .platform-hero-logo {
-  position: relative; width: 66px; height: 66px; border-radius: 16px; overflow: hidden;
-  border: 2px solid rgba(255, 255, 255, 0.5); flex-shrink: 0;
+  position: relative; width: 68px; height: 68px; border-radius: 16px; overflow: hidden;
+  border: 2px solid rgba(255, 255, 255, 0.55); flex-shrink: 0;
 }
 .platform-hero-logo .custom-asset { position: absolute; inset: 0; width: 100%; height: 100%; object-fit: cover; z-index: 2; }
 .platform-hero-logo .svg-fallback { position: relative; z-index: 1; width: 100%; height: 100%; display: block; }
@@ -196,14 +247,14 @@ body:not(.dark) .top-head { background: rgba(255, 255, 255, 0.9); }
   color: var(--muted); font-size: 13px; font-weight: 700;
   padding: 10px 2px 11px; cursor: pointer; white-space: nowrap;
 }
-.subtab-link.active { color: #c084fc; border-bottom-color: #c084fc; }
+.subtab-link.active { color: #e879f9; border-bottom-color: #e879f9; }
 
 .cards-grid {
   display: grid; grid-template-columns: repeat(auto-fill, minmax(245px, 1fr)); gap: 14px;
 }
 .item-card {
   background: var(--surface); border: 1px solid var(--border);
-  box-shadow: 0 0 16px rgba(99, 102, 241, 0.14);
+  box-shadow: 0 0 16px rgba(99, 102, 241, 0.16);
   border-radius: 16px; padding: 13px;
   display: flex; flex-direction: column; justify-content: space-between; gap: 10px;
 }
@@ -213,7 +264,7 @@ body:not(.dark) .top-head { background: rgba(255, 255, 255, 0.9); }
 }
 .chip-cat {
   display: inline-block; font-size: 10px; font-weight: 700; padding: 3px 8px;
-  border-radius: 6px; background: rgba(99, 102, 241, 0.2); color: #a5b4fc;
+  border-radius: 6px; background: rgba(99, 102, 241, 0.22); color: #c4b5fd;
 }
 .chip-escrow {
   display: inline-block; font-size: 10px; font-weight: 700; padding: 3px 8px;
@@ -227,9 +278,20 @@ body:not(.dark) .top-head { background: rgba(255, 255, 255, 0.9); }
 
 .panel {
   background: var(--surface); border: 1px solid var(--border);
-  box-shadow: 0 0 18px rgba(99, 102, 241, 0.14);
+  box-shadow: 0 0 18px rgba(99, 102, 241, 0.15);
   border-radius: 16px; padding: 16px; margin-bottom: 14px;
 }
+.mt5-notice {
+  background: linear-gradient(135deg, rgba(16, 185, 129, 0.14), rgba(56, 189, 248, 0.12));
+  border: 1px solid rgba(52, 211, 153, 0.45);
+  border-radius: 16px;
+  padding: 15px;
+  margin-bottom: 14px;
+  font-size: 13px;
+  line-height: 1.5;
+}
+.mt5-notice strong { color: #34d399; }
+
 .muted { font-size: 12px; color: var(--muted); }
 .form-grid {
   display: grid; grid-template-columns: repeat(auto-fit, minmax(195px, 1fr));
@@ -271,21 +333,22 @@ input[type="file"] { padding: 7px; }
 }
 .badge-status.ok { background: rgba(16, 185, 129, 0.18); color: #34d399; }
 
+/* Alt Sabit Menü (6 sekmeli: Gözleg, Kategorýa, Exness, Hatlar, Satmak, Emanet) */
 .bottom-nav {
   position: fixed; left: 0; right: 0; bottom: 0; z-index: 60;
-  background: rgba(15, 23, 42, 0.94); backdrop-filter: blur(12px);
+  background: rgba(13, 20, 38, 0.95); backdrop-filter: blur(12px);
   border-top: 1px solid var(--border);
-  padding: 7px 6px calc(7px + env(safe-area-inset-bottom));
-  display: grid; grid-template-columns: repeat(5, 1fr); gap: 4px;
+  padding: 7px 4px calc(7px + env(safe-area-inset-bottom));
+  display: grid; grid-template-columns: repeat(6, 1fr); gap: 2px;
 }
-body:not(.dark) .bottom-nav { background: rgba(255, 255, 255, 0.95); }
+body:not(.dark) .bottom-nav { background: rgba(255, 255, 255, 0.96); }
 .bnav-item {
   text-decoration: none; color: var(--muted);
   display: flex; flex-direction: column; align-items: center; justify-content: center;
   gap: 2px; font-size: 10px; font-weight: 600; padding: 5px 2px; border-radius: 10px;
 }
-.bnav-item .ico { font-size: 15px; line-height: 1; }
-.bnav-item.active { color: #c084fc; background: rgba(139, 92, 246, 0.16); font-weight: 700; }
+.bnav-item .ico { font-size: 14px; line-height: 1; }
+.bnav-item.active { color: #e879f9; background: rgba(168, 85, 247, 0.16); font-weight: 700; }
 
 .modal-bg {
   position: fixed; inset: 0; background: rgba(2, 6, 15, 0.78);
