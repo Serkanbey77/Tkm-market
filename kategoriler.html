@@ -10,190 +10,51 @@
   <div id="playerok-shell"></div>
 
   <main class="page-wrap">
-    <div class="section-title-row">
-      <h2>Oýunlar (11)</h2>
-      <button class="btn btn-soft" type="button" onclick="clearPlatform()">Ähli Harytlary Görkez</button>
+    <div class="sec-header">
+      <h2>Oýunlar</h2>
+      <span class="muted">11 oýun</span>
     </div>
-    <div class="catalog-grid" id="games-grid"></div>
+    <div class="app-grid-4" id="games-grid-4"></div>
 
-    <div class="section-title-row">
-      <h2>Programmalar &amp; Sanly Hyzmatlar (19)</h2>
+    <div class="sec-header">
+      <h2>Programmalar &amp; Sanly Hyzmatlar</h2>
+      <span class="muted">19 programma</span>
     </div>
-    <div class="catalog-grid" id="apps-grid"></div>
+    <div class="app-grid-4" id="apps-grid-4"></div>
 
-    <div class="section-title-row">
+    <div class="sec-header">
       <h2>Trading Kurs</h2>
+      <span class="muted">Okuw</span>
     </div>
-    <div class="catalog-grid" id="courses-grid"></div>
-
-    <div class="panel" id="selected-platform-panel" style="display:none;">
-      <div style="display:flex; align-items:center; gap:12px; justify-content:space-between; flex-wrap:wrap;">
-        <div style="display:flex; align-items:center; gap:10px;">
-          <div id="sel-logo"></div>
-          <div>
-            <h3 id="sel-title">Saýlanan</h3>
-            <div class="muted" id="sel-desc">Bölümi saýlaň</div>
-          </div>
-        </div>
-        <a class="btn btn-main" style="text-decoration:none;" href="mesajlar.html">Tapylmasa Hat Ýaz (Haber Ber)</a>
-      </div>
-      <div class="subcat-bar" id="subcat-bar"></div>
-    </div>
-
-    <div class="cards-grid" id="cat-products-grid"></div>
+    <div class="app-grid-4" id="courses-grid-4"></div>
   </main>
 
   <script src="assets/tkm.js"></script>
   <script>
-    mountPlayerokShell("catalog", "Saýlanan bölümde gözle...");
-    let allProducts = [];
-    let selectedPlatform = null;
-    let selectedSubcat = "Ählisi";
+    mountPlayerokShell("catalog", "Oýun ýa-da programma gözle...", true);
 
-    function renderCatalogTiles(targetId, list) {
+    function renderSquareGrid(targetId, items, filterQ = "") {
       const el = document.getElementById(targetId);
-      el.innerHTML = list.map(item => {
-        const isSel = selectedPlatform && selectedPlatform.id === item.id;
-        return `
-          <button class="catalog-card ${isSel ? "selected" : ""}" type="button" onclick="selectPlatform('${item.id}')">
-            ${renderPlatformLogo(item)}
-            <span>${esc(item.name)}</span>
-          </button>
-        `;
-      }).join("");
-    }
+      const q = filterQ.trim().toLowerCase();
+      const matched = items.filter(x => !q || x.name.toLowerCase().includes(q));
 
-    function renderAllCatalogs() {
-      renderCatalogTiles("games-grid", GAMES_CATALOG);
-      renderCatalogTiles("apps-grid", APPS_CATALOG);
-      renderCatalogTiles("courses-grid", COURSES_CATALOG);
-    }
-
-    function selectPlatform(id) {
-      selectedPlatform = findPlatform(id);
-      selectedSubcat = "Ählisi";
-      renderAllCatalogs();
-
-      const panel = document.getElementById("selected-platform-panel");
-      if (!selectedPlatform) {
-        panel.style.display = "none";
-        renderFilteredProducts();
-        return;
-      }
-
-      panel.style.display = "block";
-      document.getElementById("sel-logo").innerHTML = renderPlatformLogo(selectedPlatform);
-      document.getElementById("sel-title").textContent = selectedPlatform.name;
-      document.getElementById("sel-desc").textContent =
-        selectedPlatform.kind === "game"
-          ? "Oýun bölümleri: Hasap, Arenda, UC / Bakiýa"
-          : (selectedPlatform.kind === "course"
-              ? "Trading Kurs bölümleri"
-              : "Programa bölümleri: Hasap, İzlenme, Like, Yorum, Dizayn, Reklam");
-
-      const subs = getSubcatsForPlatform(selectedPlatform);
-      const subBar = document.getElementById("subcat-bar");
-      subBar.innerHTML = subs.map(sc => `
-        <button class="subcat-btn ${selectedSubcat === sc ? "active" : ""}" type="button" onclick="pickSubcat('${esc(sc)}')">${esc(sc)}</button>
+      el.innerHTML = matched.map(item => `
+        <button class="app-tile" type="button" onclick="location.href='uygulama.html?slug=${encodeURIComponent(item.id)}'">
+          <div class="app-icon-box">${item.logo}</div>
+          <span>${esc(item.name)}</span>
+        </button>
       `).join("");
-
-      renderFilteredProducts();
     }
 
-    function pickSubcat(sc) {
-      selectedSubcat = sc;
-      document.querySelectorAll("#subcat-bar .subcat-btn").forEach(b => {
-        b.classList.toggle("active", b.textContent === sc);
-      });
-      renderFilteredProducts();
+    function paintGrids() {
+      const q = document.getElementById("global-search")?.value || "";
+      renderSquareGrid("games-grid-4", GAMES_CATALOG, q);
+      renderSquareGrid("apps-grid-4", APPS_CATALOG, q);
+      renderSquareGrid("courses-grid-4", COURSES_CATALOG, q);
     }
 
-    function clearPlatform() {
-      selectedPlatform = null;
-      selectedSubcat = "Ählisi";
-      renderAllCatalogs();
-      document.getElementById("selected-platform-panel").style.display = "none";
-      renderFilteredProducts();
-    }
-
-    function renderFilteredProducts() {
-      const q = (document.getElementById("global-search")?.value || "").trim().toLowerCase();
-      const wrap = document.getElementById("cat-products-grid");
-
-      const items = allProducts.filter(p => {
-        const pPlat = String(p.platform_id || p.platform_name || p.cat || "").toLowerCase();
-        const okPlat = !selectedPlatform ||
-          pPlat === selectedPlatform.id.toLowerCase() ||
-          pPlat === selectedPlatform.name.toLowerCase();
-
-        const pSub = String(p.subcat || "").toLowerCase();
-        const okSub = selectedSubcat === "Ählisi" || pSub === selectedSubcat.toLowerCase();
-
-        const okQ = !q ||
-          String(p.title || "").toLowerCase().includes(q) ||
-          String(p.description || "").toLowerCase().includes(q) ||
-          String(p.seller || "").toLowerCase().includes(q);
-
-        return okPlat && okSub && okQ;
-      });
-
-      if (!items.length) {
-        const label = selectedPlatform ? `${selectedPlatform.name} (${selectedSubcat})` : "Bu gözlegde";
-        wrap.innerHTML = `
-          <div class="panel">
-            <p class="muted">${esc(label)} boýunça häzirlikçe haryt ýok.</p>
-            <div class="btn-row">
-              <a class="btn btn-main" style="text-decoration:none;" href="mesajlar.html?item=${encodeURIComponent(selectedPlatform ? selectedPlatform.name + " " + selectedSubcat : "")}">
-                Maňa Şu Hasap / Hyzmat Gerek — Haber Ber
-              </a>
-            </div>
-          </div>
-        `;
-        return;
-      }
-
-      wrap.innerHTML = items.map(p => {
-        const imgs = getImages(p);
-        return `
-          <article class="item-card">
-            <div>
-              ${imgs[0] ? `<img class="item-img" src="${esc(imgs[0])}" alt="${esc(p.title)}" loading="lazy" onerror="this.style.display='none'" />` : ""}
-              <span class="chip-cat">${esc(p.platform_name || p.cat || "")}${p.subcat ? " • " + esc(p.subcat) : ""}</span>
-              <span class="chip-escrow">ESCROW</span>
-              <div class="item-title">${esc(p.title)}</div>
-              <p class="item-desc">${esc(p.description || "")}</p>
-              <div class="muted">Satyjy: <strong>${esc(p.seller || "Serkanbey77")}</strong></div>
-              <div class="item-price-row">
-                <div class="item-price">${Number(p.price_tmt || 0).toLocaleString()} TMT</div>
-              </div>
-            </div>
-            <div class="btn-row">
-              <a class="btn btn-main" style="flex:1; text-align:center; text-decoration:none;" href="index.html">Vitrinde Satyn Al</a>
-            </div>
-          </article>
-        `;
-      }).join("");
-    }
-
-    async function init() {
-      renderAllCatalogs();
-      try {
-        allProducts = await sbGet("products");
-        setDbPill(true, "Onlaýn");
-      } catch (err) {
-        setDbPill(false, "Ýerli");
-      }
-      const params = new URLSearchParams(window.location.search);
-      const pParam = params.get("platform");
-      if (pParam) {
-        selectPlatform(pParam);
-      } else {
-        renderFilteredProducts();
-      }
-    }
-
-    document.getElementById("global-search")?.addEventListener("input", renderFilteredProducts);
-    init();
+    document.getElementById("global-search")?.addEventListener("input", paintGrids);
+    paintGrids();
   </script>
 </body>
 </html>
