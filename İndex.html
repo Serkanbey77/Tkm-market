@@ -1,1 +1,105 @@
+<!DOCTYPE html>
+<html lang="tk">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>TKM Market — Sanly Önümler we Hyzmatlar</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script>
+    tailwind.config = {
+      theme: {
+        extend: {
+          colors: {
+            navy: {
+              950: '#070E24',
+              900: '#0C1838',
+              800: '#132452',
+              700: '#1D3573',
+            },
+            accent: {
+              indigo: '#4F46E5',
+              violet: '#7C3AED',
+              blue: '#2563EB',
+              cyan: '#06B6D4',
+            }
+          }
+        }
+      }
+    };
+  </script>
+  <style>
+    body {
+      background-color: #F4F7FC;
+      color: #0C1838;
+      font-family: Inter, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+    }
+    .glass-navy {
+      background: linear-gradient(135deg, #070E24 0%, #132452 55%, #1E1B4B 100%);
+    }
+  </style>
+</head>
+<body class="min-h-screen flex flex-col">
+  <div id="app"></div>
 
+  <script>
+    const P2P_RATE_TMT_PER_USDT = 19.5;
+    const GLOBAL_MARKUP = 1.2;
+    const BEP20_FEE_USDT = 0.2;
+    const BEP20_WALLET = "0x8A4F9c21E7b03D6591aC48E2705f19D34B62a10E";
+
+    const BANNED_WORDS = [
+      "hack", "hacklenen", "çalıntı", "ogurlanan", "stolen", "fake follower",
+      "sahte takipçi", "galp yzarlaýjy", "kimlik", "pasport", "cvv", "carding",
+      "ddos", "phishing", "rat", "keylogger", "banlanan", "şahsy maglumat"
+    ];
+
+    const UI_TEXT = {
+      tk: {
+        brandSub: "Türkmenistan we Global Sanly Bazary",
+        searchPlaceholder: "Sanly önüm ýa-da hyzmat gözläň…",
+        allCategories: "Hemme kategoriýalar",
+        loginRegister: "Girmek / Hasap açmak",
+        logout: "Çykmak",
+        marketTab: "Baş sahypa",
+        ordersTab: "Sargytlarym",
+        sellerTab: "Satıcı paneli",
+        adminTab: "Admin paneli",
+        messagesTab: "Hat alyşmalar",
+        popularCats: "Meşhur kategoriýalar",
+        bestSellers: "Iň köp satylýanlar",
+        newArrivals: "Täze goşulanlar",
+        topSellers: "Iň ýokary ball alan satyjylar",
+        dailyDeals: "Günüň amatly hödürleri",
+        tradingTitle: "Trading Akademiýa — Bahalary deňeşdirmek",
+        tradingDesc: "Bazar bahasyndan arzan, müşderä agyr düşmeýän we size hem satyja adalatly girdeji getirýän trading okuwlary.",
+        marketPrice: "Bazar bahasy",
+        ourPrice: "Biziň bahamyz",
+        buyNow: "Satyn almak",
+        viewStore: "Dükanı gör",
+        verifiedSeller: "Tassyklanan satyjy",
+        commissionLabel: "Platforma komissiýasy",
+        globalNote: "Global (RU/EN) sebit üçin +20% bazar bahasy ulanylýar.",
+        liveMarketTitle: "Janly Kripto we Metal Gözegçiligi (Öňegçilik Tertibi)"
+      },
+      tr: {
+        brandSub: "Türkmenistan ve Global Dijital Pazaryeri",
+        searchPlaceholder: "Dijital ürün veya hizmet ara…",
+        allCategories: "Tüm kategoriler",
+        loginRegister: "Giriş / Üye Ol",
+        logout: "Çıkış Yap",
+        marketTab: "Ana Sayfa",
+        ordersTab: "Siparişlerim",
+        sellerTab: "Satıcı Paneli",
+        adminTab: "Admin Paneli",
+        messagesTab: "Mesajlar",
+        popularCats: "Popüler Kategoriler",
+        bestSellers: "Çok Satan Ürünler",
+        newArrivals: "Yeni Eklenenler",
+        topSellers: "En Yüksek Puanlı Satıcılar",
+        dailyDeals: "Günün Fırsatları",
+        tradingTitle: "Trading Akademi — Fiyat Karşılaştırma",
+        tradingDesc: "Piyasa fiyatına göre avantajlı, alıcıyı yormayan ve satıcıya + platforma dengeli kâr bırakan trading eğitimleri.",
+        marketPrice: "Piyasa Fiyatı",
+        ourPrice: "Bizim Fiyatımız",
+        buyNow: "Satın Al",
+        viewStore: "Mağaz
