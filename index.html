@@ -20,30 +20,30 @@
       </div>
     </section>
 
-    <div class="section-title-row">
-      <h2>Meşhur Oýunlar we Programmalar</h2>
+    <div class="sec-header">
+      <h2>Meşhur Bölümler</h2>
       <a class="muted" style="text-decoration:none; font-weight:700; color:var(--primary);" href="kategoriler.html">Ählisi →</a>
     </div>
 
-    <div class="home-quick-5" id="home-quick-5">
-      <button class="quick-tile" type="button" data-go="kategoriler.html?platform=pubg-mobile">
-        <div class="logo-badge" style="background:#d97706;">PM</div>
+    <div class="home-quick-5">
+      <button class="quick-tile" type="button" onclick="location.href='uygulama.html?slug=pubg-mobile'">
+        <div class="app-icon-box" style="width:44px; height:44px; border-radius:12px;">${svgLogo("#f59e0b","#111827","PUBG","")}</div>
         <span>PUBG Mobile</span>
       </button>
-      <button class="quick-tile" type="button" data-go="kategoriler.html?platform=clash-of-clans">
-        <div class="logo-badge" style="background:#15803d;">CoC</div>
+      <button class="quick-tile" type="button" onclick="location.href='uygulama.html?slug=clash-of-clans'">
+        <div class="app-icon-box" style="width:44px; height:44px; border-radius:12px;">${svgLogo("#15803d","#fde047","CoC","")}</div>
         <span>Clash of Clans</span>
       </button>
-      <button class="quick-tile" type="button" data-go="kategoriler.html?platform=telegram">
-        <div class="logo-badge" style="background:#0284c7;">TG</div>
+      <button class="quick-tile" type="button" onclick="location.href='uygulama.html?slug=telegram'">
+        <div class="app-icon-box" style="width:44px; height:44px; border-radius:12px;">${svgLogo("#0284c7","#ffffff","✈","")}</div>
         <span>Telegram</span>
       </button>
-      <button class="quick-tile" type="button" data-go="kategoriler.html?platform=tiktok">
-        <div class="logo-badge" style="background:#111827;">TT</div>
+      <button class="quick-tile" type="button" onclick="location.href='uygulama.html?slug=tiktok'">
+        <div class="app-icon-box" style="width:44px; height:44px; border-radius:12px;">${svgLogo("#090d16","#ffffff","♪","")}</div>
         <span>TikTok</span>
       </button>
-      <button class="quick-tile active" type="button" data-go="kategoriler.html">
-        <div class="logo-badge" style="background:linear-gradient(135deg,#4f46e5,#7c3aed);">⊞</div>
+      <button class="quick-tile active" type="button" onclick="location.href='kategoriler.html'">
+        <div class="app-icon-box" style="width:44px; height:44px; border-radius:12px;">${svgLogo("#4f46e5","#ffffff","⊞","")}</div>
         <span>Ählisi</span>
       </button>
     </div>
@@ -63,7 +63,7 @@
 
   <script src="assets/tkm.js"></script>
   <script>
-    mountPlayerokShell("search", "Haryt, hasap ýa-da satyjy gözle...");
+    mountPlayerokShell("search", "Haryt, hasap ýa-da satyjy gözle...", false);
     let list = [];
 
     async function loadMarket() {
@@ -74,7 +74,6 @@
       } catch (err) {
         try { list = JSON.parse(localStorage.getItem("tkm_prod_cache") || "[]"); } catch (_) { list = []; }
         setDbPill(false, "Ýerli");
-        showToast("Duýduryş: " + err.message);
       }
       renderMarket();
     }
@@ -82,7 +81,6 @@
     function renderMarket() {
       const q = (document.getElementById("global-search")?.value || "").trim().toLowerCase();
       const wrap = document.getElementById("market-grid");
-
       const filtered = list.filter(item => !q ||
         String(item.title || "").toLowerCase().includes(q) ||
         String(item.platform_name || "").toLowerCase().includes(q) ||
@@ -98,7 +96,6 @@
 
       wrap.innerHTML = filtered.map(p => {
         const imgs = getImages(p);
-        const plat = findPlatform(p.platform_id || p.platform_name || p.cat);
         return `
           <article class="item-card">
             <div>
@@ -107,7 +104,7 @@
               <span class="chip-escrow">ESCROW</span>
               <div class="item-title">${esc(p.title)}</div>
               <p class="item-desc">${esc(p.description || "")}</p>
-              <div class="muted">Satyjy: <strong>${esc(p.seller || "Serkanbey77")}</strong>${plat ? " • " + esc(plat.name) : ""}</div>
+              <div class="muted">Satyjy: <strong>${esc(p.seller || "Serkanbey77")}</strong></div>
               <div class="item-price-row">
                 <div class="item-price">${Number(p.price_tmt || 0).toLocaleString()} TMT</div>
                 ${p.market_compare_tmt ? `<div class="item-old">${Number(p.market_compare_tmt).toLocaleString()} TMT</div>` : ""}
@@ -174,13 +171,6 @@
         showToast("Sargyt döredilmedi: " + err.message);
       }
     }
-
-    document.querySelectorAll("#home-quick-5 .quick-tile").forEach(btn => {
-      btn.addEventListener("click", () => {
-        const target = btn.dataset.go;
-        if (target) window.location.href = target;
-      });
-    });
 
     document.getElementById("global-search")?.addEventListener("input", renderMarket);
     loadMarket();
