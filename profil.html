@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Profil — TKM Market</title>
+  <title>Giriş / Hasap Aç — TKM Market</title>
   <link rel="stylesheet" href="assets/tkm.css" />
 </head>
 <body>
@@ -11,25 +11,48 @@
 
   <main class="page-wrap">
     <div class="panel">
-      <h2>Hasap / Giriş / Üye Ol</h2>
-      <p class="muted">Satyjy ýa-da alyjy hökmünde ulanyjy adyňyzy giriziň.</p>
+      <div class="subcat-bar" style="margin-top:0;">
+        <button class="subcat-btn active" id="mode-login" type="button" onclick="switchAuthMode('login')">Girmek (Giriş)</button>
+        <button class="subcat-btn" id="mode-register" type="button" onclick="switchAuthMode('register')">Hasap Açmak (Kayıt)</button>
+      </div>
+
+      <h2 id="auth-heading">Hasaba Girmek</h2>
+      <p class="muted" id="auth-status-text">Ulanyjy adyňyz, parolyňyz we ynsan barlag kody bilen giriň.</p>
+
       <div class="form-grid">
         <div class="field">
           <label>Ulanyjy ady</label>
-          <input id="prof-name" type="text" placeholder="Serkanbey77" />
+          <input id="u-name" type="text" placeholder="Serkanbey77" />
         </div>
         <div class="field">
+          <label>Parol</label>
+          <input id="u-pass" type="password" placeholder="••••••••" />
+        </div>
+        <div class="field" id="role-field" style="display:none;">
           <label>Hasap görnüşi</label>
-          <select id="prof-role">
+          <select id="u-role">
             <option value="Satıcı & Alyjy">Satıcı &amp; Alyjy</option>
             <option value="Diňe Alyjy">Diňe Alyjy</option>
             <option value="Diňe Satyjy">Diňe Satyjy</option>
           </select>
         </div>
       </div>
+
+      <div class="captcha-box">
+        <div>
+          <div class="muted">Ynsan barlagy (Captcha):</div>
+          <div class="captcha-code" id="captcha-display">-----</div>
+        </div>
+        <div style="flex:1; min-width:140px;">
+          <label class="muted">Kody ýazyň</label>
+          <input id="u-captcha-input" type="text" placeholder="Kody giriziň" />
+        </div>
+        <button class="btn btn-soft" type="button" onclick="refreshCaptcha()">Täze Kod</button>
+      </div>
+
       <div class="btn-row">
-        <button class="btn btn-main" type="button" onclick="saveProfile()">Ýatda Sakla</button>
-        <button class="btn btn-soft" type="button" onclick="toggleTheme()">Açyk / Garaňky Tema</button>
+        <button class="btn btn-main" id="auth-submit-btn" type="button" style="flex:1;" onclick="submitAuth()">Tassykla we Gir</button>
+        <button class="btn btn-soft" type="button" onclick="toggleTheme()">☀ / ☾ Tema</button>
       </div>
     </div>
   </main>
@@ -37,16 +60,72 @@
   <script src="assets/tkm.js"></script>
   <script>
     mountPlayerokShell("profile", "");
-    const u = getUser();
-    document.getElementById("prof-name").value = u.username;
-    document.getElementById("prof-role").value = u.role || "Satıcı & Alyjy";
+    let authMode = "login";
+    let currentCaptcha = "";
 
-    function saveProfile() {
-      const name = document.getElementById("prof-name").value.trim();
-      const role = document.getElementById("prof-role").value;
-      if (!name) { showToast("Ulanyjy adyny giriziň."); return; }
-      setUser(name, role);
+    function refreshCaptcha() {
+      currentCaptcha = generateCaptchaCode();
+      document.getElementById("captcha-display").textContent = currentCaptcha;
+      document.getElementById("u-captcha-input").value = "";
     }
+
+    function switchAuthMode(mode) {
+      authMode = mode;
+      document.getElementById("mode-login").classList.toggle("active", mode === "login");
+      document.getElementById("mode-register").classList.toggle("active", mode === "register");
+      document.getElementById("auth-heading").textContent = mode === "login" ? "Hasaba Girmek" : "Täze Hasap Açmak";
+      document.getElementById("role-field").style.display = mode === "register" ? "block" : "none";
+      document.getElementById("auth-submit-btn").textContent = mode === "login" ? "Giriş Et" : "Hasap Aç we Gir";
+      refreshCaptcha();
+    }
+
+    function getAccountsMap() {
+      try { return JSON.parse(localStorage.getItem("tkm_accounts_db") || "{}"); } catch (_) { return {}; }
+    }
+
+    function submitAuth() {
+      const username = document.getElementById("u-name").value.trim();
+      const password = document.getElementById("u-pass").value;
+      const capInput = document.getElementById("u-captcha-input").value.trim().toUpperCase();
+      const role = document.getElementById("u-role").value;
+
+      if (!username || password.length < 4) {
+        showToast("Ulanyjy adyny we azyndan 4 simwol paroly giriziň.");
+        return;
+      }
+      if (capInput !== currentCaptcha) {
+        showToast("Captcha kody nädogry! Täzeden synanyşyň.");
+        refreshCaptcha();
+        return;
+      }
+
+      const accounts = getAccountsMap();
+      if (authMode === "register") {
+        accounts[username.toLowerCase()] = { username, password, role };
+        localStorage.setItem("tkm_accounts_db", JSON.stringify(accounts));
+      } else {
+        const found = accounts[username.toLowerCase()];
+        if (found && found.password !== password) {
+          showToast("Parol nädogry!");
+          refreshCaptcha();
+          return;
+        }
+      }
+
+      const session = { username, role: accounts[username.toLowerCase()]?.role || role, loggedIn: true };
+      localStorage.setItem("tkm_auth_session", JSON.stringify(session));
+      syncUserFields();
+      document.getElementById("auth-status-text").textContent = `Işjeň hasap: ${username}`;
+      showToast(`Hoş geldiňiz, ${username}!`);
+      refreshCaptcha();
+    }
+
+    const activeU = getUser();
+    document.getElementById("u-name").value = activeU.username;
+    if (activeU.loggedIn) {
+      document.getElementById("auth-status-text").textContent = `Işjeň hasap: ${activeU.username}`;
+    }
+    refreshCaptcha();
   </script>
 </body>
 </html>
