@@ -40,7 +40,7 @@
 
       el.innerHTML = matched.map(item => `
         <button class="app-tile" type="button" onclick="location.href='uygulama.html?slug=${encodeURIComponent(item.id)}'">
-          <div class="app-icon-box">${item.logo}</div>
+          <div class="app-icon-box">${renderPlatformLogoImg(item)}</div>
           <span>${esc(item.name)}</span>
         </button>
       `).join("");
