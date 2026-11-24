@@ -123,13 +123,20 @@ function esc(s) {
 function renderLogoWithAsset(plat) {
   const candidates = [
     `assets/logos/${plat.id}.jpg`,
+    `assets/logos/${plat.id}.JPG`,
     `assets/logos/${plat.id}.jpeg`,
+    `assets/logos/${plat.id}.JPEG`,
     `assets/logos/${plat.id}.png`,
+    `assets/logos/${plat.id}.PNG`,
     `assets/logos/${plat.id}.webp`,
+    `assets/logos/${plat.id}.jpg.JPG`,
+    `assets/logos/${plat.id}.png.PNG`,
+    `assets/logos/assets:logos:${plat.id}.jpg`,
     `assets/logos/assets:logos:${plat.id}.jpg.JPG`,
     `assets/logos/assets:logos:${plat.id}.jpg.JPEG`,
     `assets/logos/assets:logos:${plat.id}.jpg.PNG`,
     `assets/logos/assets:logos:${plat.id}.jpeg.JPEG`,
+    `assets/logos/assets:logos:${plat.id}.png`,
     `assets/logos/assets:logos:${plat.id}.png.PNG`
   ];
   const first = candidates[0];
@@ -140,7 +147,7 @@ function renderLogoWithAsset(plat) {
 function renderBannerWithAsset(plat) {
   const subs = getSubcatsForPlatform(plat).filter(x => x !== "Ählisi").join(" • ");
   const localBase = `assets/banners/${plat.id}`;
-  const localBanner = `<img src="${localBase}.jpg" data-exts="jpeg,png,webp" data-base="${localBase}" alt="${esc(plat.name)}" style="position:absolute; inset:0; width:100%; height:100%; object-fit:cover; opacity:0.42; pointer-events:none;" onerror="const e=(this.dataset.exts||'').split(',');const n=e.shift();if(n){this.dataset.exts=e.join(',');this.src=this.dataset.base+'.'+n;}else{this.remove();}" />`;
+  const localBanner = `<img src="${localBase}.jpg" data-exts="JPG,jpeg,JPEG,png,PNG,webp" data-base="${localBase}" alt="${esc(plat.name)}" style="position:absolute; inset:0; width:100%; height:100%; object-fit:cover; opacity:0.42; pointer-events:none;" onerror="const e=(this.dataset.exts||'').split(',');const n=e.shift();if(n){this.dataset.exts=e.join(',');this.src=this.dataset.base+'.'+n;}else{this.remove();}" />`;
 
   return `<div style="position:relative; width:100%; border-radius:18px; overflow:hidden; min-height:132px; display:flex; align-items:center; gap:14px; padding:16px; color:#fff; background:linear-gradient(120deg, #090d1e 0%, ${plat.color} 100%); border:1.5px solid rgba(255,255,255,0.25); box-shadow:0 0 24px rgba(139,92,246,0.32);">
     ${localBanner}
