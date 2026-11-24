@@ -11,6 +11,7 @@
 
   <main class="page-wrap">
     <div id="plat-banner-slot" style="margin-bottom:12px;"></div>
+    <div id="exness-info-slot"></div>
     <div class="subtabs-scroll" id="subtabs-bar"></div>
     <div class="cards-grid" id="plat-products-grid"></div>
   </main>
@@ -18,82 +19,30 @@
   <script src="assets/tkm.js"></script>
   <script>
     (function () {
-      const FALLBACK_LIST = [
-        { id: "pubg-mobile", name: "PUBG Mobile", kind: "game", color: "#d97706", tag: "HASAP • ARENDA • UC", subs: ["Ählisi", "Hasap", "Arenda", "UC"] },
-        { id: "clash-of-clans", name: "Clash of Clans", kind: "game", color: "#15803d", tag: "HASAP • ELMAS", subs: ["Ählisi", "Hasap", "Elmas"] },
-        { id: "minecraft", name: "Minecraft", kind: "game", color: "#4d7c0f", tag: "HASAP • SERVER / REALM", subs: ["Ählisi", "Hasap", "Server / Realm"] },
-        { id: "gta-5", name: "GTA 5", kind: "game", color: "#059669", tag: "HASAP", subs: ["Ählisi", "Hasap"] },
-        { id: "roblox", name: "Roblox", kind: "game", color: "#dc2626", tag: "HASAP • ROBUX", subs: ["Ählisi", "Hasap", "Robux"] },
-        { id: "fortnite", name: "Fortnite", kind: "game", color: "#7c3aed", tag: "HASAP • V-BUCKS", subs: ["Ählisi", "Hasap", "V-Bucks"] },
-        { id: "pubg-mobile-korea", name: "PUBG Mobile Kore", kind: "game", color: "#2563eb", tag: "HASAP • ARENDA • UC", subs: ["Ählisi", "Hasap", "Arenda", "UC"] },
-        { id: "rust", name: "Rust", kind: "game", color: "#ea580c", tag: "HASAP • ARENDA", subs: ["Ählisi", "Hasap", "Arenda"] },
-        { id: "call-of-duty", name: "Call of Duty", kind: "game", color: "#334155", tag: "HASAP • CP", subs: ["Ählisi", "Hasap", "CP"] },
-        { id: "far-cry", name: "Far Cry", kind: "game", color: "#f97316", tag: "HASAP", subs: ["Ählisi", "Hasap"] },
-        { id: "fifa", name: "FIFA", kind: "game", color: "#16a34a", tag: "HASAP • COINS", subs: ["Ählisi", "Hasap", "Coins"] },
-        { id: "tiktok", name: "TikTok", kind: "app", color: "#ec4899", tag: "HASAP • İZLENME • LIKE • YORUM • DIZAYN • REKLAM", subs: ["Ählisi", "Hasap", "İzlenme", "Like", "Yorum", "Dizayn", "Reklam"] },
-        { id: "telegram", name: "Telegram", kind: "app", color: "#0284c7", tag: "HASAP • KANAL • İZLENME • REKLAM", subs: ["Ählisi", "Hasap", "Kanal / Grup", "İzlenme", "Reklam", "Bot"] },
-        { id: "trading-kurs", name: "Trading Kurs", kind: "course", color: "#0d9488", tag: "KRIPTO TRADING • FOREX • SINYAL", subs: ["Ählisi", "Kripto Trading", "Forex & Altın", "Sinyal"] }
-      ];
-
-      function safeEsc(s) {
-        return typeof esc === "function"
-          ? esc(s)
-          : String(s || "").replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;").replace(/"/g, "&quot;");
-      }
-
-      try {
-        if (typeof mountPlayerokShell === "function") {
-          mountPlayerokShell("catalog", "Şu bölümde haryt gözle...", true);
-        }
-      } catch (e) {}
-
       const slug = (new URLSearchParams(window.location.search).get("slug") || "pubg-mobile").toLowerCase().trim();
-      let platform = null;
-      try {
-        if (typeof findPlatform === "function") platform = findPlatform(slug);
-      } catch (e) {}
-      if (!platform) {
-        platform = FALLBACK_LIST.find(x => x.id === slug) || {
-          id: slug,
-          name: slug.replace(/-/g, " ").replace(/\b\w/g, c => c.toUpperCase()),
-          kind: "app",
-          color: "#4f46e5",
-          tag: "BÖLÜM",
-          subs: ["Ählisi", "Hasap"]
-        };
-      }
+      const activeNav = slug === "exness-account" ? "exness" : "catalog";
+      mountPlayerokShell(activeNav, "Şu bölümde haryt gözle...", true);
 
-      let subcats = ["Ählisi", "Hasap"];
-      try {
-        if (typeof getSubcatsForPlatform === "function") {
-          subcats = getSubcatsForPlatform(platform);
-        } else if (Array.isArray(platform.subs)) {
-          subcats = platform.subs;
-        }
-      } catch (e) {}
-
+      const platform = (typeof findPlatform === "function" && findPlatform(slug)) || GAMES_CATALOG[0];
+      const subcats = (typeof getSubcatsForPlatform === "function" && getSubcatsForPlatform(platform)) || ["Ählisi", "Hasap"];
       let activeSub = subcats[0] || "Ählisi";
       let allProducts = [];
 
       document.title = `${platform.name} — TKM Market`;
-
       const bannerSlot = document.getElementById("plat-banner-slot");
-      if (bannerSlot) {
-        try {
-          if (typeof renderBannerWithAsset === "function") {
-            bannerSlot.innerHTML = renderBannerWithAsset(platform);
-          } else {
-            throw new Error("no banner fn");
-          }
-        } catch (e) {
-          const col = platform.color || "#4f46e5";
-          bannerSlot.innerHTML = `
-            <div style="border-radius:16px;padding:18px;color:#fff;background:linear-gradient(120deg,#0f172a 0%,${col} 100%);">
-              <div style="font-size:10px;font-weight:800;opacity:0.9;">${safeEsc(platform.tag || "BÖLÜM")}</div>
-              <h1 style="margin:4px 0 0;font-size:20px;">${safeEsc(platform.name)}</h1>
+      if (bannerSlot && typeof renderBannerWithAsset === "function") {
+        bannerSlot.innerHTML = renderBannerWithAsset(platform);
+      }
+
+      if (platform.id === "exness-account") {
+        document.getElementById("exness-info-slot").innerHTML = `
+          <div class="mt5-notice">
+            <strong>Exness MetaTrader 5 (MT5) Hasaby:</strong> Bu <strong>Exness MetaTrader 5</strong> hasabydyr. Exness hasap açyp bilmeýänler şu hasap bilen girip söwda edip bilerler. Kâr edeniňizde <strong>pul goýmak we çykarmak</strong> amallaryny biz siziň üçin <strong>sorunsuz we ygtybarly</strong> ýerine ýetirip, gazanjyňyzy size gowşurarys.
+            <div class="btn-row">
+              <a class="btn btn-green" style="text-decoration:none;" href="mesajlar.html?item=${encodeURIComponent("Exness MT5 Hasap / Yatırma & Çekme")}">Exness Üçin Hat Iber</a>
             </div>
-          `;
-        }
+          </div>
+        `;
       }
 
       function renderSubtabs() {
@@ -101,7 +50,7 @@
         if (!bar) return;
         bar.innerHTML = subcats.map(sc => {
           const cls = activeSub === sc ? "subtab-link active" : "subtab-link";
-          return `<button class="${cls}" type="button" data-sub="${safeEsc(sc)}">${safeEsc(sc)}</button>`;
+          return `<button class="${cls}" type="button" data-sub="${esc(sc)}">${esc(sc)}</button>`;
         }).join("");
 
         bar.querySelectorAll(".subtab-link").forEach(btn => {
@@ -134,10 +83,10 @@
           const reqText = `${platform.name} (${activeSub})`;
           wrap.innerHTML = `
             <div class="panel">
-              <p class="muted"><strong>${safeEsc(reqText)}</strong> boýunça häzirlikçe haryt ýok.</p>
+              <p class="muted"><strong>${esc(reqText)}</strong> boýunça häzirlikçe haryt ýok.</p>
               <div class="btn-row">
                 <a class="btn btn-main" style="text-decoration:none;" href="mesajlar.html?item=${encodeURIComponent(reqText)}">
-                  Maňa ${safeEsc(platform.name)} ${activeSub !== "Ählisi" ? safeEsc(activeSub) : "Hasap"} Gerek — Hat Iber
+                  Maňa ${esc(platform.name)} ${activeSub !== "Ählisi" ? esc(activeSub) : "Hasap"} Gerek — Hat Iber
                 </a>
               </div>
             </div>
@@ -150,12 +99,12 @@
           return `
             <article class="item-card">
               <div>
-                ${imgs[0] ? `<img class="item-img" src="${safeEsc(imgs[0])}" alt="${safeEsc(p.title)}" loading="lazy" onerror="this.style.display='none'" />` : ""}
-                <span class="chip-cat">${safeEsc(platform.name)}${p.subcat ? " • " + safeEsc(p.subcat) : ""}</span>
+                ${imgs[0] ? `<img class="item-img" src="${esc(imgs[0])}" alt="${esc(p.title)}" loading="lazy" onerror="this.style.display='none'" />` : ""}
+                <span class="chip-cat">${esc(platform.name)}${p.subcat ? " • " + esc(p.subcat) : ""}</span>
                 <span class="chip-escrow">ESCROW</span>
-                <div class="item-title">${safeEsc(p.title)}</div>
-                <p class="item-desc">${safeEsc(p.description || "")}</p>
-                <div class="muted">Satyjy: <strong>${safeEsc(p.seller || "Serkanbey77")}</strong></div>
+                <div class="item-title">${esc(p.title)}</div>
+                <p class="item-desc">${esc(p.description || "")}</p>
+                <div class="muted">Satyjy: <strong>${esc(p.seller || "Serkanbey77")}</strong></div>
                 <div class="item-price-row">
                   <div class="item-price">${Number(p.price_tmt || 0).toLocaleString()} TMT</div>
                 </div>
