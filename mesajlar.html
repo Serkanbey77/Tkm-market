@@ -1,0 +1,117 @@
+<!DOCTYPE html>
+<html lang="tk">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Hatlar &amp; Hasap Soragy — TKM Market</title>
+  <link rel="stylesheet" href="assets/tkm.css" />
+</head>
+<body>
+  <div id="playerok-shell"></div>
+
+  <main class="page-wrap">
+    <div class="panel">
+      <h2>Hasap / Haryt Soragy Iber (Satylan Wagty Haber Ber)</h2>
+      <p class="muted">Islän hasabyňyz ýa-da harydyňyz heniz satuwda ýok bolsa (mysal: Roblox hasaby), şu ýerden hat iberiň; satuwa çykarylanda habar beriler.</p>
+
+      <div class="form-grid">
+        <div class="field">
+          <label>Adyňyz / Ulanyjy</label>
+          <input id="m-sender" type="text" oninput="this.dataset.edited='1'" />
+        </div>
+        <div class="field">
+          <label>Gerekli Hasap / Oýun / Programa</label>
+          <input id="m-target" type="text" placeholder="Mysal: Roblox Hasap" />
+        </div>
+      </div>
+
+      <div class="field" style="margin-top:12px;">
+        <label>Hatyňyz</label>
+        <textarea id="m-text" rows="2" placeholder="Bana şu hasap gerek, satuwa goýlanda habar beriň..."></textarea>
+      </div>
+
+      <label style="display:flex; align-items:center; gap:8px; margin-top:10px; font-size:13px;">
+        <input id="m-notify" type="checkbox" checked style="width:auto;" />
+        <span>Satuwa çykarylanda maňa habar ber</span>
+      </label>
+
+      <div class="btn-row">
+        <button class="btn btn-main" id="m-send-btn" type="button" style="flex:1;">Haty Iber</button>
+      </div>
+    </div>
+
+    <div class="panel">
+      <h3>Iberilen Hatlar we Soraglar</h3>
+      <div id="messages-list"></div>
+    </div>
+  </main>
+
+  <script src="assets/tkm.js"></script>
+  <script>
+    mountPlayerokShell("messages", "");
+    let messages = [];
+
+    const preItem = new URLSearchParams(window.location.search).get("item");
+    if (preItem) {
+      document.getElementById("m-target").value = preItem;
+      document.getElementById("m-text").value = `Maňa "${preItem}" gerek, satuwa çykarylanda habar beriň.`;
+    }
+
+    async function loadMessages() {
+      try {
+        messages = await sbGet("messages");
+        localStorage.setItem("tkm_msgs_cache", JSON.stringify(messages));
+        setDbPill(true, "Onlaýn");
+      } catch (err) {
+        try { messages = JSON.parse(localStorage.getItem("tkm_msgs_cache") || "[]"); } catch (_) { messages = []; }
+        setDbPill(false, "Ýerli");
+      }
+      renderMessages();
+    }
+
+    function renderMessages() {
+      const el = document.getElementById("messages-list");
+      if (!messages.length) {
+        el.innerHTML = `<p class="muted">Heniz hat ýok.</p>`;
+        return;
+      }
+      el.innerHTML = messages.map(m => `
+        <div class="list-row">
+          <div>
+            <strong>${esc(m.target_item)}</strong> — <span class="muted">${esc(m.sender_name)}</span>
+            <div style="font-size:13px; margin-top:4px;">${esc(m.message_text)}</div>
+          </div>
+          <span class="badge-status ${m.notify_when_ready ? "ok" : ""}">${m.notify_when_ready ? "Haber beriler 🔔" : "Hat"}</span>
+        </div>
+      `).join("");
+    }
+
+    async function sendMessage() {
+      const sender_name = document.getElementById("m-sender").value.trim() || getUser().username;
+      const target_item = document.getElementById("m-target").value.trim();
+      const message_text = document.getElementById("m-text").value.trim();
+      const notify_when_ready = document.getElementById("m-notify").checked;
+
+      if (!target_item || !message_text) {
+        showToast("Gerekli hasaby we hatyňyzy ýazyň.");
+        return;
+      }
+
+      const record = { sender_name, target_item, message_text, notify_when_ready };
+      try {
+        const saved = await sbInsert("messages", record);
+        messages.unshift(saved || { id: Date.now(), ...record });
+      } catch (_) {
+        messages.unshift({ id: Date.now(), ...record });
+      }
+      localStorage.setItem("tkm_msgs_cache", JSON.stringify(messages));
+      document.getElementById("m-text").value = "";
+      renderMessages();
+      showToast("Hatyňyz ugradyldy!");
+    }
+
+    document.getElementById("m-send-btn").addEventListener("click", sendMessage);
+    loadMessages();
+  </script>
+</body>
+</html>
