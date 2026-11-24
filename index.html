@@ -14,6 +14,7 @@
       --muted: #94a3b8;
       --accent: #10b981;
       --warn: #f59e0b;
+      --danger: #ef4444;
     }
     * { box-sizing: border-box; margin: 0; padding: 0; font-family: system-ui, -apple-system, sans-serif; }
     body { background: var(--bg); color: var(--text); min-height: 100vh; }
@@ -138,6 +139,16 @@
       font-weight: 600;
       cursor: pointer;
     }
+    button.danger {
+      background: rgba(239, 68, 68, 0.16);
+      color: #fca5a5;
+      border: 1px solid rgba(239, 68, 68, 0.45);
+      padding: 8px 12px;
+      border-radius: 8px;
+      font-weight: 600;
+      cursor: pointer;
+    }
+    .btn-row { display: flex; flex-wrap: wrap; gap: 8px; margin-top: 12px; }
 
     .panel-box {
       background: var(--panel);
@@ -165,6 +176,7 @@
       gap: 10px;
       align-items: center;
     }
+    .item-actions { display: flex; gap: 8px; flex-wrap: wrap; }
     .status-pill {
       font-size: 12px;
       padding: 4px 10px;
@@ -224,7 +236,7 @@
 
     <section id="tab-seller" class="section">
       <div class="panel-box">
-        <h2>Täze Haryt Goş</h2>
+        <h2 id="form-heading">Täze Haryt Goş</h2>
         <div class="form-grid">
           <div class="form-group">
             <label>Harydyň ady</label>
@@ -256,9 +268,15 @@
           <label>Düşündiriş</label>
           <textarea id="p-desc" rows="2" placeholder="Gysgaça maglumat ýazyň..."></textarea>
         </div>
-        <div style="margin-top:14px;">
-          <button class="primary" id="add-product-btn">Harydy Ýerleşdir</button>
+        <div class="btn-row">
+          <button class="primary" id="save-product-btn" style="flex:1; min-width:180px;">Harydy Ýerleşdir</button>
+          <button class="secondary" id="cancel-edit-btn" style="display:none;">Düzedişi Ýatyr</button>
         </div>
+      </div>
+
+      <div class="panel-box">
+        <h3>Harytlary Dolandyrmak (Üýtgetmek / Pozmak)</h3>
+        <div id="seller-products-list"></div>
       </div>
     </section>
 
@@ -326,6 +344,7 @@
     ];
 
     let state = { products: [], orders: [], withdrawals: [], online: false };
+    let editingProductId = null;
 
     function showToast(msg) {
       const el = document.getElementById("toast");
@@ -376,6 +395,40 @@
       return Array.isArray(rows) ? rows[0] : rows;
     }
 
+    async function restPatch(table, id, payload) {
+      const res = await fetch(`${SUPABASE_URL}/rest/v1/${table}?id=eq.${encodeURIComponent(id)}`, {
+        method: "PATCH",
+        headers: {
+          "apikey": SUPABASE_KEY,
+          "Authorization": `Bearer ${SUPABASE_KEY}`,
+          "Content-Type": "application/json",
+          "Prefer": "return=representation"
+        },
+        body: JSON.stringify(payload)
+      });
+      if (!res.ok) {
+        const txt = await res.text();
+        throw new Error(`${table} update: ${res.status} ${txt}`);
+      }
+      const rows = await res.json();
+      return Array.isArray(rows) && rows[0] ? rows[0] : payload;
+    }
+
+    async function restDelete(table, id) {
+      const res = await fetch(`${SUPABASE_URL}/rest/v1/${table}?id=eq.${encodeURIComponent(id)}`, {
+        method: "DELETE",
+        headers: {
+          "apikey": SUPABASE_KEY,
+          "Authorization": `Bearer ${SUPABASE_KEY}`,
+          "Prefer": "return=representation"
+        }
+      });
+      if (!res.ok) {
+        const txt = await res.text();
+        throw new Error(`${table} delete: ${res.status} ${txt}`);
+      }
+    }
+
     function saveLocal() {
       try {
         localStorage.setItem("tkm_products", JSON.stringify(state.products));
@@ -409,7 +462,7 @@
           restGet("withdrawals")
         ]);
         state.online = true;
-        if (pData && pData.length > 0) {
+        if (Array.isArray(pData)) {
           state.products = pData;
         }
         state.orders = oData || [];
@@ -460,6 +513,169 @@
       `).join("");
     }
 
+    function renderSellerProducts() {
+      const list = document.getElementById("seller-products-list");
+      if (!state.products.length) {
+        list.innerHTML = `<p class="meta">Heniz haryt ýok.</p>`;
+        return;
+      }
+
+      list.innerHTML = state.products.map(item => `
+        <div class="list-item">
+          <div>
+            <span class="badge">${escapeHtml(item.cat || "DIGITAL")}</span>
+            <strong>${escapeHtml(item.title)}</strong>
+            <div class="meta">Baha: <strong>${Number(item.price_tmt || 0).toLocaleString()} TMT</strong> · Satyjy: ${escapeHtml(item.seller || "Serkanbey77")}</div>
+            ${item.description ? `<div class="meta">${escapeHtml(item.description)}</div>` : ""}
+          </div>
+          <div class="item-actions">
+            <button class="secondary" onclick="startEditProduct(${item.id})">Üýtget</button>
+            <button class="danger" onclick="deleteProduct(${item.id})">Poz</button>
+          </div>
+        </div>
+      `).join("");
+    }
+
+    function resetProductForm() {
+      editingProductId = null;
+      document.getElementById("form-heading").textContent = "Täze Haryt Goş";
+      document.getElementById("save-product-btn").textContent = "Harydy Ýerleşdir";
+      document.getElementById("cancel-edit-btn").style.display = "none";
+      document.getElementById("p-title").value = "";
+      document.getElementById("p-cat").value = "CRYPTO";
+      document.getElementById("p-price").value = "";
+      document.getElementById("p-compare").value = "";
+      document.getElementById("p-seller").value = "Serkanbey77";
+      document.getElementById("p-desc").value = "";
+    }
+
+    function startEditProduct(productId) {
+      const item = state.products.find(x => String(x.id) === String(productId));
+      if (!item) return;
+
+      editingProductId = item.id;
+      document.getElementById("form-heading").textContent = `Harydy Üýtget (#${item.id})`;
+      document.getElementById("save-product-btn").textContent = "Üýtgeşmeleri Ýatda Sakla";
+      document.getElementById("cancel-edit-btn").style.display = "inline-block";
+
+      document.getElementById("p-title").value = item.title || "";
+      document.getElementById("p-cat").value = item.cat || "CRYPTO";
+      document.getElementById("p-price").value = item.price_tmt ?? "";
+      document.getElementById("p-compare").value = item.market_compare_tmt ?? "";
+      document.getElementById("p-seller").value = item.seller || "Serkanbey77";
+      document.getElementById("p-desc").value = item.description || "";
+
+      window.scrollTo({ top: 0, behavior: "smooth" });
+    }
+
+    async function saveProduct() {
+      const title = document.getElementById("p-title").value.trim();
+      const cat = document.getElementById("p-cat").value;
+      const priceTmt = parseFloat(document.getElementById("p-price").value);
+      const compareVal = document.getElementById("p-compare").value.trim();
+      const marketCompareTmt = compareVal ? parseFloat(compareVal) : null;
+      const seller = document.getElementById("p-seller").value.trim() || "Serkanbey77";
+      const description = document.getElementById("p-desc").value.trim();
+
+      if (!title || isNaN(priceTmt) || priceTmt <= 0) {
+        showToast("Harydyň adyny we dogry bahasyny giriziň.");
+        return;
+      }
+
+      const payload = {
+        title,
+        cat,
+        price_tmt: priceTmt,
+        market_compare_tmt: marketCompareTmt && !isNaN(marketCompareTmt) ? marketCompareTmt : null,
+        seller,
+        description,
+        is_trading: cat === "CRYPTO"
+      };
+
+      if (editingProductId !== null) {
+        if (state.online) {
+          try {
+            const updated = await restPatch("products", editingProductId, payload);
+            state.products = state.products.map(x =>
+              String(x.id) === String(editingProductId) ? { ...x, ...(updated || payload) } : x
+            );
+            saveLocal();
+            renderProducts();
+            renderSellerProducts();
+            resetProductForm();
+            showToast("Haryt Supabase-da täzelendi!");
+            return;
+          } catch (err) {
+            showToast("Üýtgetmek başartmady: " + err.message);
+            return;
+          }
+        }
+
+        state.products = state.products.map(x =>
+          String(x.id) === String(editingProductId) ? { ...x, ...payload } : x
+        );
+        saveLocal();
+        renderProducts();
+        renderSellerProducts();
+        resetProductForm();
+        showToast("Haryt ýerli ýatda täzelendi.");
+        return;
+      }
+
+      const insertPayload = { ...payload, rating: 5.0, sales: 1 };
+      if (state.online) {
+        try {
+          const saved = await restInsert("products", insertPayload);
+          state.products.unshift(saved || { id: Date.now(), ...insertPayload });
+          saveLocal();
+          renderProducts();
+          renderSellerProducts();
+          resetProductForm();
+          showToast("Haryt Supabase-a ýazyldy!");
+          return;
+        } catch (err) {
+          showToast("Supabase ýalňyşlygy: " + err.message);
+          return;
+        }
+      }
+
+      state.products.unshift({ id: Date.now(), ...insertPayload });
+      saveLocal();
+      renderProducts();
+      renderSellerProducts();
+      resetProductForm();
+      showToast("Haryt ýerli ýada ýazyldy.");
+    }
+
+    async function deleteProduct(productId) {
+      const item = state.products.find(x => String(x.id) === String(productId));
+      const label = item ? `"${item.title}"` : `#${productId}`;
+      if (!confirm(`${label} harydy pozmak isleýärsiňizmi?`)) return;
+
+      if (state.online) {
+        try {
+          await restDelete("products", productId);
+          state.products = state.products.filter(x => String(x.id) !== String(productId));
+          if (String(editingProductId) === String(productId)) resetProductForm();
+          saveLocal();
+          renderProducts();
+          renderSellerProducts();
+          showToast("Haryt Supabase-dan pozuldy!");
+          return;
+        } catch (err) {
+          showToast("Pozmak başartmady: " + err.message);
+          return;
+        }
+      }
+
+      state.products = state.products.filter(x => String(x.id) !== String(productId));
+      if (String(editingProductId) === String(productId)) resetProductForm();
+      saveLocal();
+      renderProducts();
+      renderSellerProducts();
+      showToast("Haryt ýerli ýatdan pozuldy.");
+    }
+
     async function buyProduct(productId) {
       const prod = state.products.find(x => String(x.id) === String(productId));
       if (!prod) return;
@@ -491,56 +707,6 @@
       saveLocal();
       renderOrders();
       showToast(`Sargyt ýazyldy: ${orderCode}`);
-    }
-
-    async function addProduct() {
-      const title = document.getElementById("p-title").value.trim();
-      const cat = document.getElementById("p-cat").value;
-      const priceTmt = parseFloat(document.getElementById("p-price").value);
-      const compareVal = document.getElementById("p-compare").value.trim();
-      const marketCompareTmt = compareVal ? parseFloat(compareVal) : null;
-      const seller = document.getElementById("p-seller").value.trim() || "Serkanbey77";
-      const description = document.getElementById("p-desc").value.trim();
-
-      if (!title || isNaN(priceTmt) || priceTmt <= 0) {
-        showToast("Harydyň adyny we dogry bahasyny giriziň.");
-        return;
-      }
-
-      const payload = {
-        title,
-        cat,
-        price_tmt: priceTmt,
-        market_compare_tmt: marketCompareTmt && !isNaN(marketCompareTmt) ? marketCompareTmt : null,
-        seller,
-        rating: 5.0,
-        sales: 1,
-        description,
-        is_trading: cat === "CRYPTO"
-      };
-
-      if (state.online) {
-        try {
-          const saved = await restInsert("products", payload);
-          state.products.unshift(saved || { id: Date.now(), ...payload });
-          saveLocal();
-          renderProducts();
-          document.getElementById("p-title").value = "";
-          document.getElementById("p-price").value = "";
-          document.getElementById("p-compare").value = "";
-          document.getElementById("p-desc").value = "";
-          showToast("Haryt Supabase-a ýazyldy!");
-          return;
-        } catch (err) {
-          showToast("Supabase ýalňyşlygy: " + err.message);
-          return;
-        }
-      }
-
-      state.products.unshift({ id: Date.now(), ...payload });
-      saveLocal();
-      renderProducts();
-      showToast("Haryt ýerli ýada ýazyldy.");
     }
 
     async function addWithdrawal() {
@@ -613,6 +779,7 @@
 
     function renderAll() {
       renderProducts();
+      renderSellerProducts();
       renderOrders();
       renderWithdrawals();
     }
@@ -637,7 +804,8 @@
     document.getElementById("search-input").addEventListener("input", renderProducts);
     document.getElementById("cat-filter").addEventListener("change", renderProducts);
     document.getElementById("refresh-btn").addEventListener("click", syncFromSupabase);
-    document.getElementById("add-product-btn").addEventListener("click", addProduct);
+    document.getElementById("save-product-btn").addEventListener("click", saveProduct);
+    document.getElementById("cancel-edit-btn").addEventListener("click", resetProductForm);
     document.getElementById("add-withdrawal-btn").addEventListener("click", addWithdrawal);
 
     syncFromSupabase();
