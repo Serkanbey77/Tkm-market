@@ -29,13 +29,6 @@
 
     document.title = `${platform.name} — TKM Market`;
     document.getElementById("plat-banner-slot").innerHTML = platform.bannerHtml;
-    document.getElementById("plat-hero-logo").innerHTML = platform.logo;
-    document.getElementById("plat-hero-sub").textContent =
-      platform.kind === "game"
-        ? "Oýun bölümleri: Hasap • Arenda • UC"
-        : (platform.kind === "course"
-            ? "Trading Kurs bölümleri"
-            : "Programa bölümleri: Hasap • İzlenme • Like • Yorum • Dizayn • Reklam");
 
     function renderSubtabs() {
       const bar = document.getElementById("subtabs-bar");
