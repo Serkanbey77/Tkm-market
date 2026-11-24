@@ -3,39 +3,49 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>TKM Market — Sanly Harytlar &amp; Hasap Bazary</title>
+  <title>TKM Market — Hasap &amp; Sanly Harytlar</title>
   <link rel="stylesheet" href="assets/tkm.css" />
 </head>
 <body>
-  <div id="tkm-shell"></div>
+  <div id="playerok-shell"></div>
 
-  <main class="container">
-    <section class="hero-card">
-      <div class="hero-badge">ÇIFT TARAPLY EMANET (ESCROW) GORAGY</div>
-      <h1>Türkmenistan we Global Sanly Harytlar &amp; Hasap Bazary</h1>
-      <p>Hasaplar, sanly hyzmatlar we kripto hödürleri. Satyn alnandan soň hasap maglumatlary açylýar, satyjy we alyjy ikisi hem tassyklamasa pul ortada saklanýar.</p>
-      <div class="search-row">
-        <input id="q-input" type="text" placeholder="Haryt, hasap ýa-da satyjy gözle..." />
-        <button class="btn btn-ghost" type="button" id="reload-btn">Täzele</button>
-      </div>
+  <main class="page-wrap">
+    <section class="promo-banner">
+      <div class="promo-tag">ÇIFT TARAPLY EMANET (ESCROW)</div>
+      <h1>Hasaplar &amp; Sanly Harytlar Bazary</h1>
+      <p>Satyn alnandan soň hasap ady we paroly açylýar; satyjy we alyjy ikisi hem tassyklamasa pul ortada saklanýar.</p>
+      <a class="btn btn-main" style="display:inline-block; text-decoration:none;" href="satyjy.html">Hasap / Haryt Sat</a>
     </section>
 
-    <div class="cat-grid" id="cat-grid">
-      <button class="cat-pill active" type="button" data-cat="ALL"><strong>Ählisi</strong><span>Bütin harytlar</span></button>
-      <button class="cat-pill" type="button" data-cat="ACCOUNT"><strong>HASAP / OYUN</strong><span>Login &amp; parol</span></button>
-      <button class="cat-pill" type="button" data-cat="CRYPTO"><strong>KRIPTO</strong><span>USDT &amp; çalşyk</span></button>
-      <button class="cat-pill" type="button" data-cat="DIGITAL"><strong>SANLY HARYT</strong><span>Hasap &amp; ulgam</span></button>
-      <button class="cat-pill" type="button" data-cat="SERVICE"><strong>HYZMAT</strong><span>Goldaw &amp; gurnama</span></button>
+    <div class="quick-games" id="quick-games">
+      <button class="game-chip active" type="button" data-cat="ALL" data-q="">
+        <div class="game-icon">ALL</div><span>Ählisi</span>
+      </button>
+      <button class="game-chip" type="button" data-cat="ACCOUNT" data-q="PUBG">
+        <div class="game-icon">PG</div><span>PUBG</span>
+      </button>
+      <button class="game-chip" type="button" data-cat="ACCOUNT" data-q="GTA">
+        <div class="game-icon">GTA</div><span>GTA 6</span>
+      </button>
+      <button class="game-chip" type="button" data-cat="CRYPTO" data-q="USDT">
+        <div class="game-icon">₮</div><span>USDT</span>
+      </button>
+      <button class="game-chip" type="button" data-cat="DIGITAL" data-q="">
+        <div class="game-icon">AI</div><span>Sanly</span>
+      </button>
+      <button class="game-chip" type="button" data-cat="SERVICE" data-q="">
+        <div class="game-icon">★</div><span>Hyzmat</span>
+      </button>
     </div>
 
-    <div class="products-grid" id="products-list"></div>
+    <div class="cards-grid" id="market-grid"></div>
   </main>
 
   <div class="modal-bg" id="detail-modal">
-    <div class="modal-box">
-      <div class="modal-top">
+    <div class="modal-card">
+      <div class="modal-head">
         <h3 id="dm-title">Haryt</h3>
-        <button class="btn btn-ghost" type="button" onclick="document.getElementById('detail-modal').classList.remove('open')">Ýap</button>
+        <button class="btn btn-soft" type="button" onclick="document.getElementById('detail-modal').classList.remove('open')">Ýap</button>
       </div>
       <div id="dm-body"></div>
     </div>
@@ -43,135 +53,137 @@
 
   <script src="assets/tkm.js"></script>
   <script>
-    mountShell("market");
-    let products = [];
-    let selectedCat = "ALL";
+    mountPlayerokShell("search", "Haryt, hasap ýa-da satyjy gözle...");
+    let list = [];
+    let filterCat = "ALL";
+    let quickQuery = "";
 
-    async function loadProducts() {
+    async function loadMarket() {
       try {
-        products = await sbGet("products");
-        localStorage.setItem("tkm_cache_products", JSON.stringify(products));
-        setDbStatus(true, "Supabase: Baglanyşyk işjeň");
+        list = await sbGet("products");
+        localStorage.setItem("tkm_prod_cache", JSON.stringify(list));
+        setDbPill(true, "Onlaýn");
       } catch (err) {
-        try { products = JSON.parse(localStorage.getItem("tkm_cache_products") || "[]"); } catch (_) { products = []; }
-        setDbStatus(false, "Supabase: Ýerli ätiýaç");
+        try { list = JSON.parse(localStorage.getItem("tkm_prod_cache") || "[]"); } catch (_) { list = []; }
+        setDbPill(false, "Ýerli");
         showToast("Duýduryş: " + err.message);
       }
-      render();
+      renderMarket();
     }
 
-    function render() {
-      const q = document.getElementById("q-input").value.trim().toLowerCase();
-      const wrap = document.getElementById("products-list");
-      const items = products.filter(p => {
-        const okCat = selectedCat === "ALL" || p.cat === selectedCat;
+    function renderMarket() {
+      const typed = (document.getElementById("global-search")?.value || "").trim().toLowerCase();
+      const q = typed || quickQuery.toLowerCase();
+      const wrap = document.getElementById("market-grid");
+
+      const filtered = list.filter(item => {
+        const okCat = filterCat === "ALL" || item.cat === filterCat;
         const okQ = !q ||
-          String(p.title || "").toLowerCase().includes(q) ||
-          String(p.seller || "").toLowerCase().includes(q) ||
-          String(p.description || "").toLowerCase().includes(q);
+          String(item.title || "").toLowerCase().includes(q) ||
+          String(item.seller || "").toLowerCase().includes(q) ||
+          String(item.description || "").toLowerCase().includes(q);
         return okCat && okQ;
       });
 
-      if (!items.length) {
-        wrap.innerHTML = `<div class="box"><p class="muted">Haryt tapylmady. <strong>Satyjy Paneli</strong> sahypasyndan täze haryt goşup bilersiňiz.</p></div>`;
+      if (!filtered.length) {
+        wrap.innerHTML = `<div class="panel"><p class="muted">Haryt tapylmady. <strong>Satmak</strong> sekmesinden täze haryt goşup bilersiňiz.</p></div>`;
         return;
       }
 
-      wrap.innerHTML = items.map(p => {
+      wrap.innerHTML = filtered.map(p => {
         const imgs = getImages(p);
         return `
-          <article class="p-card">
+          <article class="item-card">
             <div>
-              ${imgs[0] ? `<img class="p-img" src="${esc(imgs[0])}" alt="${esc(p.title)}" loading="lazy" onerror="this.style.display='none'" />` : ""}
-              <span class="tag">${esc(p.cat || "ACCOUNT")}</span>
-              <span class="tag-escrow">ESCROW</span>
-              <div class="p-title">${esc(p.title)}</div>
-              <p class="p-desc">${esc(p.description || "")}</p>
-              <div class="p-seller">Satyjy: <strong>${esc(p.seller || "Serkanbey77")}</strong></div>
-              <div class="p-price-line">
-                <div class="p-price">${Number(p.price_tmt || 0).toLocaleString()} TMT</div>
-                ${p.market_compare_tmt ? `<div class="p-old">${Number(p.market_compare_tmt).toLocaleString()} TMT</div>` : ""}
+              ${imgs[0] ? `<img class="item-img" src="${esc(imgs[0])}" alt="${esc(p.title)}" loading="lazy" onerror="this.style.display='none'" />` : ""}
+              <span class="chip-cat">${esc(p.cat || "ACCOUNT")}</span>
+              <span class="chip-escrow">ESCROW</span>
+              <div class="item-title">${esc(p.title)}</div>
+              <p class="item-desc">${esc(p.description || "")}</p>
+              <div class="muted">Satyjy: <strong>${esc(p.seller || "Serkanbey77")}</strong></div>
+              <div class="item-price-row">
+                <div class="item-price">${Number(p.price_tmt || 0).toLocaleString()} TMT</div>
+                ${p.market_compare_tmt ? `<div class="item-old">${Number(p.market_compare_tmt).toLocaleString()} TMT</div>` : ""}
               </div>
             </div>
-            <div class="row-actions">
-              <button class="btn btn-ghost" type="button" style="flex:1;" onclick="openDetail(${p.id})">Aç</button>
-              <button class="btn btn-primary" type="button" style="flex:1;" onclick="buyNow(${p.id})">Satyn Al</button>
+            <div class="btn-row">
+              <button class="btn btn-soft" type="button" style="flex:1;" onclick="openItem(${p.id})">Aç</button>
+              <button class="btn btn-main" type="button" style="flex:1;" onclick="orderItem(${p.id})">Satyn Al</button>
             </div>
           </article>
         `;
       }).join("");
     }
 
-    function openDetail(id) {
-      const p = products.find(x => String(x.id) === String(id));
+    function openItem(id) {
+      const p = list.find(x => String(x.id) === String(id));
       if (!p) return;
       const imgs = getImages(p);
       document.getElementById("dm-title").textContent = p.title;
       document.getElementById("dm-body").innerHTML = `
-        ${imgs.map(src => `<img class="p-img" style="margin-bottom:8px;" src="${esc(src)}" alt="${esc(p.title)}" />`).join("")}
-        <span class="tag">${esc(p.cat || "ACCOUNT")}</span>
-        <span class="tag-escrow">ÇIFT ONAYLY EMANET</span>
-        <p class="p-desc" style="margin-top:8px;">${esc(p.description || "Düşündiriş ýok.")}</p>
-        <div class="p-seller">Satyjy: <strong>${esc(p.seller || "Serkanbey77")}</strong></div>
-        <div class="info-box">
-          <div><strong>Emanet düzgüni:</strong> Hasap ady we paroly satyn alnandan soň Sargytlar sahypasynda açylýar. Satyn alan we satyjy ikisi hem tassyklamasa, pul ortada saklanýar.</div>
+        ${imgs.map(src => `<img class="item-img" style="margin-bottom:8px;" src="${esc(src)}" alt="${esc(p.title)}" />`).join("")}
+        <span class="chip-cat">${esc(p.cat || "ACCOUNT")}</span>
+        <span class="chip-escrow">ÇIFT ONAYLY EMANET</span>
+        <p class="item-desc" style="margin-top:8px;">${esc(p.description || "Düşündiriş ýok.")}</p>
+        <div class="muted">Satyjy: <strong>${esc(p.seller || "Serkanbey77")}</strong></div>
+        <div class="cred-card">
+          <div><strong>Emanet düzgüni:</strong> Hasap ady we paroly satyn alnandan soň açylýar. Satyn alan we satyjy ikisi hem tassyklamasa, pul ortada saklanýar.</div>
         </div>
-        <div class="p-price-line" style="margin-top:12px;">
-          <div class="p-price">${Number(p.price_tmt || 0).toLocaleString()} TMT</div>
+        <div class="item-price-row" style="margin-top:10px;">
+          <div class="item-price">${Number(p.price_tmt || 0).toLocaleString()} TMT</div>
         </div>
-        <div class="row-actions">
-          <button class="btn btn-primary" type="button" style="flex:1;" onclick="document.getElementById('detail-modal').classList.remove('open'); buyNow(${p.id});">Emanet Bilen Satyn Al</button>
+        <div class="btn-row">
+          <button class="btn btn-main" type="button" style="flex:1;" onclick="document.getElementById('detail-modal').classList.remove('open'); orderItem(${p.id});">Emanet Bilen Satyn Al</button>
         </div>
       `;
       document.getElementById("detail-modal").classList.add("open");
     }
 
-    async function buyNow(id) {
-      const p = products.find(x => String(x.id) === String(id));
+    async function orderItem(id) {
+      const p = list.find(x => String(x.id) === String(id));
       if (!p) return;
-      const buyer = getCurrentUser().username;
-      const orderCode = "TKM-" + Math.floor(100000 + Math.random() * 900000);
-      const secretCode = String(Math.floor(1000 + Math.random() * 9000));
-
-      const payload = {
-        order_code: orderCode,
-        product_title: p.title,
-        seller: p.seller || "Serkanbey77",
-        price_tmt: Number(p.price_tmt || 0),
-        status: "pending_delivery",
-        escrow_status: "escrow_hold",
-        seller_confirmed: false,
-        buyer_confirmed: false,
-        account_login: p.account_login || `Alyjy: ${buyer} — Satyjy bilen habarlaşyň`,
-        account_password: p.account_password || `Kod: ${secretCode}`,
-        account_extra: p.account_extra || "",
-        secret_code: secretCode
-      };
+      const buyer = getUser().username;
+      const code = "TKM-" + Math.floor(100000 + Math.random() * 900000);
+      const sec = String(Math.floor(1000 + Math.random() * 9000));
 
       try {
-        const saved = await sbInsert("orders", payload);
+        const saved = await sbInsert("orders", {
+          order_code: code,
+          product_title: p.title,
+          seller: p.seller || "Serkanbey77",
+          price_tmt: Number(p.price_tmt || 0),
+          status: "pending_delivery",
+          escrow_status: "escrow_hold",
+          seller_confirmed: false,
+          buyer_confirmed: false,
+          account_login: p.account_login || `Alyjy: ${buyer} — Satyjy bilen habarlaşyň`,
+          account_password: p.account_password || `Kod: ${sec}`,
+          account_extra: p.account_extra || "",
+          secret_code: sec
+        });
         const createdId = saved && saved.id ? saved.id : "";
-        showToast(`Sargyt açyldy (${orderCode}). Sargytlar sahypasyna geçilýär...`);
-        setTimeout(() => {
-          window.location.href = createdId ? `sargytlar.html?order=${encodeURIComponent(createdId)}` : "sargytlar.html";
-        }, 500);
+        window.location.href = createdId ? `sargytlar.html?order=${encodeURIComponent(createdId)}` : "sargytlar.html";
       } catch (err) {
         showToast("Sargyt döredilmedi: " + err.message);
       }
     }
 
-    document.querySelectorAll(".cat-pill").forEach(btn => {
+    document.querySelectorAll(".game-chip").forEach(btn => {
       btn.addEventListener("click", () => {
-        selectedCat = btn.dataset.cat;
-        document.querySelectorAll(".cat-pill").forEach(b => b.classList.remove("active"));
+        filterCat = btn.dataset.cat;
+        quickQuery = btn.dataset.q || "";
+        document.querySelectorAll(".game-chip").forEach(b => b.classList.remove("active"));
         btn.classList.add("active");
-        render();
+        renderMarket();
       });
     });
 
-    document.getElementById("q-input").addEventListener("input", render);
-    document.getElementById("reload-btn").addEventListener("click", loadProducts);
-    loadProducts();
+    document.getElementById("global-search")?.addEventListener("input", () => {
+      quickQuery = "";
+      renderMarket();
+    });
+
+    loadMarket();
   </script>
 </body>
 </html>
