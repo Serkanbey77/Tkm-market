@@ -28,7 +28,7 @@
     let allProducts = [];
 
     document.title = `${platform.name} — TKM Market`;
-    document.getElementById("plat-banner-slot").innerHTML = platform.bannerHtml;
+    document.getElementById("plat-banner-slot").innerHTML = renderPlatformBannerHtml(platform);
 
     function renderSubtabs() {
       const bar = document.getElementById("subtabs-bar");
