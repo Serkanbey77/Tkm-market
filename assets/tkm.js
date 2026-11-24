@@ -120,6 +120,26 @@ function esc(s) {
     .replace(/"/g, "&quot;");
 }
 
+function renderMediaAsset(opts) {
+  const fallbackHtml = opts.fallbackHtml || "";
+  const imgList = (opts.images || []).filter(Boolean);
+  const vidList = (opts.videos || []).filter(Boolean);
+
+  const firstImg = imgList[0] || "";
+  const restImg = imgList.slice(1).join("|");
+  const imgTag = firstImg
+    ? `<img class="custom-asset" src="${esc(firstImg)}" data-cands="${esc(restImg)}" alt="${esc(opts.alt || "")}" loading="lazy" onerror="const list=(this.dataset.cands||'').split('|').filter(Boolean);const next=list.shift();if(next){this.dataset.cands=list.join('|');this.src=next;}else{this.remove();}" />`
+    : "";
+
+  const firstVid = vidList[0] || "";
+  const restVid = vidList.slice(1).join("|");
+  const vidTag = firstVid
+    ? `<video class="custom-asset custom-video" src="${esc(firstVid)}" data-vcands="${esc(restVid)}" autoplay loop muted playsinline preload="metadata" onerror="const list=(this.dataset.vcands||'').split('|').filter(Boolean);const next=list.shift();if(next){this.dataset.vcands=list.join('|');this.src=next;}else{this.remove();}"></video>`
+    : "";
+
+  return `${fallbackHtml}${imgTag}${vidTag}`;
+}
+
 function renderLogoWithAsset(plat) {
   const candidates = [
     `assets/logos/${plat.id}.jpg`,
@@ -139,9 +159,11 @@ function renderLogoWithAsset(plat) {
     `assets/logos/assets:logos:${plat.id}.png`,
     `assets/logos/assets:logos:${plat.id}.png.PNG`
   ];
-  const first = candidates[0];
-  const rest = candidates.slice(1).join("|");
-  return `${plat.svg}<img class="custom-asset" src="${first}" data-cands="${esc(rest)}" alt="${esc(plat.name)}" loading="lazy" onerror="const list=(this.dataset.cands||'').split('|').filter(Boolean);const next=list.shift();if(next){this.dataset.cands=list.join('|');this.src=next;}else{this.remove();}" />`;
+  return renderMediaAsset({
+    fallbackHtml: plat.svg,
+    images: candidates,
+    alt: plat.name
+  });
 }
 
 function renderBannerWithAsset(plat) {
@@ -323,6 +345,68 @@ function mountPlayerokShell(activeTab, searchPlaceholder, showBackArrow = false)
     ? `<button class="back-btn" type="button" aria-label="Yza" onclick="history.length > 1 ? history.back() : (location.href='kategoriler.html')">←</button>`
     : "";
 
+  const exnessPlat = findPlatform("exness-account");
+  const exnessNavLogo = exnessPlat
+    ? renderLogoWithAsset(exnessPlat)
+    : artLogo("#facc15", "#0f172a", "MT5", "MT5", "chart");
+
+  const searchNavLogo = renderMediaAsset({
+    fallbackHtml: artLogo("#38bdf8", "#1d4ed8", "NAV1", "GÖZLEG", "ring"),
+    videos: [
+      "assets/logos/assets:logos:anamenu.mp4.mov",
+      "assets/logos/anamenu.mp4.mov",
+      "assets/logos/anamenu.mp4",
+      "assets/logos/anamenu.mov",
+      "assets/logos/assets:logos:anamenu.mp4"
+    ],
+    images: [
+      "assets/logos/assets:logos:anamenu.jpg.JPG",
+      "assets/logos/anamenu.jpg"
+    ],
+    alt: "Gözleg"
+  });
+
+  const catalogNavLogo = renderMediaAsset({
+    fallbackHtml: artLogo("#a855f7", "#4c1d95", "NAV2", "KAT", "diamond"),
+    images: [
+      "assets/logos/assets:logos:catalog.jpg.JPG",
+      "assets/logos/catalog.jpg.JPG",
+      "assets/logos/catalog.jpg",
+      "assets/logos/catalog.png",
+      "assets/logos/assets:logos:catalog.jpg"
+    ],
+    alt: "Kategorýa"
+  });
+
+  const withdrawNavLogo = renderMediaAsset({
+    fallbackHtml: artLogo("#f472b6", "#831843", "NAV6", "PUL", "chart"),
+    images: [
+      "assets/logos/assets:logos:withdrawl.jpg.JPG",
+      "assets/logos/withdrawl.jpg.JPG",
+      "assets/logos/withdrawl.jpg",
+      "assets/logos/withdrawl.png",
+      "assets/logos/assets:logos:withdrawal.jpg.JPG",
+      "assets/logos/withdrawal.jpg"
+    ],
+    alt: "Pul Çek"
+  });
+
+  const navItems = [
+    { key: "search", href: "index.html", label: "Gözleg", logo: searchNavLogo },
+    { key: "catalog", href: "kategoriler.html", label: "Kategorýa", logo: catalogNavLogo },
+    { key: "exness", href: "uygulama.html?slug=exness-account", label: "Exness", logo: exnessNavLogo },
+    { key: "messages", href: "mesajlar.html", label: "Hatlar", logo: artLogo("#22d3ee", "#0e7490", "NAV4", "HAT", "play") },
+    { key: "sell", href: "satyjy.html", label: "Satmak", logo: artLogo("#34d399", "#065f46", "NAV5", "SAT", "shield") },
+    { key: "orders", href: "sargytlar.html", label: "Pul Çek", logo: withdrawNavLogo }
+  ];
+
+  const navHtml = navItems.map(item => `
+    <a class="bnav-item ${activeTab === item.key ? "active" : ""}" href="${item.href}">
+      <span class="bnav-logo-box">${item.logo}</span>
+      <span>${esc(item.label)}</span>
+    </a>
+  `).join("");
+
   host.innerHTML = `
     <header class="top-head">
       <div class="top-inner">
@@ -346,24 +430,7 @@ function mountPlayerokShell(activeTab, searchPlaceholder, showBackArrow = false)
     </header>
 
     <nav class="bottom-nav">
-      <a class="bnav-item ${activeTab === "search" ? "active" : ""}" href="index.html">
-        <span class="ico">⌕</span><span>Gözleg</span>
-      </a>
-      <a class="bnav-item ${activeTab === "catalog" ? "active" : ""}" href="kategoriler.html">
-        <span class="ico">⊞</span><span>Kategorýa</span>
-      </a>
-      <a class="bnav-item ${activeTab === "exness" ? "active" : ""}" href="uygulama.html?slug=exness-account">
-        <span class="ico">📈</span><span>Exness</span>
-      </a>
-      <a class="bnav-item ${activeTab === "messages" ? "active" : ""}" href="mesajlar.html">
-        <span class="ico">✉</span><span>Hatlar</span>
-      </a>
-      <a class="bnav-item ${activeTab === "sell" ? "active" : ""}" href="satyjy.html">
-        <span class="ico">＋</span><span>Satmak</span>
-      </a>
-      <a class="bnav-item ${activeTab === "orders" ? "active" : ""}" href="sargytlar.html">
-        <span class="ico">🛡</span><span>Emanet</span>
-      </a>
+      ${navHtml}
     </nav>
   `;
 
