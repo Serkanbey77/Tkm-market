@@ -1,0 +1,641 @@
+<!DOCTYPE html>
+<html lang="tk">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>TKM Market — Bazar, Kripto &amp; Satyjy Paneli</title>
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+  <style>
+    :root {
+      --bg: #0b0f17;
+      --panel: #131a26;
+      --panel-2: #192232;
+      --border: #263247;
+      --text: #eef2f7;
+      --muted: #94a3b8;
+      --accent: #10b981;
+      --accent-2: #3b82f6;
+      --warn: #f59e0b;
+      --danger: #ef4444;
+    }
+    * { box-sizing: border-box; margin: 0; padding: 0; font-family: system-ui, -apple-system, sans-serif; }
+    body { background: var(--bg); color: var(--text); min-height: 100vh; }
+
+    /* Üst piyasa şeridi */
+    .ticker-bar {
+      background: #080b11;
+      border-bottom: 1px solid var(--border);
+      padding: 8px 16px;
+      display: flex;
+      flex-wrap: wrap;
+      gap: 16px;
+      font-size: 13px;
+      align-items: center;
+      justify-content: space-between;
+    }
+    .ticker-items { display: flex; flex-wrap: wrap; gap: 16px; }
+    .ticker-item strong { color: #fff; margin-right: 4px; }
+    .ticker-val { color: var(--accent); font-weight: 600; }
+    .db-badge {
+      font-size: 12px;
+      padding: 3px 8px;
+      border-radius: 999px;
+      background: rgba(16, 185, 129, 0.14);
+      color: #6ee7b7;
+      border: 1px solid rgba(16, 185, 129, 0.35);
+    }
+
+    /* Üst menü ve sekmeler */
+    header {
+      max-width: 1120px;
+      margin: 0 auto;
+      padding: 18px 16px 8px;
+      display: flex;
+      flex-wrap: wrap;
+      gap: 12px;
+      align-items: center;
+      justify-content: space-between;
+    }
+    .brand { font-size: 22px; font-weight: 800; letter-spacing: 0.3px; }
+    .brand span { color: var(--accent); }
+    .tabs { display: flex; flex-wrap: wrap; gap: 8px; }
+    .tab-btn {
+      background: var(--panel);
+      color: var(--muted);
+      border: 1px solid var(--border);
+      padding: 8px 14px;
+      border-radius: 8px;
+      cursor: pointer;
+      font-weight: 600;
+      font-size: 14px;
+    }
+    .tab-btn.active {
+      background: var(--accent);
+      color: #062116;
+      border-color: var(--accent);
+    }
+
+    main { max-width: 1120px; margin: 0 auto; padding: 16px; }
+    .section { display: none; }
+    .section.active { display: block; }
+
+    /* Filtreler & Arama */
+    .toolbar {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 10px;
+      margin-bottom: 18px;
+    }
+    input, select, textarea {
+      background: var(--panel);
+      color: var(--text);
+      border: 1px solid var(--border);
+      padding: 10px 12px;
+      border-radius: 8px;
+      font-size: 14px;
+      width: 100%;
+    }
+    .toolbar input { max-width: 300px; }
+    .toolbar select { max-width: 200px; }
+
+    /* Ürün kartları */
+    .grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(260px, 1fr));
+      gap: 14px;
+    }
+    .card {
+      background: var(--panel);
+      border: 1px solid var(--border);
+      border-radius: 12px;
+      padding: 14px;
+      display: flex;
+      flex-direction: column;
+      justify-content: space-between;
+      gap: 12px;
+    }
+    .badge {
+      display: inline-block;
+      font-size: 11px;
+      font-weight: 700;
+      padding: 3px 8px;
+      border-radius: 6px;
+      background: var(--panel-2);
+      color: #93c5fd;
+      margin-bottom: 6px;
+    }
+    .title { font-size: 16px; font-weight: 700; margin-bottom: 6px; }
+    .desc { font-size: 13px; color: var(--muted); line-height: 1.45; margin-bottom: 8px; }
+    .meta { font-size: 12px; color: var(--muted); }
+    .price-row { display: flex; align-items: baseline; gap: 8px; margin-top: 6px; }
+    .price { font-size: 18px; font-weight: 800; color: var(--accent); }
+    .compare { font-size: 13px; color: var(--muted); text-decoration: line-through; }
+
+    button.primary {
+      background: var(--accent);
+      color: #052015;
+      border: none;
+      padding: 10px 14px;
+      border-radius: 8px;
+      font-weight: 700;
+      cursor: pointer;
+      width: 100%;
+    }
+    button.secondary {
+      background: var(--panel-2);
+      color: var(--text);
+      border: 1px solid var(--border);
+      padding: 8px 12px;
+      border-radius: 8px;
+      font-weight: 600;
+      cursor: pointer;
+    }
+
+    /* Form ve listeler */
+    .panel-box {
+      background: var(--panel);
+      border: 1px solid var(--border);
+      border-radius: 12px;
+      padding: 16px;
+      margin-bottom: 18px;
+    }
+    .form-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(210px, 1fr));
+      gap: 12px;
+      margin-top: 12px;
+    }
+    .form-group label { display: block; font-size: 12px; color: var(--muted); margin-bottom: 5px; }
+    .list-item {
+      background: var(--panel-2);
+      border: 1px solid var(--border);
+      border-radius: 10px;
+      padding: 12px;
+      margin-top: 10px;
+      display: flex;
+      flex-wrap: wrap;
+      justify-content: space-between;
+      gap: 10px;
+      align-items: center;
+    }
+    .status-pill {
+      font-size: 12px;
+      padding: 4px 10px;
+      border-radius: 999px;
+      background: rgba(59, 130, 246, 0.16);
+      color: #93c5fd;
+    }
+    .toast {
+      position: fixed;
+      bottom: 18px;
+      right: 18px;
+      background: #111827;
+      color: #fff;
+      border: 1px solid var(--accent);
+      padding: 12px 16px;
+      border-radius: 10px;
+      font-size: 13px;
+      z-index: 999;
+      display: none;
+    }
+  </style>
+</head>
+<body>
+  <div class="ticker-bar">
+    <div class="ticker-items">
+      <div class="ticker-item"><strong>XAU/USD:</strong><span class="ticker-val" id="px-xau">$2,740.00</span></div>
+      <div class="ticker-item"><strong>BTC/USD:</strong><span class="ticker-val" id="px-btc">$96,450.00</span></div>
+      <div class="ticker-item"><strong>XAG/USD:</strong><span class="ticker-val" id="px-xag">$31.40</span></div>
+    </div>
+    <div class="db-badge" id="db-status">Supabase: Bağlanýlýr...</div>
+  </div>
+
+  <header>
+    <div class="brand">TKM <span>Market</span></div>
+    <div class="tabs">
+      <button class="tab-btn active" data-tab="market">Bazar &amp; Kripto</button>
+      <button class="tab-btn" data-tab="seller">Satyjy Paneli</button>
+      <button class="tab-btn" data-tab="orders">Sargytlar &amp; Çekimler</button>
+    </div>
+  </header>
+
+  <main>
+    <!-- BAZAR & KRİPTO -->
+    <section id="tab-market" class="section active">
+      <div class="toolbar">
+        <input id="search-input" type="text" placeholder="Haryt ýa-da satyjy gözle..." />
+        <select id="cat-filter">
+          <option value="ALL">Ähli kategoriýalar</option>
+          <option value="DIGITAL">DIGITAL</option>
+          <option value="CRYPTO">CRYPTO</option>
+          <option value="SERVICE">SERVICE</option>
+          <option value="GOODS">GOODS</option>
+        </select>
+        <button class="secondary" id="refresh-btn">Täzele</button>
+      </div>
+      <div class="grid" id="products-grid"></div>
+    </section>
+
+    <!-- SATYJY PANELİ -->
+    <section id="tab-seller" class="section">
+      <div class="panel-box">
+        <h2>Täze Haryt Goş (Supabase)</h2>
+        <div class="form-grid">
+          <div class="form-group">
+            <label>Harydyň ady</label>
+            <input id="p-title" type="text" placeholder="Mysal: USDT BEP20 100$" />
+          </div>
+          <div class="form-group">
+            <label>Kategoriýa</label>
+            <select id="p-cat">
+              <option value="CRYPTO">CRYPTO</option>
+              <option value="DIGITAL">DIGITAL</option>
+              <option value="SERVICE">SERVICE</option>
+              <option value="GOODS">GOODS</option>
+            </select>
+          </div>
+          <div class="form-group">
+            <label>Baha (TMT)</label>
+            <input id="p-price" type="number" step="0.01" placeholder="1950" />
+          </div>
+          <div class="form-group">
+            <label>Deňeşdirme bahasy (TMT - islege görä)</label>
+            <input id="p-compare" type="number" step="0.01" placeholder="2000" />
+          </div>
+          <div class="form-group">
+            <label>Satyjy ady</label>
+            <input id="p-seller" type="text" value="Serkanbey77" />
+          </div>
+        </div>
+        <div class="form-group" style="margin-top:12px;">
+          <label>Düşündiriş</label>
+          <textarea id="p-desc" rows="2" placeholder="Gysgaça maglumat ýazyň..."></textarea>
+        </div>
+        <div style="margin-top:14px;">
+          <button class="primary" id="add-product-btn">Harydy Ýerleşdir</button>
+        </div>
+      </div>
+    </section>
+
+    <!-- SARGYTLAR & ÇEKİMLER -->
+    <section id="tab-orders" class="section">
+      <div class="panel-box">
+        <h2>Täze Pul Çekme Ýüz Tutmasy</h2>
+        <div class="form-grid">
+          <div class="form-group">
+            <label>Satyjy</label>
+            <input id="w-seller" type="text" value="Serkanbey77" />
+          </div>
+          <div class="form-group">
+            <label>Mukdar we usul</label>
+            <input id="w-amount" type="text" placeholder="Mysal: 500 TMT / 25 USDT BEP20" />
+          </div>
+        </div>
+        <div style="margin-top:12px;">
+          <button class="primary" id="add-withdrawal-btn">Çekme Ýüz Tutmasyny Iber</button>
+        </div>
+      </div>
+
+      <div class="panel-box">
+        <h3>Sargytlar</h3>
+        <div id="orders-list"></div>
+      </div>
+
+      <div class="panel-box">
+        <h3>Pul Çekme Ýüz Tutmalary</h3>
+        <div id="withdrawals-list"></div>
+      </div>
+    </section>
+  </main>
+
+  <div class="toast" id="toast"></div>
+
+  <script>
+    const SUPABASE_URL = "https://piajbopfeqlyupkrsnik.supabase.co";
+    const SUPABASE_PUBLISHABLE_KEY = "sb_publishable_gQFoj3SUxW-TUMjYmTGrIg_5_6hwBAH";
+
+    const sb = window.supabase
+      ? window.supabase.createClient(SUPABASE_URL, SUPABASE_PUBLISHABLE_KEY)
+      : null;
+
+    const FALLBACK_PRODUCTS = [
+      {
+        id: 1,
+        title: "USDT (BEP20) — Tiz Geçirim",
+        cat: "CRYPTO",
+        price_tmt: 1950,
+        market_compare_tmt: 2000,
+        seller: "TKM_Escrow",
+        rating: 4.9,
+        sales: 42,
+        description: "BNB Smart Chain (BEP20) ulgamy arkaly ygtybarly kripto çalşygy.",
+        is_trading: true
+      },
+      {
+        id: 2,
+        title: "Sanly Hasap we Ulgam Kömekçisi",
+        cat: "DIGITAL",
+        price_tmt: 120,
+        market_compare_tmt: 150,
+        seller: "Serkanbey77",
+        rating: 5.0,
+        sales: 18,
+        description: "Sanly hyzmatlar we gurnama goldawy.",
+        is_trading: false
+      }
+    ];
+
+    let state = {
+      products: [],
+      orders: [],
+      withdrawals: [],
+      online: false
+    };
+
+    function showToast(msg) {
+      const el = document.getElementById("toast");
+      el.textContent = msg;
+      el.style.display = "block";
+      clearTimeout(window.__toastTimer);
+      window.__toastTimer = setTimeout(() => { el.style.display = "none"; }, 3000);
+    }
+
+    function setDbBadge(ok, text) {
+      const badge = document.getElementById("db-status");
+      badge.textContent = text;
+      badge.style.background = ok ? "rgba(16, 185, 129, 0.14)" : "rgba(245, 158, 11, 0.16)";
+      badge.style.color = ok ? "#6ee7b7" : "#fcd34d";
+      badge.style.borderColor = ok ? "rgba(16, 185, 129, 0.35)" : "rgba(245, 158, 11, 0.4)";
+    }
+
+    function saveLocal() {
+      try {
+        localStorage.setItem("tkm_products", JSON.stringify(state.products));
+        localStorage.setItem("tkm_orders", JSON.stringify(state.orders));
+        localStorage.setItem("tkm_withdrawals", JSON.stringify(state.withdrawals));
+      } catch (_) {}
+    }
+
+    function loadLocal() {
+      try {
+        const p = JSON.parse(localStorage.getItem("tkm_products") || "null");
+        const o = JSON.parse(localStorage.getItem("tkm_orders") || "null");
+        const w = JSON.parse(localStorage.getItem("tkm_withdrawals") || "null");
+        state.products = Array.isArray(p) && p.length ? p : [...FALLBACK_PRODUCTS];
+        state.orders = Array.isArray(o) ? o : [];
+        state.withdrawals = Array.isArray(w) ? w : [];
+      } catch (_) {
+        state.products = [...FALLBACK_PRODUCTS];
+        state.orders = [];
+        state.withdrawals = [];
+      }
+    }
+
+    async function syncFromSupabase() {
+      loadLocal();
+      renderAll();
+      if (!sb) {
+        setDbBadge(false, "Supabase: Ýerli ýatda");
+        return;
+      }
+      try {
+        const [pRes, oRes, wRes] = await Promise.all([
+          sb.from("products").select("*").order("id", { ascending: false }),
+          sb.from("orders").select("*").order("id", { ascending: false }),
+          sb.from("withdrawals").select("*").order("id", { ascending: false })
+        ]);
+
+        if (pRes.error || oRes.error || wRes.error) {
+          throw new Error((pRes.error || oRes.error || wRes.error).message);
+        }
+
+        state.online = true;
+        if (pRes.data && pRes.data.length > 0) {
+          state.products = pRes.data;
+        }
+        state.orders = oRes.data || [];
+        state.withdrawals = wRes.data || [];
+        saveLocal();
+        setDbBadge(true, "Supabase: Baglanyşyk işjeň");
+        renderAll();
+      } catch (err) {
+        state.online = false;
+        setDbBadge(false, "Supabase: Ýerli ätiýaç");
+        console.warn("Supabase sync warning:", err.message);
+      }
+    }
+
+    function renderProducts() {
+      const grid = document.getElementById("products-grid");
+      const q = document.getElementById("search-input").value.trim().toLowerCase();
+      const cat = document.getElementById("cat-filter").value;
+
+      const filtered = state.products.filter(item => {
+        const matchCat = cat === "ALL" || item.cat === cat;
+        const matchQ = !q ||
+          String(item.title || "").toLowerCase().includes(q) ||
+          String(item.seller || "").toLowerCase().includes(q) ||
+          String(item.description || "").toLowerCase().includes(q);
+        return matchCat && matchQ;
+      });
+
+      if (!filtered.length) {
+        grid.innerHTML = `<div class="panel-box"><p class="meta">Haryt tapylmady.</p></div>`;
+        return;
+      }
+
+      grid.innerHTML = filtered.map(item => `
+        <div class="card">
+          <div>
+            <span class="badge">${escapeHtml(item.cat || "DIGITAL")}</span>
+            <div class="title">${escapeHtml(item.title)}</div>
+            <div class="desc">${escapeHtml(item.description || "")}</div>
+            <div class="meta">Satyjy: <strong>${escapeHtml(item.seller || "TKM_Seller")}</strong> · Satylan: ${Number(item.sales || 0)}</div>
+            <div class="price-row">
+              <div class="price">${Number(item.price_tmt || 0).toLocaleString()} TMT</div>
+              ${item.market_compare_tmt ? `<div class="compare">${Number(item.market_compare_tmt).toLocaleString()} TMT</div>` : ""}
+            </div>
+          </div>
+          <button class="primary" onclick="buyProduct(${item.id})">Sargyt Et</button>
+        </div>
+      `).join("");
+    }
+
+    async function buyProduct(productId) {
+      const prod = state.products.find(x => String(x.id) === String(productId));
+      if (!prod) return;
+
+      const orderCode = "TKM-" + Math.floor(100000 + Math.random() * 900000);
+      const secretCode = String(Math.floor(1000 + Math.random() * 9000));
+      const newOrder = {
+        order_code: orderCode,
+        product_title: prod.title,
+        price_tmt: Number(prod.price_tmt || 0),
+        status: "pending_delivery",
+        secret_code: secretCode
+      };
+
+      if (state.online && sb) {
+        const { data, error } = await sb.from("orders").insert([newOrder]).select();
+        if (!error && data && data[0]) {
+          state.orders.unshift(data[0]);
+          saveLocal();
+          renderOrders();
+          showToast(`Sargyt döredildi: ${orderCode}`);
+          return;
+        }
+      }
+
+      state.orders.unshift({ id: Date.now(), ...newOrder });
+      saveLocal();
+      renderOrders();
+      showToast(`Sargyt ýazyldy: ${orderCode}`);
+    }
+
+    async function addProduct() {
+      const title = document.getElementById("p-title").value.trim();
+      const cat = document.getElementById("p-cat").value;
+      const priceTmt = parseFloat(document.getElementById("p-price").value);
+      const compareVal = document.getElementById("p-compare").value.trim();
+      const marketCompareTmt = compareVal ? parseFloat(compareVal) : null;
+      const seller = document.getElementById("p-seller").value.trim() || "Serkanbey77";
+      const description = document.getElementById("p-desc").value.trim();
+
+      if (!title || isNaN(priceTmt) || priceTmt <= 0) {
+        showToast("Harydyň adyny we dogry bahasyny giriziň.");
+        return;
+      }
+
+      const payload = {
+        title,
+        cat,
+        price_tmt: priceTmt,
+        market_compare_tmt: marketCompareTmt && !isNaN(marketCompareTmt) ? marketCompareTmt : null,
+        seller,
+        rating: 5.0,
+        sales: 1,
+        description,
+        is_trading: cat === "CRYPTO"
+      };
+
+      if (state.online && sb) {
+        const { data, error } = await sb.from("products").insert([payload]).select();
+        if (error) {
+          showToast("Supabase ýalňyşlygy: " + error.message);
+          return;
+        }
+        if (data && data[0]) {
+          state.products.unshift(data[0]);
+        }
+      } else {
+        state.products.unshift({ id: Date.now(), ...payload });
+      }
+
+      saveLocal();
+      renderProducts();
+      document.getElementById("p-title").value = "";
+      document.getElementById("p-price").value = "";
+      document.getElementById("p-compare").value = "";
+      document.getElementById("p-desc").value = "";
+      showToast("Haryt üstünlikli goşuldy!");
+    }
+
+    async function addWithdrawal() {
+      const seller = document.getElementById("w-seller").value.trim() || "Serkanbey77";
+      const amountLabel = document.getElementById("w-amount").value.trim();
+      if (!amountLabel) {
+        showToast("Çekjek mukdaryňyzy ýazyň.");
+        return;
+      }
+
+      const payload = {
+        seller,
+        amount_label: amountLabel,
+        status: "Admin tassyklamasyna garaşylýar"
+      };
+
+      if (state.online && sb) {
+        const { data, error } = await sb.from("withdrawals").insert([payload]).select();
+        if (error) {
+          showToast("Supabase ýalňyşlygy: " + error.message);
+          return;
+        }
+        if (data && data[0]) {
+          state.withdrawals.unshift(data[0]);
+        }
+      } else {
+        state.withdrawals.unshift({ id: Date.now(), ...payload });
+      }
+
+      saveLocal();
+      renderWithdrawals();
+      document.getElementById("w-amount").value = "";
+      showToast("Çekme ýüz tutmasy iberildi!");
+    }
+
+    function renderOrders() {
+      const el = document.getElementById("orders-list");
+      if (!state.orders.length) {
+        el.innerHTML = `<p class="meta">Heniz sargyt ýok.</p>`;
+        return;
+      }
+      el.innerHTML = state.orders.map(o => `
+        <div class="list-item">
+          <div>
+            <strong>${escapeHtml(o.order_code)}</strong> — ${escapeHtml(o.product_title)}
+            <div class="meta">Baha: ${Number(o.price_tmt || 0).toLocaleString()} TMT · Kod: ${escapeHtml(o.secret_code || "")}</div>
+          </div>
+          <span class="status-pill">${escapeHtml(o.status || "pending_delivery")}</span>
+        </div>
+      `).join("");
+    }
+
+    function renderWithdrawals() {
+      const el = document.getElementById("withdrawals-list");
+      if (!state.withdrawals.length) {
+        el.innerHTML = `<p class="meta">Heniz pul çekme ýüz tutmasy ýok.</p>`;
+        return;
+      }
+      el.innerHTML = state.withdrawals.map(w => `
+        <div class="list-item">
+          <div>
+            <strong>${escapeHtml(w.seller)}</strong> — ${escapeHtml(w.amount_label)}
+          </div>
+          <span class="status-pill">${escapeHtml(w.status)}</span>
+        </div>
+      `).join("");
+    }
+
+    function renderAll() {
+      renderProducts();
+      renderOrders();
+      renderWithdrawals();
+    }
+
+    function escapeHtml(str) {
+      return String(str || "")
+        .replace(/&/g, "&amp;")
+        .replace(/</g, "&lt;")
+        .replace(/>/g, "&gt;")
+        .replace(/"/g, "&quot;");
+    }
+
+    document.querySelectorAll(".tab-btn").forEach(btn => {
+      btn.addEventListener("click", () => {
+        document.querySelectorAll(".tab-btn").forEach(b => b.classList.remove("active"));
+        document.querySelectorAll(".section").forEach(s => s.classList.remove("active"));
+        btn.classList.add("active");
+        document.getElementById("tab-" + btn.dataset.tab).classList.add("active");
+      });
+    });
+
+    document.getElementById("search-input").addEventListener("input", renderProducts);
+    document.getElementById("cat-filter").addEventListener("change", renderProducts);
+    document.getElementById("refresh-btn").addEventListener("click", syncFromSupabase);
+    document.getElementById("add-product-btn").addEventListener("click", addProduct);
+    document.getElementById("add-withdrawal-btn").addEventListener("click", addWithdrawal);
+
+    syncFromSupabase();
+  </script>
+</body>
+</html>
