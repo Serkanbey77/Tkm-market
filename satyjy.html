@@ -3,21 +3,21 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Satyjy Paneli — TKM Market</title>
+  <title>Satmak — TKM Market</title>
   <link rel="stylesheet" href="assets/tkm.css" />
 </head>
 <body>
-  <div id="tkm-shell"></div>
+  <div id="playerok-shell"></div>
 
-  <main class="container">
-    <div class="box">
-      <h2 id="form-title">Täze Haryt / Hasap Goş</h2>
-      <p class="muted">Hasap satmak isleýän bolsaňyz, aşakda hasap adyny we parolyny giriziň; olar satyn alnandan soň açylýar.</p>
+  <main class="page-wrap">
+    <div class="panel">
+      <h2 id="form-heading">Täze Hasap / Haryt Ýerleşdir</h2>
+      <p class="muted">Hasap satmak üçin aşakda hasap adyny we parolyny giriziň; satyn alnandan soň açylýar.</p>
 
-      <div class="grid-2">
+      <div class="form-grid">
         <div class="field">
           <label>Harydyň / Hasabyň ady</label>
-          <input id="p-title" type="text" placeholder="Mysal: Steam / PUBG / Sanly Hasap" />
+          <input id="p-title" type="text" placeholder="Mysal: PUBG Mobile / Steam Hasap" />
         </div>
         <div class="field">
           <label>Kategoriýa</label>
@@ -38,19 +38,19 @@
         </div>
         <div class="field">
           <label>Satyjy ady</label>
-          <input id="p-seller" type="text" oninput="this.dataset.touched='1'" />
+          <input id="p-seller" type="text" oninput="this.dataset.edited='1'" />
         </div>
         <div class="field">
           <label>Suratlar (birnäçe saýlap bolýar)</label>
           <input id="p-files" type="file" accept="image/*" multiple />
-          <div class="preview-row" id="p-preview"></div>
+          <div class="preview-list" id="p-preview"></div>
         </div>
       </div>
 
-      <div class="secret-zone">
+      <div class="escrow-box">
         <h3>Gizlin Hasap Giriş Maglumatlary</h3>
-        <p class="muted">Vitrinde görünmeýär; diňe satyn alan ulanyja Sargytlar penjiresinde görkezilýär.</p>
-        <div class="grid-2">
+        <p class="muted">Vitrinde görünmeýär; diňe satyn alan ulanyja açylýar.</p>
+        <div class="form-grid">
           <div class="field">
             <label>Hasap Ady / Login</label>
             <input id="p-login" type="text" placeholder="username ýa-da e-mail" />
@@ -60,64 +60,64 @@
             <input id="p-pass" type="text" placeholder="••••••••" />
           </div>
           <div class="field">
-            <label>Goşmaça Maglumat (2FA / Poçta / Bellik)</label>
+            <label>Goşmaça Maglumat (2FA / Poçta)</label>
             <input id="p-extra" type="text" placeholder="Mysal: Poçta bilen berilýär" />
           </div>
         </div>
       </div>
 
       <div class="field" style="margin-top:12px;">
-        <label>Açyk Düşündiriş</label>
-        <textarea id="p-desc" rows="2" placeholder="Haryt barada gysgaça maglumat..."></textarea>
+        <label>Düşündiriş</label>
+        <textarea id="p-desc" rows="2" placeholder="Gysgaça maglumat..."></textarea>
       </div>
 
-      <div class="row-actions">
-        <button class="btn btn-primary" id="save-btn" type="button" style="flex:1;">Harydy Ýerleşdir</button>
-        <button class="btn btn-ghost" id="cancel-btn" type="button" style="display:none;" onclick="resetForm()">Ýatyr</button>
+      <div class="btn-row">
+        <button class="btn btn-main" id="save-btn" type="button" style="flex:1;">Ýerleşdir</button>
+        <button class="btn btn-soft" id="cancel-btn" type="button" style="display:none;" onclick="resetForm()">Ýatyr</button>
       </div>
     </div>
 
-    <div class="box">
-      <h3>Meniň Harytlarym (Üýtgetmek / Pozmak)</h3>
-      <div id="my-products"></div>
+    <div class="panel">
+      <h3>Meniň Harytlarym</h3>
+      <div id="seller-list"></div>
     </div>
   </main>
 
   <script src="assets/tkm.js"></script>
   <script>
-    mountShell("seller");
-    let products = [];
+    mountPlayerokShell("sell", "");
+    let items = [];
     let editId = null;
     let editImgs = [];
-    let pickedFiles = [];
+    let filesPicked = [];
 
-    async function loadSellerProducts() {
+    async function loadMine() {
       try {
-        products = await sbGet("products");
-        setDbStatus(true, "Supabase: Baglanyşyk işjeň");
+        items = await sbGet("products");
+        setDbPill(true, "Onlaýn");
       } catch (err) {
-        setDbStatus(false, "Supabase: Ýerli ätiýaç");
+        setDbPill(false, "Ýerli");
         showToast("Duýduryş: " + err.message);
       }
-      renderList();
+      renderMine();
     }
 
-    function renderList() {
-      const el = document.getElementById("my-products");
-      if (!products.length) {
+    function renderMine() {
+      const el = document.getElementById("seller-list");
+      if (!items.length) {
         el.innerHTML = `<p class="muted">Heniz haryt ýok.</p>`;
         return;
       }
-      el.innerHTML = products.map(p => `
-        <div class="row-card">
+      el.innerHTML = items.map(p => `
+        <div class="list-row">
           <div>
-            <span class="tag">${esc(p.cat || "ACCOUNT")}</span>
+            <span class="chip-cat">${esc(p.cat || "ACCOUNT")}</span>
             <strong>${esc(p.title)}</strong>
-            <div class="muted">Baha: <strong>${Number(p.price_tmt || 0).toLocaleString()} TMT</strong> · Satyjy: ${esc(p.seller || "")} · Hasap: ${p.account_login ? "Girizilen 🔒" : "Ýok"}</div>
+            <div class="muted">${Number(p.price_tmt || 0).toLocaleString()} TMT · Hasap: ${p.account_login ? "Bar 🔒" : "Ýok"}</div>
           </div>
-          <div class="row-actions" style="margin-top:0;">
-            <button class="btn btn-ghost" type="button" onclick="editItem(${p.id})">Üýtget</button>
-            <button class="btn btn-danger" type="button" onclick="removeItem(${p.id})">Poz</button>
+          <div class="btn-row" style="margin-top:0;">
+            <button class="btn btn-soft" type="button" onclick="editOne(${p.id})">Üýtget</button>
+            <button class="btn btn-del" type="button" onclick="delOne(${p.id})">Poz</button>
           </div>
         </div>
       `).join("");
@@ -126,9 +126,9 @@
     function resetForm() {
       editId = null;
       editImgs = [];
-      pickedFiles = [];
-      document.getElementById("form-title").textContent = "Täze Haryt / Hasap Goş";
-      document.getElementById("save-btn").textContent = "Harydy Ýerleşdir";
+      filesPicked = [];
+      document.getElementById("form-heading").textContent = "Täze Hasap / Haryt Ýerleşdir";
+      document.getElementById("save-btn").textContent = "Ýerleşdir";
       document.getElementById("cancel-btn").style.display = "none";
       document.getElementById("p-title").value = "";
       document.getElementById("p-cat").value = "ACCOUNT";
@@ -142,20 +142,20 @@
       document.getElementById("p-preview").innerHTML = "";
     }
 
-    function editItem(id) {
-      const p = products.find(x => String(x.id) === String(id));
+    function editOne(id) {
+      const p = items.find(x => String(x.id) === String(id));
       if (!p) return;
       editId = p.id;
       editImgs = getImages(p);
-      pickedFiles = [];
-      document.getElementById("form-title").textContent = `Harydy Üýtget (#${p.id})`;
-      document.getElementById("save-btn").textContent = "Üýtgeşmeleri Ýatda Sakla";
+      filesPicked = [];
+      document.getElementById("form-heading").textContent = `Üýtget (#${p.id})`;
+      document.getElementById("save-btn").textContent = "Ýatda Sakla";
       document.getElementById("cancel-btn").style.display = "inline-block";
       document.getElementById("p-title").value = p.title || "";
       document.getElementById("p-cat").value = p.cat || "ACCOUNT";
       document.getElementById("p-price").value = p.price_tmt ?? "";
       document.getElementById("p-compare").value = p.market_compare_tmt ?? "";
-      document.getElementById("p-seller").value = p.seller || getCurrentUser().username;
+      document.getElementById("p-seller").value = p.seller || getUser().username;
       document.getElementById("p-login").value = p.account_login || "";
       document.getElementById("p-pass").value = p.account_password || "";
       document.getElementById("p-extra").value = p.account_extra || "";
@@ -163,20 +163,20 @@
       window.scrollTo({ top: 0, behavior: "smooth" });
     }
 
-    async function saveItem() {
+    async function saveOne() {
       const title = document.getElementById("p-title").value.trim();
       const cat = document.getElementById("p-cat").value;
       const priceTmt = parseFloat(document.getElementById("p-price").value);
-      const cmpVal = document.getElementById("p-compare").value.trim();
-      const marketCompareTmt = cmpVal ? parseFloat(cmpVal) : null;
-      const seller = document.getElementById("p-seller").value.trim() || getCurrentUser().username;
+      const cmp = document.getElementById("p-compare").value.trim();
+      const marketCompareTmt = cmp ? parseFloat(cmp) : null;
+      const seller = document.getElementById("p-seller").value.trim() || getUser().username;
       const accountLogin = document.getElementById("p-login").value.trim();
       const accountPassword = document.getElementById("p-pass").value.trim();
       const accountExtra = document.getElementById("p-extra").value.trim();
       const description = document.getElementById("p-desc").value.trim();
 
       if (!title || isNaN(priceTmt) || priceTmt <= 0) {
-        showToast("Harydyň adyny we dogry bahasyny giriziň.");
+        showToast("Ady we dogry bahany giriziň.");
         return;
       }
 
@@ -184,12 +184,10 @@
       btn.disabled = true;
       try {
         let uploaded = [];
-        if (pickedFiles.length > 0) {
-          showToast(`${pickedFiles.length} surat ýüklenýär...`);
-          uploaded = await sbUploadFiles(pickedFiles);
+        if (filesPicked.length > 0) {
+          showToast(`${filesPicked.length} surat ýüklenýär...`);
+          uploaded = await sbUpload(filesPicked);
         }
-        const finalImgs = editId !== null ? [...editImgs, ...uploaded] : uploaded;
-
         const payload = {
           title,
           cat,
@@ -199,7 +197,7 @@
           account_login: accountLogin || null,
           account_password: accountPassword || null,
           account_extra: accountExtra || null,
-          image_urls: finalImgs,
+          image_urls: editId !== null ? [...editImgs, ...uploaded] : uploaded,
           description,
           is_trading: cat === "CRYPTO"
         };
@@ -212,7 +210,7 @@
           showToast("Haryt ýerleşdirildi!");
         }
         resetForm();
-        await loadSellerProducts();
+        await loadMine();
       } catch (err) {
         showToast("Ýalňyşlyk: " + err.message);
       } finally {
@@ -220,33 +218,33 @@
       }
     }
 
-    async function removeItem(id) {
-      if (!confirm("Bu harydy pozmak isleýärsiňizmi?")) return;
+    async function delOne(id) {
+      if (!confirm("Pozmak isleýärsiňizmi?")) return;
       try {
         await sbDelete("products", id);
-        showToast("Haryt pozuldy.");
-        await loadSellerProducts();
+        showToast("Pozuldy.");
+        await loadMine();
       } catch (err) {
         showToast("Pozulmady: " + err.message);
       }
     }
 
     document.getElementById("p-files").addEventListener("change", e => {
-      pickedFiles = Array.from(e.target.files || []);
+      filesPicked = Array.from(e.target.files || []);
       const strip = document.getElementById("p-preview");
       strip.innerHTML = "";
-      pickedFiles.forEach(f => {
+      filesPicked.forEach(f => {
         const u = URL.createObjectURL(f);
         const img = document.createElement("img");
         img.src = u;
-        img.className = "preview-thumb";
+        img.className = "preview-pic";
         img.onload = () => URL.revokeObjectURL(u);
         strip.appendChild(img);
       });
     });
 
-    document.getElementById("save-btn").addEventListener("click", saveItem);
-    loadSellerProducts();
+    document.getElementById("save-btn").addEventListener("click", saveOne);
+    loadMine();
   </script>
 </body>
 </html>
