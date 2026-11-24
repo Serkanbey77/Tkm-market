@@ -8,52 +8,262 @@ const GAME_SUBCATS = ["Ählisi", "Hasap", "Arenda", "UC"];
 const APP_SUBCATS = ["Ählisi", "Hasap", "İzlenme", "Like", "Yorum", "Dizayn", "Reklam"];
 const COURSE_SUBCATS = ["Ählisi", "Kripto Trading", "Forex & Altın", "Sinyal"];
 
-function svgLogo(bg, fg, label, sub = "") {
+function makeLogo(bg, fg, title, sub = "", symbol = "") {
   return `<svg viewBox="0 0 80 80" xmlns="http://www.w3.org/2000/svg">
+    <defs>
+      <linearGradient id="g_${title.replace(/[^a-zA-Z0-9]/g, "")}_${sub.replace(/[^a-zA-Z0-9]/g, "")}" x1="0" y1="0" x2="1" y2="1">
+        <stop offset="0%" stop-color="${bg}"/>
+        <stop offset="100%" stop-color="#0f172a"/>
+      </linearGradient>
+    </defs>
     <rect width="80" height="80" rx="18" fill="${bg}"/>
-    <text x="40" y="${sub ? "38" : "46"}" text-anchor="middle" fill="${fg}" font-size="${label.length > 3 ? "16" : "22"}" font-weight="900" font-family="system-ui,sans-serif">${label}</text>
-    ${sub ? `<text x="40" y="57" text-anchor="middle" fill="${fg}" font-size="11" font-weight="700" opacity="0.9" font-family="system-ui,sans-serif">${sub}</text>` : ""}
+    ${symbol ? `<text x="40" y="34" text-anchor="middle" fill="${fg}" font-size="22" font-weight="900" font-family="system-ui,sans-serif">${symbol}</text>
+    <text x="40" y="57" text-anchor="middle" fill="${fg}" font-size="11" font-weight="800" letter-spacing="0.5" font-family="system-ui,sans-serif">${title}</text>`
+    : `<text x="40" y="${sub ? "39" : "46"}" text-anchor="middle" fill="${fg}" font-size="${title.length > 4 ? "14" : "18"}" font-weight="900" font-family="system-ui,sans-serif">${title}</text>
+    ${sub ? `<text x="40" y="58" text-anchor="middle" fill="${fg}" font-size="10" font-weight="700" opacity="0.92" font-family="system-ui,sans-serif">${sub}</text>` : ""}`}
   </svg>`;
 }
 
+function makeBanner(c1, c2, accent, tagText, titleText) {
+  return `<div style="position:relative; width:100%; border-radius:16px; overflow:hidden; background:linear-gradient(125deg, ${c1} 0%, ${c2} 100%); padding:18px 16px; color:#fff; display:flex; align-items:center; gap:14px; min-height:116px; box-shadow:0 12px 24px rgba(2,6,23,0.25);">
+    <svg viewBox="0 0 260 120" preserveAspectRatio="none" style="position:absolute; inset:0; width:100%; height:100%; opacity:0.22; pointer-events:none;" xmlns="http://www.w3.org/2000/svg">
+      <circle cx="220" cy="24" r="54" fill="${accent}"/>
+      <polygon points="160,120 260,10 260,120" fill="${accent}"/>
+      <rect x="12" y="12" width="44" height="44" rx="10" fill="none" stroke="${accent}" stroke-width="2"/>
+    </svg>
+    <div id="plat-hero-logo" class="platform-hero-logo" style="position:relative; z-index:2;"></div>
+    <div style="position:relative; z-index:2;">
+      <div style="display:inline-block; font-size:10px; font-weight:800; padding:2px 8px; border-radius:999px; background:rgba(255,255,255,0.2); margin-bottom:5px;">${tagText}</div>
+      <h1 id="plat-hero-title" style="margin:0;">${titleText}</h1>
+      <p id="plat-hero-sub" style="margin:3px 0 0;"></p>
+    </div>
+  </div>`;
+}
+
 const GAMES_CATALOG = [
-  { id: "pubg-mobile", name: "PUBG Mobile", kind: "game", banner: "linear-gradient(120deg,#1e293b,#d97706)", logo: svgLogo("#f59e0b", "#111827", "PUBG", "MOBILE") },
-  { id: "clash-of-clans", name: "Clash of Clans", kind: "game", banner: "linear-gradient(120deg,#14532d,#eab308)", logo: svgLogo("#15803d", "#fde047", "CoC", "CLASH") },
-  { id: "minecraft", name: "Minecraft", kind: "game", banner: "linear-gradient(120deg,#166534,#4d7c0f)", logo: svgLogo("#4d7c0f", "#ecfccb", "MC", "CRAFT") },
-  { id: "gta-5", name: "GTA 5", kind: "game", banner: "linear-gradient(120deg,#065f46,#10b981)", logo: svgLogo("#047857", "#a7f3d0", "GTA V", "ONLINE") },
-  { id: "roblox", name: "Roblox", kind: "game", banner: "linear-gradient(120deg,#111827,#ef4444)", logo: svgLogo("#111827", "#ffffff", "◆", "ROBLOX") },
-  { id: "fortnite", name: "Fortnite", kind: "game", banner: "linear-gradient(120deg,#3730a3,#7c3aed)", logo: svgLogo("#4338ca", "#ffffff", "F", "FORTNITE") },
-  { id: "pubg-mobile-korea", name: "PUBG Mobile Kore", kind: "game", banner: "linear-gradient(120deg,#1e3a8a,#dc2626)", logo: svgLogo("#1d4ed8", "#fca5a5", "KR", "PUBG KR") },
-  { id: "rust", name: "Rust", kind: "game", banner: "linear-gradient(120deg,#7f1d1d,#c2410c)", logo: svgLogo("#9a3412", "#fed7aa", "RUST", "") },
-  { id: "call-of-duty", name: "Call of Duty", kind: "game", banner: "linear-gradient(120deg,#0f172a,#475569)", logo: svgLogo("#0f172a", "#e2e8f0", "CoD", "MOBILE") },
-  { id: "far-cry", name: "Far Cry", kind: "game", banner: "linear-gradient(120deg,#7c2d12,#ea580c)", logo: svgLogo("#c2410c", "#fff7ed", "FC", "FAR CRY") },
-  { id: "fifa", name: "FIFA", kind: "game", banner: "linear-gradient(120deg,#064e3b,#22c55e)", logo: svgLogo("#059669", "#dcfce7", "FC", "FOOTBALL") }
+  {
+    id: "pubg-mobile",
+    name: "PUBG Mobile",
+    kind: "game",
+    logo: makeLogo("#d97706", "#fef3c7", "PUBG", "MOBILE", "⌖"),
+    bannerHtml: makeBanner("#1e293b", "#b45309", "#fbbf24", "BATTLE ROYALE • UC & HASAP", "PUBG Mobile")
+  },
+  {
+    id: "clash-of-clans",
+    name: "Clash of Clans",
+    kind: "game",
+    logo: makeLogo("#15803d", "#fef08a", "CoC", "CLASH", "⚔"),
+    bannerHtml: makeBanner("#14532d", "#ca8a04", "#fde047", "KÖY & KLAN • HASAP", "Clash of Clans")
+  },
+  {
+    id: "minecraft",
+    name: "Minecraft",
+    kind: "game",
+    logo: makeLogo("#3f6212", "#ecfccb", "MC", "CRAFT", "▣"),
+    bannerHtml: makeBanner("#14532d", "#4d7c0f", "#a3e635", "SANDBOX • HASAP & SERVER", "Minecraft")
+  },
+  {
+    id: "gta-5",
+    name: "GTA 5",
+    kind: "game",
+    logo: makeLogo("#047857", "#d1fae5", "GTA V", "ONLINE", "$"),
+    bannerHtml: makeBanner("#064e3b", "#059669", "#6ee7b7", "OPEN WORLD • ONLINE HASAP", "GTA 5")
+  },
+  {
+    id: "roblox",
+    name: "Roblox",
+    kind: "game",
+    logo: makeLogo("#111827", "#ffffff", "ROBLOX", "", "◆"),
+    bannerHtml: makeBanner("#111827", "#dc2626", "#fca5a5", "OYUN PLATFORMASY • HASAP", "Roblox")
+  },
+  {
+    id: "fortnite",
+    name: "Fortnite",
+    kind: "game",
+    logo: makeLogo("#4338ca", "#ffffff", "FORTNITE", "", "⚡"),
+    bannerHtml: makeBanner("#1e1b4b", "#7c3aed", "#c4b5fd", "BATTLE ROYALE • V-BUCKS & HASAP", "Fortnite")
+  },
+  {
+    id: "pubg-mobile-korea",
+    name: "PUBG Mobile Kore",
+    kind: "game",
+    logo: makeLogo("#1d4ed8", "#dbeafe", "PUBG", "KOREA", "★"),
+    bannerHtml: makeBanner("#172554", "#dc2626", "#93c5fd", "KORE SÜRÜMI • HASAP & UC", "PUBG Mobile Kore")
+  },
+  {
+    id: "rust",
+    name: "Rust",
+    kind: "game",
+    logo: makeLogo("#9a3412", "#ffedd5", "RUST", "SURVIVAL", "⚙"),
+    bannerHtml: makeBanner("#450a0a", "#c2410c", "#fdba74", "SURVIVAL • STEAM HASAP", "Rust")
+  },
+  {
+    id: "call-of-duty",
+    name: "Call of Duty",
+    kind: "game",
+    logo: makeLogo("#0f172a", "#f8fafc", "CoD", "WARZONE", "✦"),
+    bannerHtml: makeBanner("#020617", "#334155", "#94a3b8", "FPS AKSION • HASAP", "Call of Duty")
+  },
+  {
+    id: "far-cry",
+    name: "Far Cry",
+    kind: "game",
+    logo: makeLogo("#c2410c", "#fff7ed", "FAR CRY", "", "▲"),
+    bannerHtml: makeBanner("#431407", "#ea580c", "#fed7aa", "MACERA • HASAP", "Far Cry")
+  },
+  {
+    id: "fifa",
+    name: "FIFA",
+    kind: "game",
+    logo: makeLogo("#059669", "#ecfdf5", "FC", "FOOTBALL", "⚽"),
+    bannerHtml: makeBanner("#064e3b", "#16a34a", "#86efac", "FUTBOL • ULTIMATE HASAP", "FIFA")
+  }
 ];
 
 const APPS_CATALOG = [
-  { id: "telegram", name: "Telegram", kind: "app", banner: "linear-gradient(120deg,#0369a1,#38bdf8)", logo: svgLogo("#0284c7", "#ffffff", "✈", "TELEGRAM") },
-  { id: "tiktok", name: "TikTok", kind: "app", banner: "linear-gradient(120deg,#090d16,#ec4899)", logo: svgLogo("#090d16", "#ffffff", "♪", "TIKTOK") },
-  { id: "youtube", name: "YouTube", kind: "app", banner: "linear-gradient(120deg,#7f1d1d,#ef4444)", logo: svgLogo("#dc2626", "#ffffff", "▶", "YOUTUBE") },
-  { id: "instagram", name: "Instagram", kind: "app", banner: "linear-gradient(120deg,#831843,#f97316)", logo: svgLogo("#db2777", "#ffffff", "◎", "INSTA") },
-  { id: "chatgpt", name: "ChatGPT", kind: "app", banner: "linear-gradient(120deg,#065f46,#10b981)", logo: svgLogo("#10b981", "#ffffff", "GPT", "OPENAI") },
-  { id: "gemini", name: "Gemini", kind: "app", banner: "linear-gradient(120deg,#1e40af,#8b5cf6)", logo: svgLogo("#4f46e5", "#ffffff", "✦", "GEMINI") },
-  { id: "microsoft", name: "Microsoft", kind: "app", banner: "linear-gradient(120deg,#1e3a8a,#0284c7)", logo: svgLogo("#2563eb", "#ffffff", "⊞", "MS") },
-  { id: "apple", name: "Apple", kind: "app", banner: "linear-gradient(120deg,#1e293b,#64748b)", logo: svgLogo("#1e293b", "#ffffff", "", "APPLE") },
-  { id: "steam", name: "Steam", kind: "app", banner: "linear-gradient(120deg,#0f172a,#2563eb)", logo: svgLogo("#1e3a8a", "#93c5fd", "STM", "STEAM") },
-  { id: "xbox", name: "Xbox", kind: "app", banner: "linear-gradient(120deg,#14532d,#22c55e)", logo: svgLogo("#16a34a", "#ffffff", "X", "XBOX") },
-  { id: "spotify", name: "Spotify", kind: "app", banner: "linear-gradient(120deg,#052e16,#16a34a)", logo: svgLogo("#16a34a", "#052e16", ")))", "SPOTIFY") },
-  { id: "discord", name: "Discord", kind: "app", banner: "linear-gradient(120deg,#3730a3,#6366f1)", logo: svgLogo("#4f46e5", "#ffffff", "DC", "DISCORD") },
-  { id: "microsoft-office", name: "Microsoft Office", kind: "app", banner: "linear-gradient(120deg,#9a3412,#ea580c)", logo: svgLogo("#ea580c", "#ffffff", "O365", "OFFICE") },
-  { id: "epic-games", name: "Epic Games", kind: "app", banner: "linear-gradient(120deg,#090d16,#334155)", logo: svgLogo("#111827", "#ffffff", "EPIC", "GAMES") },
-  { id: "runway", name: "Runway", kind: "app", banner: "linear-gradient(120deg,#115e59,#14b8a6)", logo: svgLogo("#0d9488", "#ffffff", "RWY", "RUNWAY") },
-  { id: "netflix", name: "Netflix", kind: "app", banner: "linear-gradient(120deg,#450a0a,#dc2626)", logo: svgLogo("#b91c1c", "#ffffff", "N", "NETFLIX") },
-  { id: "midjourney", name: "Midjourney", kind: "app", banner: "linear-gradient(120deg,#3b0764,#9333ea)", logo: svgLogo("#6d28d9", "#ffffff", "MJ", "ART AI") },
-  { id: "google-play", name: "Google Play", kind: "app", banner: "linear-gradient(120deg,#064e3b,#0ea5e9)", logo: svgLogo("#059669", "#ffffff", "▷", "PLAY") },
-  { id: "belet-film", name: "Belet Film", kind: "app", banner: "linear-gradient(120deg,#881337,#f43f5e)", logo: svgLogo("#e11d48", "#ffffff", "BF", "BELET") }
+  {
+    id: "telegram",
+    name: "Telegram",
+    kind: "app",
+    logo: makeLogo("#0284c7", "#ffffff", "TELEGRAM", "", "✈"),
+    bannerHtml: makeBanner("#0c4a6e", "#0284c7", "#7dd3fc", "KANAL • HASAP • BOT", "Telegram")
+  },
+  {
+    id: "tiktok",
+    name: "TikTok",
+    kind: "app",
+    logo: makeLogo("#090d16", "#ffffff", "TIKTOK", "", "♪"),
+    bannerHtml: makeBanner("#090d16", "#be185d", "#f472b6", "HASAP • İZLENME • LIKE • REKLAM", "TikTok")
+  },
+  {
+    id: "youtube",
+    name: "YouTube",
+    kind: "app",
+    logo: makeLogo("#dc2626", "#ffffff", "YOUTUBE", "", "▶"),
+    bannerHtml: makeBanner("#450a0a", "#dc2626", "#fca5a5", "KANAL • İZLENME • ABONE", "YouTube")
+  },
+  {
+    id: "instagram",
+    name: "Instagram",
+    kind: "app",
+    logo: makeLogo("#db2777", "#ffffff", "INSTA", "", "◎"),
+    bannerHtml: makeBanner("#831843", "#ea580c", "#fbcfe8", "HASAP • LIKE • YORUM • DIZAYN", "Instagram")
+  },
+  {
+    id: "chatgpt",
+    name: "ChatGPT",
+    kind: "app",
+    logo: makeLogo("#059669", "#ffffff", "ChatGPT", "PLUS", "✳"),
+    bannerHtml: makeBanner("#064e3b", "#10b981", "#6ee7b7", "AI HASAP • ABONELIK", "ChatGPT")
+  },
+  {
+    id: "gemini",
+    name: "Gemini",
+    kind: "app",
+    logo: makeLogo("#4f46e5", "#ffffff", "GEMINI", "AI", "✦"),
+    bannerHtml: makeBanner("#1e1b4b", "#6366f1", "#c7d2fe", "GOOGLE AI • HASAP", "Gemini")
+  },
+  {
+    id: "microsoft",
+    name: "Microsoft",
+    kind: "app",
+    logo: makeLogo("#2563eb", "#ffffff", "MS", "CLOUD", "⊞"),
+    bannerHtml: makeBanner("#172554", "#2563eb", "#93c5fd", "WINDOWS • HESAP & AÇAR", "Microsoft")
+  },
+  {
+    id: "apple",
+    name: "Apple",
+    kind: "app",
+    logo: makeLogo("#1e293b", "#ffffff", "APPLE", "ID", ""),
+    bannerHtml: makeBanner("#0f172a", "#475569", "#cbd5e1", "APPLE ID • ICLOUD & HYZMAT", "Apple")
+  },
+  {
+    id: "steam",
+    name: "Steam",
+    kind: "app",
+    logo: makeLogo("#1e3a8a", "#e0f2fe", "STEAM", "", "◈"),
+    bannerHtml: makeBanner("#0f172a", "#1d4ed8", "#7dd3fc", "OYUN DÜKANY • HASAP & BAKIÝA", "Steam")
+  },
+  {
+    id: "xbox",
+    name: "Xbox",
+    kind: "app",
+    logo: makeLogo("#15803d", "#ffffff", "XBOX", "GAME", "X"),
+    bannerHtml: makeBanner("#052e16", "#16a34a", "#86efac", "GAME PASS • HASAP", "Xbox")
+  },
+  {
+    id: "spotify",
+    name: "Spotify",
+    kind: "app",
+    logo: makeLogo("#16a34a", "#052e16", "SPOTIFY", "", "♫"),
+    bannerHtml: makeBanner("#052e16", "#15803d", "#4ade80", "PREMIUM • HASAP", "Spotify")
+  },
+  {
+    id: "discord",
+    name: "Discord",
+    kind: "app",
+    logo: makeLogo("#4f46e5", "#ffffff", "DISCORD", "", "❖"),
+    bannerHtml: makeBanner("#312e81", "#6366f1", "#a5b4fc", "NITRO • SERVER • HASAP", "Discord")
+  },
+  {
+    id: "microsoft-office",
+    name: "Microsoft Office",
+    kind: "app",
+    logo: makeLogo("#ea580c", "#ffffff", "OFFICE", "365", "▤"),
+    bannerHtml: makeBanner("#7c2d12", "#ea580c", "#fdba74", "WORD • EXCEL • 365 HASAP", "Microsoft Office")
+  },
+  {
+    id: "epic-games",
+    name: "Epic Games",
+    kind: "app",
+    logo: makeLogo("#111827", "#ffffff", "EPIC", "GAMES", "▣"),
+    bannerHtml: makeBanner("#090d16", "#374151", "#e5e7eb", "EPIC HASAP • OYUNLAR", "Epic Games")
+  },
+  {
+    id: "runway",
+    name: "Runway",
+    kind: "app",
+    logo: makeLogo("#0d9488", "#ffffff", "RUNWAY", "AI", "▶"),
+    bannerHtml: makeBanner("#134e4a", "#0d9488", "#5eead4", "VIDEO AI • HASAP & KREDIT", "Runway")
+  },
+  {
+    id: "netflix",
+    name: "Netflix",
+    kind: "app",
+    logo: makeLogo("#b91c1c", "#ffffff", "NETFLIX", "", "N"),
+    bannerHtml: makeBanner("#450a0a", "#dc2626", "#fca5a5", "KINO & SERIAL • HASAP", "Netflix")
+  },
+  {
+    id: "midjourney",
+    name: "Midjourney",
+    kind: "app",
+    logo: makeLogo("#6d28d9", "#ffffff", "MIDJRN", "AI", "✦"),
+    bannerHtml: makeBanner("#2e1065", "#7c3aed", "#ddd6fe", "SURAT AI • HASAP", "Midjourney")
+  },
+  {
+    id: "google-play",
+    name: "Google Play",
+    kind: "app",
+    logo: makeLogo("#059669", "#ffffff", "PLAY", "STORE", "▷"),
+    bannerHtml: makeBanner("#064e3b", "#0284c7", "#7dd3fc", "ANDROID • BAKIÝA & HASAP", "Google Play")
+  },
+  {
+    id: "belet-film",
+    name: "Belet Film",
+    kind: "app",
+    logo: makeLogo("#e11d48", "#ffffff", "BELET", "FILM", "◉"),
+    bannerHtml: makeBanner("#4c0519", "#e11d48", "#fda4af", "BELET FILM • HASAP", "Belet Film")
+  }
 ];
 
 const COURSES_CATALOG = [
-  { id: "trading-kurs", name: "Trading Kurs", kind: "course", banner: "linear-gradient(120deg,#0f766e,#10b981)", logo: svgLogo("#0f766e", "#ffffff", "TRD", "KURS") }
+  {
+    id: "trading-kurs",
+    name: "Trading Kurs",
+    kind: "course",
+    logo: makeLogo("#0f766e", "#ffffff", "TRADING", "KURS", "📈"),
+    bannerHtml: makeBanner("#042f2e", "#0d9488", "#5eead4", "TEHNIKI ANALIZ & OKUW", "Trading Kurs")
+  }
 ];
 
 const ALL_PLATFORMS = [...GAMES_CATALOG, ...APPS_CATALOG, ...COURSES_CATALOG];
