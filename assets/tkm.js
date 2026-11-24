@@ -56,48 +56,49 @@ function artLogo(c1, c2, badge, label, motif = "ring") {
   </svg>`;
 }
 
+/* Kendi yaptığın logoların ve banner'ların URL'lerini buraya ekleyebilirsin */
 const GAMES_CATALOG = [
-  { id: "pubg-mobile", name: "PUBG Mobile", kind: "game", color: "#d97706", tag: "HASAP • ARENDA • UC", svg: artLogo("#f59e0b", "#78350f", "PM", "PUBG", "ring") },
-  { id: "clash-of-clans", name: "Clash of Clans", kind: "game", color: "#15803d", tag: "HASAP • ELMAS", svg: artLogo("#22c55e", "#14532d", "COC", "CLASH", "shield") },
-  { id: "minecraft", name: "Minecraft", kind: "game", color: "#4d7c0f", tag: "HASAP • SERVER / REALM", svg: artLogo("#84cc16", "#365314", "MC", "CRAFT", "diamond") },
-  { id: "gta-5", name: "GTA 5", kind: "game", color: "#059669", tag: "HASAP", svg: artLogo("#10b981", "#064e3b", "GTA5", "GTA V", "ring") },
-  { id: "roblox", name: "Roblox", kind: "game", color: "#dc2626", tag: "HASAP • ROBUX", svg: artLogo("#ef4444", "#111827", "RBX", "ROBLOX", "diamond") },
-  { id: "fortnite", name: "Fortnite", kind: "game", color: "#7c3aed", tag: "HASAP • V-BUCKS", svg: artLogo("#8b5cf6", "#1e1b4b", "FN", "FORTNITE", "shield") },
-  { id: "pubg-mobile-korea", name: "PUBG Mobile Kore", kind: "game", color: "#2563eb", tag: "HASAP • ARENDA • UC", svg: artLogo("#3b82f6", "#991b1b", "PKR", "PUBG KR", "ring") },
-  { id: "rust", name: "Rust", kind: "game", color: "#ea580c", tag: "HASAP • ARENDA", svg: artLogo("#f97316", "#431407", "RST", "RUST", "ring") },
-  { id: "call-of-duty", name: "Call of Duty", kind: "game", color: "#334155", tag: "HASAP • CP", svg: artLogo("#475569", "#020617", "COD", "CoD", "shield") },
-  { id: "far-cry", name: "Far Cry", kind: "game", color: "#f97316", tag: "HASAP", svg: artLogo("#fb923c", "#431407", "FC", "FAR CRY", "diamond") },
-  { id: "fifa", name: "FIFA", kind: "game", color: "#16a34a", tag: "HASAP • COINS", svg: artLogo("#22c55e", "#052e16", "FIFA", "FC", "ring") }
+  { id: "pubg-mobile", name: "PUBG Mobile", kind: "game", color: "#d97706", tag: "HASAP • ARENDA • UC", logoUrl: "", bannerUrl: "", svg: artLogo("#f59e0b", "#78350f", "PM", "PUBG", "ring") },
+  { id: "clash-of-clans", name: "Clash of Clans", kind: "game", color: "#15803d", tag: "HASAP • ELMAS", logoUrl: "", bannerUrl: "", svg: artLogo("#22c55e", "#14532d", "COC", "CLASH", "shield") },
+  { id: "minecraft", name: "Minecraft", kind: "game", color: "#4d7c0f", tag: "HASAP • SERVER / REALM", logoUrl: "", bannerUrl: "", svg: artLogo("#84cc16", "#365314", "MC", "CRAFT", "diamond") },
+  { id: "gta-5", name: "GTA 5", kind: "game", color: "#059669", tag: "HASAP", logoUrl: "", bannerUrl: "", svg: artLogo("#10b981", "#064e3b", "GTA5", "GTA V", "ring") },
+  { id: "roblox", name: "Roblox", kind: "game", color: "#dc2626", tag: "HASAP • ROBUX", logoUrl: "", bannerUrl: "", svg: artLogo("#ef4444", "#111827", "RBX", "ROBLOX", "diamond") },
+  { id: "fortnite", name: "Fortnite", kind: "game", color: "#7c3aed", tag: "HASAP • V-BUCKS", logoUrl: "", bannerUrl: "", svg: artLogo("#8b5cf6", "#1e1b4b", "FN", "FORTNITE", "shield") },
+  { id: "pubg-mobile-korea", name: "PUBG Mobile Kore", kind: "game", color: "#2563eb", tag: "HASAP • ARENDA • UC", logoUrl: "", bannerUrl: "", svg: artLogo("#3b82f6", "#991b1b", "PKR", "PUBG KR", "ring") },
+  { id: "rust", name: "Rust", kind: "game", color: "#ea580c", tag: "HASAP • ARENDA", logoUrl: "", bannerUrl: "", svg: artLogo("#f97316", "#431407", "RST", "RUST", "ring") },
+  { id: "call-of-duty", name: "Call of Duty", kind: "game", color: "#334155", tag: "HASAP • CP", logoUrl: "", bannerUrl: "", svg: artLogo("#475569", "#020617", "COD", "CoD", "shield") },
+  { id: "far-cry", name: "Far Cry", kind: "game", color: "#f97316", tag: "HASAP", logoUrl: "", bannerUrl: "", svg: artLogo("#fb923c", "#431407", "FC", "FAR CRY", "diamond") },
+  { id: "fifa", name: "FIFA", kind: "game", color: "#16a34a", tag: "HASAP • COINS", logoUrl: "", bannerUrl: "", svg: artLogo("#22c55e", "#052e16", "FIFA", "FC", "ring") }
 ];
 
 const APPS_CATALOG = [
-  { id: "telegram", name: "Telegram", kind: "app", color: "#0284c7", tag: "HASAP • KANAL • İZLENME • REKLAM", svg: artLogo("#38bdf8", "#0369a1", "TG", "TELEGRAM", "play") },
-  { id: "tiktok", name: "TikTok", kind: "app", color: "#ec4899", tag: "HASAP • İZLENME • LIKE • YORUM • DIZAYN • REKLAM", svg: artLogo("#ec4899", "#090d16", "TT", "TIKTOK", "wave") },
-  { id: "youtube", name: "YouTube", kind: "app", color: "#dc2626", tag: "HASAP • İZLENME • ABONE • LIKE • DIZAYN", svg: artLogo("#ef4444", "#450a0a", "YT", "YOUTUBE", "play") },
-  { id: "instagram", name: "Instagram", kind: "app", color: "#db2777", tag: "HASAP • TAKIPÇI • LIKE • YORUM • DIZAYN • REKLAM", svg: artLogo("#f43f5e", "#7e22ce", "IG", "INSTA", "ring") },
-  { id: "chatgpt", name: "ChatGPT", kind: "app", color: "#10b981", tag: "HASAP • PLUS ABONELIK", svg: artLogo("#10b981", "#064e3b", "GPT", "ChatGPT", "ring") },
-  { id: "gemini", name: "Gemini", kind: "app", color: "#6366f1", tag: "HASAP • ADVANCED", svg: artLogo("#818cf8", "#1e1b4b", "GEM", "GEMINI", "diamond") },
-  { id: "microsoft", name: "Microsoft", kind: "app", color: "#2563eb", tag: "HASAP • LISANS", svg: artLogo("#3b82f6", "#172554", "MS", "MICROSOFT", "diamond") },
-  { id: "apple", name: "Apple", kind: "app", color: "#475569", tag: "APPLE ID • ICLOUD", svg: artLogo("#64748b", "#0f172a", "APL", "APPLE", "ring") },
-  { id: "steam", name: "Steam", kind: "app", color: "#1d4ed8", tag: "HASAP • BAKIÝA / KOD", svg: artLogo("#2563eb", "#0f172a", "STM", "STEAM", "ring") },
-  { id: "xbox", name: "Xbox", kind: "app", color: "#16a34a", tag: "HASAP • GAME PASS", svg: artLogo("#22c55e", "#052e16", "XB", "XBOX", "diamond") },
-  { id: "spotify", name: "Spotify", kind: "app", color: "#15803d", tag: "HASAP • PREMIUM", svg: artLogo("#16a34a", "#052e16", "SP", "SPOTIFY", "wave") },
-  { id: "discord", name: "Discord", kind: "app", color: "#4f46e5", tag: "HASAP • NITRO • SERVER", svg: artLogo("#6366f1", "#312e81", "DC", "DISCORD", "shield") },
-  { id: "microsoft-office", name: "Microsoft Office", kind: "app", color: "#ea580c", tag: "HASAP • OFFICE 365", svg: artLogo("#f97316", "#7c2d12", "OFC", "OFFICE", "diamond") },
-  { id: "epic-games", name: "Epic Games", kind: "app", color: "#111827", tag: "HASAP • OÝUN", svg: artLogo("#374151", "#090d16", "EPG", "EPIC", "shield") },
-  { id: "runway", name: "Runway", kind: "app", color: "#0d9488", tag: "HASAP • KREDIT", svg: artLogo("#14b8a6", "#134e4a", "RWY", "RUNWAY", "play") },
-  { id: "netflix", name: "Netflix", kind: "app", color: "#b91c1c", tag: "HASAP • PROFIL", svg: artLogo("#dc2626", "#450a0a", "NF", "NETFLIX", "play") },
-  { id: "midjourney", name: "Midjourney", kind: "app", color: "#7c3aed", tag: "HASAP • PLAN", svg: artLogo("#8b5cf6", "#2e1065", "MJ", "MIDJRN", "wave") },
-  { id: "google-play", name: "Google Play", kind: "app", color: "#059669", tag: "HASAP • KARTA / BAKIÝA", svg: artLogo("#10b981", "#064e3b", "GP", "PLAY", "play") },
-  { id: "belet-film", name: "Belet Film", kind: "app", color: "#e11d48", tag: "HASAP • ABONELIK", svg: artLogo("#f43f5e", "#4c0519", "BF", "BELET", "play") }
+  { id: "telegram", name: "Telegram", kind: "app", color: "#0284c7", tag: "HASAP • KANAL • İZLENME • REKLAM", logoUrl: "", bannerUrl: "", svg: artLogo("#38bdf8", "#0369a1", "TG", "TELEGRAM", "play") },
+  { id: "tiktok", name: "TikTok", kind: "app", color: "#ec4899", tag: "HASAP • İZLENME • LIKE • YORUM • DIZAYN • REKLAM", logoUrl: "", bannerUrl: "", svg: artLogo("#ec4899", "#090d16", "TT", "TIKTOK", "wave") },
+  { id: "youtube", name: "YouTube", kind: "app", color: "#dc2626", tag: "HASAP • İZLENME • ABONE • LIKE • DIZAYN", logoUrl: "", bannerUrl: "", svg: artLogo("#ef4444", "#450a0a", "YT", "YOUTUBE", "play") },
+  { id: "instagram", name: "Instagram", kind: "app", color: "#db2777", tag: "HASAP • TAKIPÇI • LIKE • YORUM • DIZAYN • REKLAM", logoUrl: "", bannerUrl: "", svg: artLogo("#f43f5e", "#7e22ce", "IG", "INSTA", "ring") },
+  { id: "chatgpt", name: "ChatGPT", kind: "app", color: "#10b981", tag: "HASAP • PLUS ABONELIK", logoUrl: "", bannerUrl: "", svg: artLogo("#10b981", "#064e3b", "GPT", "ChatGPT", "ring") },
+  { id: "gemini", name: "Gemini", kind: "app", color: "#6366f1", tag: "HASAP • ADVANCED", logoUrl: "", bannerUrl: "", svg: artLogo("#818cf8", "#1e1b4b", "GEM", "GEMINI", "diamond") },
+  { id: "microsoft", name: "Microsoft", kind: "app", color: "#2563eb", tag: "HASAP • LISANS", logoUrl: "", bannerUrl: "", svg: artLogo("#3b82f6", "#172554", "MS", "MICROSOFT", "diamond") },
+  { id: "apple", name: "Apple", kind: "app", color: "#475569", tag: "APPLE ID • ICLOUD", logoUrl: "", bannerUrl: "", svg: artLogo("#64748b", "#0f172a", "APL", "APPLE", "ring") },
+  { id: "steam", name: "Steam", kind: "app", color: "#1d4ed8", tag: "HASAP • BAKIÝA / KOD", logoUrl: "", bannerUrl: "", svg: artLogo("#2563eb", "#0f172a", "STM", "STEAM", "ring") },
+  { id: "xbox", name: "Xbox", kind: "app", color: "#16a34a", tag: "HASAP • GAME PASS", logoUrl: "", bannerUrl: "", svg: artLogo("#22c55e", "#052e16", "XB", "XBOX", "diamond") },
+  { id: "spotify", name: "Spotify", kind: "app", color: "#15803d", tag: "HASAP • PREMIUM", logoUrl: "", bannerUrl: "", svg: artLogo("#16a34a", "#052e16", "SP", "SPOTIFY", "wave") },
+  { id: "discord", name: "Discord", kind: "app", color: "#4f46e5", tag: "HASAP • NITRO • SERVER", logoUrl: "", bannerUrl: "", svg: artLogo("#6366f1", "#312e81", "DC", "DISCORD", "shield") },
+  { id: "microsoft-office", name: "Microsoft Office", kind: "app", color: "#ea580c", tag: "HASAP • OFFICE 365", logoUrl: "", bannerUrl: "", svg: artLogo("#f97316", "#7c2d12", "OFC", "OFFICE", "diamond") },
+  { id: "epic-games", name: "Epic Games", kind: "app", color: "#111827", tag: "HASAP • OÝUN", logoUrl: "", bannerUrl: "", svg: artLogo("#374151", "#090d16", "EPG", "EPIC", "shield") },
+  { id: "runway", name: "Runway", kind: "app", color: "#0d9488", tag: "HASAP • KREDIT", logoUrl: "", bannerUrl: "", svg: artLogo("#14b8a6", "#134e4a", "RWY", "RUNWAY", "play") },
+  { id: "netflix", name: "Netflix", kind: "app", color: "#b91c1c", tag: "HASAP • PROFIL", logoUrl: "", bannerUrl: "", svg: artLogo("#dc2626", "#450a0a", "NF", "NETFLIX", "play") },
+  { id: "midjourney", name: "Midjourney", kind: "app", color: "#7c3aed", tag: "HASAP • PLAN", logoUrl: "", bannerUrl: "", svg: artLogo("#8b5cf6", "#2e1065", "MJ", "MIDJRN", "wave") },
+  { id: "google-play", name: "Google Play", kind: "app", color: "#059669", tag: "HASAP • KARTA / BAKIÝA", logoUrl: "", bannerUrl: "", svg: artLogo("#10b981", "#064e3b", "GP", "PLAY", "play") },
+  { id: "belet-film", name: "Belet Film", kind: "app", color: "#e11d48", tag: "HASAP • ABONELIK", logoUrl: "", bannerUrl: "", svg: artLogo("#f43f5e", "#4c0519", "BF", "BELET", "play") }
 ];
 
 const EXNESS_CATALOG = [
-  { id: "exness-account", name: "Exness Account", kind: "exness", color: "#eab308", tag: "EXNESS METATRADER 5 • YATYRMAK & ÇYKARYŞ", svg: artLogo("#facc15", "#0f172a", "MT5", "EXNESS", "chart") }
+  { id: "exness-account", name: "Exness Account", kind: "exness", color: "#eab308", tag: "EXNESS METATRADER 5 • YATYRMAK & ÇYKARYŞ", logoUrl: "", bannerUrl: "", svg: artLogo("#facc15", "#0f172a", "MT5", "EXNESS", "chart") }
 ];
 
 const COURSES_CATALOG = [
-  { id: "trading-kurs", name: "Trading Kurs", kind: "course", color: "#0d9488", tag: "KRIPTO TRADING • FOREX • SINYAL", svg: artLogo("#10b981", "#042f2e", "TRD", "TRADING", "chart") }
+  { id: "trading-kurs", name: "Trading Kurs", kind: "course", color: "#0d9488", tag: "KRIPTO TRADING • FOREX • SINYAL", logoUrl: "", bannerUrl: "", svg: artLogo("#10b981", "#042f2e", "TRD", "TRADING", "chart") }
 ];
 
 const ALL_PLATFORMS = [...GAMES_CATALOG, ...APPS_CATALOG, ...EXNESS_CATALOG, ...COURSES_CATALOG];
@@ -121,15 +122,25 @@ function esc(s) {
 }
 
 function renderLogoWithAsset(plat) {
-  const base = `assets/logos/${plat.id}`;
-  return `${plat.svg}<img class="custom-asset" src="${base}.jpg" data-exts="png,webp" data-base="${base}" alt="${esc(plat.name)}" loading="lazy" onerror="const e=(this.dataset.exts||'').split(',');const n=e.shift();if(n){this.dataset.exts=e.join(',');this.src=this.dataset.base+'.'+n;}else{this.remove();}" />`;
+  const localBase = `assets/logos/${plat.id}`;
+  const urlImg = plat.logoUrl
+    ? `<img class="custom-asset" src="${esc(plat.logoUrl)}" alt="${esc(plat.name)}" loading="lazy" onerror="this.remove();" />`
+    : "";
+  const localImg = `<img class="custom-asset" src="${localBase}.jpg" data-exts="png,webp" data-base="${localBase}" alt="${esc(plat.name)}" loading="lazy" onerror="const e=(this.dataset.exts||'').split(',');const n=e.shift();if(n){this.dataset.exts=e.join(',');this.src=this.dataset.base+'.'+n;}else{this.remove();}" />`;
+  return `${plat.svg}${localImg}${urlImg}`;
 }
 
 function renderBannerWithAsset(plat) {
   const subs = getSubcatsForPlatform(plat).filter(x => x !== "Ählisi").join(" • ");
-  const base = `assets/banners/${plat.id}`;
+  const localBase = `assets/banners/${plat.id}`;
+  const urlBanner = plat.bannerUrl
+    ? `<img src="${esc(plat.bannerUrl)}" alt="${esc(plat.name)}" style="position:absolute; inset:0; width:100%; height:100%; object-fit:cover; opacity:0.42; pointer-events:none;" onerror="this.remove();" />`
+    : "";
+  const localBanner = `<img src="${localBase}.jpg" data-exts="png,webp" data-base="${localBase}" alt="${esc(plat.name)}" style="position:absolute; inset:0; width:100%; height:100%; object-fit:cover; opacity:0.42; pointer-events:none;" onerror="const e=(this.dataset.exts||'').split(',');const n=e.shift();if(n){this.dataset.exts=e.join(',');this.src=this.dataset.base+'.'+n;}else{this.remove();}" />`;
+
   return `<div style="position:relative; width:100%; border-radius:18px; overflow:hidden; min-height:132px; display:flex; align-items:center; gap:14px; padding:16px; color:#fff; background:linear-gradient(120deg, #090d1e 0%, ${plat.color} 100%); border:1.5px solid rgba(255,255,255,0.25); box-shadow:0 0 24px rgba(139,92,246,0.32);">
-    <img src="${base}.jpg" data-exts="png,webp" data-base="${base}" alt="${esc(plat.name)}" style="position:absolute; inset:0; width:100%; height:100%; object-fit:cover; opacity:0.35; pointer-events:none;" onerror="const e=(this.dataset.exts||'').split(',');const n=e.shift();if(n){this.dataset.exts=e.join(',');this.src=this.dataset.base+'.'+n;}else{this.remove();}" />
+    ${localBanner}
+    ${urlBanner}
     <div style="position:absolute; inset:0; background:linear-gradient(90deg, rgba(2,6,23,0.82) 0%, rgba(2,6,23,0.35) 100%); pointer-events:none;"></div>
     <div class="platform-hero-logo" style="z-index:2;">${renderLogoWithAsset(plat)}</div>
     <div style="position:relative; z-index:2;">
