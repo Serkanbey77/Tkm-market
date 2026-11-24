@@ -4,7 +4,6 @@
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>TKM Market — Bazar, Kripto &amp; Satyjy Paneli</title>
-  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
   <style>
     :root {
       --bg: #0b0f17;
@@ -14,14 +13,11 @@
       --text: #eef2f7;
       --muted: #94a3b8;
       --accent: #10b981;
-      --accent-2: #3b82f6;
       --warn: #f59e0b;
-      --danger: #ef4444;
     }
     * { box-sizing: border-box; margin: 0; padding: 0; font-family: system-ui, -apple-system, sans-serif; }
     body { background: var(--bg); color: var(--text); min-height: 100vh; }
 
-    /* Üst piyasa şeridi */
     .ticker-bar {
       background: #080b11;
       border-bottom: 1px solid var(--border);
@@ -40,12 +36,11 @@
       font-size: 12px;
       padding: 3px 8px;
       border-radius: 999px;
-      background: rgba(16, 185, 129, 0.14);
-      color: #6ee7b7;
-      border: 1px solid rgba(16, 185, 129, 0.35);
+      background: rgba(245, 158, 11, 0.16);
+      color: #fcd34d;
+      border: 1px solid rgba(245, 158, 11, 0.4);
     }
 
-    /* Üst menü ve sekmeler */
     header {
       max-width: 1120px;
       margin: 0 auto;
@@ -56,7 +51,7 @@
       align-items: center;
       justify-content: space-between;
     }
-    .brand { font-size: 22px; font-weight: 800; letter-spacing: 0.3px; }
+    .brand { font-size: 22px; font-weight: 800; }
     .brand span { color: var(--accent); }
     .tabs { display: flex; flex-wrap: wrap; gap: 8px; }
     .tab-btn {
@@ -79,13 +74,7 @@
     .section { display: none; }
     .section.active { display: block; }
 
-    /* Filtreler & Arama */
-    .toolbar {
-      display: flex;
-      flex-wrap: wrap;
-      gap: 10px;
-      margin-bottom: 18px;
-    }
+    .toolbar { display: flex; flex-wrap: wrap; gap: 10px; margin-bottom: 18px; }
     input, select, textarea {
       background: var(--panel);
       color: var(--text);
@@ -98,7 +87,6 @@
     .toolbar input { max-width: 300px; }
     .toolbar select { max-width: 200px; }
 
-    /* Ürün kartları */
     .grid {
       display: grid;
       grid-template-columns: repeat(auto-fill, minmax(260px, 1fr));
@@ -151,7 +139,6 @@
       cursor: pointer;
     }
 
-    /* Form ve listeler */
     .panel-box {
       background: var(--panel);
       border: 1px solid var(--border);
@@ -203,11 +190,11 @@
 <body>
   <div class="ticker-bar">
     <div class="ticker-items">
-      <div class="ticker-item"><strong>XAU/USD:</strong><span class="ticker-val" id="px-xau">$2,740.00</span></div>
-      <div class="ticker-item"><strong>BTC/USD:</strong><span class="ticker-val" id="px-btc">$96,450.00</span></div>
-      <div class="ticker-item"><strong>XAG/USD:</strong><span class="ticker-val" id="px-xag">$31.40</span></div>
+      <div class="ticker-item"><strong>XAU/USD:</strong><span class="ticker-val">$2,740.00</span></div>
+      <div class="ticker-item"><strong>BTC/USD:</strong><span class="ticker-val">$96,450.00</span></div>
+      <div class="ticker-item"><strong>XAG/USD:</strong><span class="ticker-val">$31.40</span></div>
     </div>
-    <div class="db-badge" id="db-status">Supabase: Bağlanýlýr...</div>
+    <div class="db-badge" id="db-status">Supabase: Barlanýlýr...</div>
   </div>
 
   <header>
@@ -220,7 +207,6 @@
   </header>
 
   <main>
-    <!-- BAZAR & KRİPTO -->
     <section id="tab-market" class="section active">
       <div class="toolbar">
         <input id="search-input" type="text" placeholder="Haryt ýa-da satyjy gözle..." />
@@ -236,10 +222,9 @@
       <div class="grid" id="products-grid"></div>
     </section>
 
-    <!-- SATYJY PANELİ -->
     <section id="tab-seller" class="section">
       <div class="panel-box">
-        <h2>Täze Haryt Goş (Supabase)</h2>
+        <h2>Täze Haryt Goş</h2>
         <div class="form-grid">
           <div class="form-group">
             <label>Harydyň ady</label>
@@ -259,7 +244,7 @@
             <input id="p-price" type="number" step="0.01" placeholder="1950" />
           </div>
           <div class="form-group">
-            <label>Deňeşdirme bahasy (TMT - islege görä)</label>
+            <label>Deňeşdirme bahasy (TMT)</label>
             <input id="p-compare" type="number" step="0.01" placeholder="2000" />
           </div>
           <div class="form-group">
@@ -277,7 +262,6 @@
       </div>
     </section>
 
-    <!-- SARGYTLAR & ÇEKİMLER -->
     <section id="tab-orders" class="section">
       <div class="panel-box">
         <h2>Täze Pul Çekme Ýüz Tutmasy</h2>
@@ -312,11 +296,7 @@
 
   <script>
     const SUPABASE_URL = "https://piajbopfeqlyupkrsnik.supabase.co";
-    const SUPABASE_PUBLISHABLE_KEY = "sb_publishable_gQFoj3SUxW-TUMjYmTGrIg_5_6hwBAH";
-
-    const sb = window.supabase
-      ? window.supabase.createClient(SUPABASE_URL, SUPABASE_PUBLISHABLE_KEY)
-      : null;
+    const SUPABASE_KEY = "sb_publishable_gQFoj3SUxW-TUMjYmTGrIg_5_6hwBAH";
 
     const FALLBACK_PRODUCTS = [
       {
@@ -345,19 +325,14 @@
       }
     ];
 
-    let state = {
-      products: [],
-      orders: [],
-      withdrawals: [],
-      online: false
-    };
+    let state = { products: [], orders: [], withdrawals: [], online: false };
 
     function showToast(msg) {
       const el = document.getElementById("toast");
       el.textContent = msg;
       el.style.display = "block";
       clearTimeout(window.__toastTimer);
-      window.__toastTimer = setTimeout(() => { el.style.display = "none"; }, 3000);
+      window.__toastTimer = setTimeout(() => { el.style.display = "none"; }, 3200);
     }
 
     function setDbBadge(ok, text) {
@@ -366,6 +341,39 @@
       badge.style.background = ok ? "rgba(16, 185, 129, 0.14)" : "rgba(245, 158, 11, 0.16)";
       badge.style.color = ok ? "#6ee7b7" : "#fcd34d";
       badge.style.borderColor = ok ? "rgba(16, 185, 129, 0.35)" : "rgba(245, 158, 11, 0.4)";
+    }
+
+    async function restGet(table) {
+      const res = await fetch(`${SUPABASE_URL}/rest/v1/${table}?select=*&order=id.desc`, {
+        headers: {
+          "apikey": SUPABASE_KEY,
+          "Authorization": `Bearer ${SUPABASE_KEY}`
+        }
+      });
+      if (!res.ok) {
+        const txt = await res.text();
+        throw new Error(`${table}: ${res.status} ${txt}`);
+      }
+      return await res.json();
+    }
+
+    async function restInsert(table, payload) {
+      const res = await fetch(`${SUPABASE_URL}/rest/v1/${table}`, {
+        method: "POST",
+        headers: {
+          "apikey": SUPABASE_KEY,
+          "Authorization": `Bearer ${SUPABASE_KEY}`,
+          "Content-Type": "application/json",
+          "Prefer": "return=representation"
+        },
+        body: JSON.stringify(payload)
+      });
+      if (!res.ok) {
+        const txt = await res.text();
+        throw new Error(`${table} insert: ${res.status} ${txt}`);
+      }
+      const rows = await res.json();
+      return Array.isArray(rows) ? rows[0] : rows;
     }
 
     function saveLocal() {
@@ -394,34 +402,25 @@
     async function syncFromSupabase() {
       loadLocal();
       renderAll();
-      if (!sb) {
-        setDbBadge(false, "Supabase: Ýerli ýatda");
-        return;
-      }
       try {
-        const [pRes, oRes, wRes] = await Promise.all([
-          sb.from("products").select("*").order("id", { ascending: false }),
-          sb.from("orders").select("*").order("id", { ascending: false }),
-          sb.from("withdrawals").select("*").order("id", { ascending: false })
+        const [pData, oData, wData] = await Promise.all([
+          restGet("products"),
+          restGet("orders"),
+          restGet("withdrawals")
         ]);
-
-        if (pRes.error || oRes.error || wRes.error) {
-          throw new Error((pRes.error || oRes.error || wRes.error).message);
-        }
-
         state.online = true;
-        if (pRes.data && pRes.data.length > 0) {
-          state.products = pRes.data;
+        if (pData && pData.length > 0) {
+          state.products = pData;
         }
-        state.orders = oRes.data || [];
-        state.withdrawals = wRes.data || [];
+        state.orders = oData || [];
+        state.withdrawals = wData || [];
         saveLocal();
         setDbBadge(true, "Supabase: Baglanyşyk işjeň");
         renderAll();
       } catch (err) {
         state.online = false;
         setDbBadge(false, "Supabase: Ýerli ätiýaç");
-        console.warn("Supabase sync warning:", err.message);
+        showToast("Baglanyşyk duýduryşy: " + err.message);
       }
     }
 
@@ -475,14 +474,16 @@
         secret_code: secretCode
       };
 
-      if (state.online && sb) {
-        const { data, error } = await sb.from("orders").insert([newOrder]).select();
-        if (!error && data && data[0]) {
-          state.orders.unshift(data[0]);
+      if (state.online) {
+        try {
+          const saved = await restInsert("orders", newOrder);
+          state.orders.unshift(saved || { id: Date.now(), ...newOrder });
           saveLocal();
           renderOrders();
           showToast(`Sargyt döredildi: ${orderCode}`);
           return;
+        } catch (err) {
+          showToast("Ýazylmady: " + err.message);
         }
       }
 
@@ -518,26 +519,28 @@
         is_trading: cat === "CRYPTO"
       };
 
-      if (state.online && sb) {
-        const { data, error } = await sb.from("products").insert([payload]).select();
-        if (error) {
-          showToast("Supabase ýalňyşlygy: " + error.message);
+      if (state.online) {
+        try {
+          const saved = await restInsert("products", payload);
+          state.products.unshift(saved || { id: Date.now(), ...payload });
+          saveLocal();
+          renderProducts();
+          document.getElementById("p-title").value = "";
+          document.getElementById("p-price").value = "";
+          document.getElementById("p-compare").value = "";
+          document.getElementById("p-desc").value = "";
+          showToast("Haryt Supabase-a ýazyldy!");
+          return;
+        } catch (err) {
+          showToast("Supabase ýalňyşlygy: " + err.message);
           return;
         }
-        if (data && data[0]) {
-          state.products.unshift(data[0]);
-        }
-      } else {
-        state.products.unshift({ id: Date.now(), ...payload });
       }
 
+      state.products.unshift({ id: Date.now(), ...payload });
       saveLocal();
       renderProducts();
-      document.getElementById("p-title").value = "";
-      document.getElementById("p-price").value = "";
-      document.getElementById("p-compare").value = "";
-      document.getElementById("p-desc").value = "";
-      showToast("Haryt üstünlikli goşuldy!");
+      showToast("Haryt ýerli ýada ýazyldy.");
     }
 
     async function addWithdrawal() {
@@ -554,23 +557,25 @@
         status: "Admin tassyklamasyna garaşylýar"
       };
 
-      if (state.online && sb) {
-        const { data, error } = await sb.from("withdrawals").insert([payload]).select();
-        if (error) {
-          showToast("Supabase ýalňyşlygy: " + error.message);
+      if (state.online) {
+        try {
+          const saved = await restInsert("withdrawals", payload);
+          state.withdrawals.unshift(saved || { id: Date.now(), ...payload });
+          saveLocal();
+          renderWithdrawals();
+          document.getElementById("w-amount").value = "";
+          showToast("Çekme ýüz tutmasy Supabase-a ýazyldy!");
+          return;
+        } catch (err) {
+          showToast("Supabase ýalňyşlygy: " + err.message);
           return;
         }
-        if (data && data[0]) {
-          state.withdrawals.unshift(data[0]);
-        }
-      } else {
-        state.withdrawals.unshift({ id: Date.now(), ...payload });
       }
 
+      state.withdrawals.unshift({ id: Date.now(), ...payload });
       saveLocal();
       renderWithdrawals();
-      document.getElementById("w-amount").value = "";
-      showToast("Çekme ýüz tutmasy iberildi!");
+      showToast("Çekme ýüz tutmasy ýazyldy.");
     }
 
     function renderOrders() {
