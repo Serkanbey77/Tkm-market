@@ -11,22 +11,21 @@
 
   <main class="page-wrap">
     <div class="panel">
-      <h2 id="form-heading">Täze Hasap / Haryt Ýerleşdir</h2>
-      <p class="muted">Hasap satmak üçin aşakda hasap adyny we parolyny giriziň; satyn alnandan soň açylýar.</p>
+      <h2 id="form-heading">Täze Hasap / Haryt / Kurs Ýerleşdir</h2>
+      <p class="muted">Oýun, programma ýa-da Trading Kurs saýlaň; hasap satylýan bolsa login/paroly giriziň.</p>
 
       <div class="form-grid">
         <div class="field">
-          <label>Harydyň / Hasabyň ady</label>
-          <input id="p-title" type="text" placeholder="Mysal: PUBG Mobile / Steam Hasap" />
+          <label>Ady</label>
+          <input id="p-title" type="text" placeholder="Mysal: PUBG Hasap / TikTok 1000 İzlenme" />
         </div>
         <div class="field">
-          <label>Kategoriýa</label>
-          <select id="p-cat">
-            <option value="ACCOUNT">ACCOUNT (Hasap)</option>
-            <option value="CRYPTO">CRYPTO</option>
-            <option value="DIGITAL">DIGITAL</option>
-            <option value="SERVICE">SERVICE</option>
-          </select>
+          <label>Oýun / Programa / Kurs</label>
+          <select id="p-platform" onchange="syncSubcatOptions()"></select>
+        </div>
+        <div class="field">
+          <label>Bölüm (Alt kategoriýa)</label>
+          <select id="p-subcat"></select>
         </div>
         <div class="field">
           <label>Baha (TMT)</label>
@@ -49,7 +48,7 @@
 
       <div class="escrow-box">
         <h3>Gizlin Hasap Giriş Maglumatlary</h3>
-        <p class="muted">Vitrinde görünmeýär; diňe satyn alan ulanyja açylýar.</p>
+        <p class="muted">Diňe satyn alan ulanyja açylýar.</p>
         <div class="form-grid">
           <div class="field">
             <label>Hasap Ady / Login</label>
@@ -91,27 +90,37 @@
     let editImgs = [];
     let filesPicked = [];
 
+    function populatePlatforms() {
+      const sel = document.getElementById("p-platform");
+      sel.innerHTML = ALL_PLATFORMS.map(p => `<option value="${esc(p.id)}">${esc(p.name)}</option>`).join("");
+      syncSubcatOptions();
+    }
+
+    function syncSubcatOptions(chosen) {
+      const plat = findPlatform(document.getElementById("p-platform").value);
+      const subs = getSubcatsForPlatform(plat).filter(x => x !== "Ählisi");
+      const subSel = document.getElementById("p-subcat");
+      subSel.innerHTML = subs.map(s => `<option value="${esc(s)}">${esc(s)}</option>`).join("");
+      if (chosen && subs.includes(chosen)) subSel.value = chosen;
+    }
+
     async function loadMine() {
       try {
         items = await sbGet("products");
         setDbPill(true, "Onlaýn");
       } catch (err) {
         setDbPill(false, "Ýerli");
-        showToast("Duýduryş: " + err.message);
       }
       renderMine();
     }
 
     function renderMine() {
       const el = document.getElementById("seller-list");
-      if (!items.length) {
-        el.innerHTML = `<p class="muted">Heniz haryt ýok.</p>`;
-        return;
-      }
+      if (!items.length) { el.innerHTML = `<p class="muted">Heniz haryt ýok.</p>`; return; }
       el.innerHTML = items.map(p => `
         <div class="list-row">
           <div>
-            <span class="chip-cat">${esc(p.cat || "ACCOUNT")}</span>
+            <span class="chip-cat">${esc(p.platform_name || p.cat || "")}${p.subcat ? " • " + esc(p.subcat) : ""}</span>
             <strong>${esc(p.title)}</strong>
             <div class="muted">${Number(p.price_tmt || 0).toLocaleString()} TMT · Hasap: ${p.account_login ? "Bar 🔒" : "Ýok"}</div>
           </div>
@@ -127,11 +136,10 @@
       editId = null;
       editImgs = [];
       filesPicked = [];
-      document.getElementById("form-heading").textContent = "Täze Hasap / Haryt Ýerleşdir";
+      document.getElementById("form-heading").textContent = "Täze Hasap / Haryt / Kurs Ýerleşdir";
       document.getElementById("save-btn").textContent = "Ýerleşdir";
       document.getElementById("cancel-btn").style.display = "none";
       document.getElementById("p-title").value = "";
-      document.getElementById("p-cat").value = "ACCOUNT";
       document.getElementById("p-price").value = "";
       document.getElementById("p-compare").value = "";
       document.getElementById("p-login").value = "";
@@ -140,6 +148,7 @@
       document.getElementById("p-files").value = "";
       document.getElementById("p-desc").value = "";
       document.getElementById("p-preview").innerHTML = "";
+      syncSubcatOptions();
     }
 
     function editOne(id) {
@@ -152,7 +161,8 @@
       document.getElementById("save-btn").textContent = "Ýatda Sakla";
       document.getElementById("cancel-btn").style.display = "inline-block";
       document.getElementById("p-title").value = p.title || "";
-      document.getElementById("p-cat").value = p.cat || "ACCOUNT";
+      if (p.platform_id) document.getElementById("p-platform").value = p.platform_id;
+      syncSubcatOptions(p.subcat);
       document.getElementById("p-price").value = p.price_tmt ?? "";
       document.getElementById("p-compare").value = p.market_compare_tmt ?? "";
       document.getElementById("p-seller").value = p.seller || getUser().username;
@@ -165,7 +175,8 @@
 
     async function saveOne() {
       const title = document.getElementById("p-title").value.trim();
-      const cat = document.getElementById("p-cat").value;
+      const plat = findPlatform(document.getElementById("p-platform").value) || ALL_PLATFORMS[0];
+      const subcat = document.getElementById("p-subcat").value;
       const priceTmt = parseFloat(document.getElementById("p-price").value);
       const cmp = document.getElementById("p-compare").value.trim();
       const marketCompareTmt = cmp ? parseFloat(cmp) : null;
@@ -188,9 +199,13 @@
           showToast(`${filesPicked.length} surat ýüklenýär...`);
           uploaded = await sbUpload(filesPicked);
         }
+        const catCode = plat.kind === "game" ? "ACCOUNT" : (plat.kind === "course" ? "COURSE" : "DIGITAL");
         const payload = {
           title,
-          cat,
+          cat: catCode,
+          platform_id: plat.id,
+          platform_name: plat.name,
+          subcat,
           price_tmt: priceTmt,
           market_compare_tmt: marketCompareTmt && !isNaN(marketCompareTmt) ? marketCompareTmt : null,
           seller,
@@ -199,15 +214,15 @@
           account_extra: accountExtra || null,
           image_urls: editId !== null ? [...editImgs, ...uploaded] : uploaded,
           description,
-          is_trading: cat === "CRYPTO"
+          is_trading: plat.kind === "course"
         };
 
         if (editId !== null) {
           await sbPatch("products", editId, payload);
-          showToast("Haryt täzelendi!");
+          showToast("Täzelendi!");
         } else {
           await sbInsert("products", { ...payload, rating: 5.0, sales: 0 });
-          showToast("Haryt ýerleşdirildi!");
+          showToast("Ýerleşdirildi!");
         }
         resetForm();
         await loadMine();
@@ -244,6 +259,7 @@
     });
 
     document.getElementById("save-btn").addEventListener("click", saveOne);
+    populatePlatforms();
     loadMine();
   </script>
 </body>
