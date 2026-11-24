@@ -4,69 +4,70 @@ const TKM_API = {
   bucket: "product-images"
 };
 
-const GAME_SUBCATS = ["Ählisi", "Hasap", "Arenda", "UC / Bakiýa"];
+const GAME_SUBCATS = ["Ählisi", "Hasap", "Arenda", "UC"];
 const APP_SUBCATS = ["Ählisi", "Hasap", "İzlenme", "Like", "Yorum", "Dizayn", "Reklam"];
-const COURSE_SUBCATS = ["Ählisi", "Kripto Trading", "Forex & Altın", "Sinyal & Analiz"];
+const COURSE_SUBCATS = ["Ählisi", "Kripto Trading", "Forex & Altın", "Sinyal"];
+
+function svgLogo(bg, fg, label, sub = "") {
+  return `<svg viewBox="0 0 80 80" xmlns="http://www.w3.org/2000/svg">
+    <rect width="80" height="80" rx="18" fill="${bg}"/>
+    <text x="40" y="${sub ? "38" : "46"}" text-anchor="middle" fill="${fg}" font-size="${label.length > 3 ? "16" : "22"}" font-weight="900" font-family="system-ui,sans-serif">${label}</text>
+    ${sub ? `<text x="40" y="57" text-anchor="middle" fill="${fg}" font-size="11" font-weight="700" opacity="0.9" font-family="system-ui,sans-serif">${sub}</text>` : ""}
+  </svg>`;
+}
 
 const GAMES_CATALOG = [
-  { id: "pubg-mobile", name: "PUBG Mobile", badge: "PM", color: "#d97706", kind: "game" },
-  { id: "clash-of-clans", name: "Clash of Clans", badge: "CoC", color: "#15803d", kind: "game" },
-  { id: "minecraft", name: "Minecraft", badge: "MC", color: "#16a34a", kind: "game" },
-  { id: "gta-5", name: "GTA 5", badge: "GTA", color: "#0f766e", kind: "game" },
-  { id: "roblox", name: "Roblox", badge: "RBX", color: "#dc2626", kind: "game" },
-  { id: "fortnite", name: "Fortnite", badge: "FN", color: "#7c3aed", kind: "game" },
-  { id: "pubg-mobile-korea", name: "PUBG Mobile Kore", badge: "KR", color: "#b45309", kind: "game" },
-  { id: "rust", name: "Rust", badge: "RST", color: "#b91c1c", kind: "game" },
-  { id: "call-of-duty", name: "Call of Duty", badge: "CoD", color: "#334155", kind: "game" },
-  { id: "far-cry", name: "Far Cry", badge: "FC", color: "#c2410c", kind: "game" },
-  { id: "fifa", name: "FIFA", badge: "FC26", color: "#059669", kind: "game" }
+  { id: "pubg-mobile", name: "PUBG Mobile", kind: "game", banner: "linear-gradient(120deg,#1e293b,#d97706)", logo: svgLogo("#f59e0b", "#111827", "PUBG", "MOBILE") },
+  { id: "clash-of-clans", name: "Clash of Clans", kind: "game", banner: "linear-gradient(120deg,#14532d,#eab308)", logo: svgLogo("#15803d", "#fde047", "CoC", "CLASH") },
+  { id: "minecraft", name: "Minecraft", kind: "game", banner: "linear-gradient(120deg,#166534,#4d7c0f)", logo: svgLogo("#4d7c0f", "#ecfccb", "MC", "CRAFT") },
+  { id: "gta-5", name: "GTA 5", kind: "game", banner: "linear-gradient(120deg,#065f46,#10b981)", logo: svgLogo("#047857", "#a7f3d0", "GTA V", "ONLINE") },
+  { id: "roblox", name: "Roblox", kind: "game", banner: "linear-gradient(120deg,#111827,#ef4444)", logo: svgLogo("#111827", "#ffffff", "◆", "ROBLOX") },
+  { id: "fortnite", name: "Fortnite", kind: "game", banner: "linear-gradient(120deg,#3730a3,#7c3aed)", logo: svgLogo("#4338ca", "#ffffff", "F", "FORTNITE") },
+  { id: "pubg-mobile-korea", name: "PUBG Mobile Kore", kind: "game", banner: "linear-gradient(120deg,#1e3a8a,#dc2626)", logo: svgLogo("#1d4ed8", "#fca5a5", "KR", "PUBG KR") },
+  { id: "rust", name: "Rust", kind: "game", banner: "linear-gradient(120deg,#7f1d1d,#c2410c)", logo: svgLogo("#9a3412", "#fed7aa", "RUST", "") },
+  { id: "call-of-duty", name: "Call of Duty", kind: "game", banner: "linear-gradient(120deg,#0f172a,#475569)", logo: svgLogo("#0f172a", "#e2e8f0", "CoD", "MOBILE") },
+  { id: "far-cry", name: "Far Cry", kind: "game", banner: "linear-gradient(120deg,#7c2d12,#ea580c)", logo: svgLogo("#c2410c", "#fff7ed", "FC", "FAR CRY") },
+  { id: "fifa", name: "FIFA", kind: "game", banner: "linear-gradient(120deg,#064e3b,#22c55e)", logo: svgLogo("#059669", "#dcfce7", "FC", "FOOTBALL") }
 ];
 
 const APPS_CATALOG = [
-  { id: "telegram", name: "Telegram", badge: "TG", color: "#0284c7", kind: "app" },
-  { id: "tiktok", name: "TikTok", badge: "TT", color: "#111827", kind: "app" },
-  { id: "youtube", name: "YouTube", badge: "YT", color: "#dc2626", kind: "app" },
-  { id: "instagram", name: "Instagram", badge: "IG", color: "#db2777", kind: "app" },
-  { id: "chatgpt", name: "ChatGPT", badge: "GPT", color: "#10b981", kind: "app" },
-  { id: "gemini", name: "Gemini", badge: "GEM", color: "#4f46e5", kind: "app" },
-  { id: "microsoft", name: "Microsoft", badge: "MS", color: "#2563eb", kind: "app" },
-  { id: "apple", name: "Apple", badge: "APL", color: "#475569", kind: "app" },
-  { id: "steam", name: "Steam", badge: "STM", color: "#1e3a8a", kind: "app" },
-  { id: "xbox", name: "Xbox", badge: "XB", color: "#16a34a", kind: "app" },
-  { id: "spotify", name: "Spotify", badge: "SP", color: "#15803d", kind: "app" },
-  { id: "discord", name: "Discord", badge: "DC", color: "#4f46e5", kind: "app" },
-  { id: "microsoft-office", name: "Microsoft Office", badge: "OFC", color: "#ea580c", kind: "app" },
-  { id: "epic-games", name: "Epic Games", badge: "EPG", color: "#1f2937", kind: "app" },
-  { id: "runway", name: "Runway", badge: "RWY", color: "#0d9488", kind: "app" },
-  { id: "netflix", name: "Netflix", badge: "NF", color: "#b91c1c", kind: "app" },
-  { id: "midjourney", name: "Midjourney", badge: "MJ", color: "#6d28d9", kind: "app" },
-  { id: "google-play", name: "Google Play", badge: "GP", color: "#059669", kind: "app" },
-  { id: "belet-film", name: "Belet Film", badge: "BF", color: "#e11d48", kind: "app" }
+  { id: "telegram", name: "Telegram", kind: "app", banner: "linear-gradient(120deg,#0369a1,#38bdf8)", logo: svgLogo("#0284c7", "#ffffff", "✈", "TELEGRAM") },
+  { id: "tiktok", name: "TikTok", kind: "app", banner: "linear-gradient(120deg,#090d16,#ec4899)", logo: svgLogo("#090d16", "#ffffff", "♪", "TIKTOK") },
+  { id: "youtube", name: "YouTube", kind: "app", banner: "linear-gradient(120deg,#7f1d1d,#ef4444)", logo: svgLogo("#dc2626", "#ffffff", "▶", "YOUTUBE") },
+  { id: "instagram", name: "Instagram", kind: "app", banner: "linear-gradient(120deg,#831843,#f97316)", logo: svgLogo("#db2777", "#ffffff", "◎", "INSTA") },
+  { id: "chatgpt", name: "ChatGPT", kind: "app", banner: "linear-gradient(120deg,#065f46,#10b981)", logo: svgLogo("#10b981", "#ffffff", "GPT", "OPENAI") },
+  { id: "gemini", name: "Gemini", kind: "app", banner: "linear-gradient(120deg,#1e40af,#8b5cf6)", logo: svgLogo("#4f46e5", "#ffffff", "✦", "GEMINI") },
+  { id: "microsoft", name: "Microsoft", kind: "app", banner: "linear-gradient(120deg,#1e3a8a,#0284c7)", logo: svgLogo("#2563eb", "#ffffff", "⊞", "MS") },
+  { id: "apple", name: "Apple", kind: "app", banner: "linear-gradient(120deg,#1e293b,#64748b)", logo: svgLogo("#1e293b", "#ffffff", "", "APPLE") },
+  { id: "steam", name: "Steam", kind: "app", banner: "linear-gradient(120deg,#0f172a,#2563eb)", logo: svgLogo("#1e3a8a", "#93c5fd", "STM", "STEAM") },
+  { id: "xbox", name: "Xbox", kind: "app", banner: "linear-gradient(120deg,#14532d,#22c55e)", logo: svgLogo("#16a34a", "#ffffff", "X", "XBOX") },
+  { id: "spotify", name: "Spotify", kind: "app", banner: "linear-gradient(120deg,#052e16,#16a34a)", logo: svgLogo("#16a34a", "#052e16", ")))", "SPOTIFY") },
+  { id: "discord", name: "Discord", kind: "app", banner: "linear-gradient(120deg,#3730a3,#6366f1)", logo: svgLogo("#4f46e5", "#ffffff", "DC", "DISCORD") },
+  { id: "microsoft-office", name: "Microsoft Office", kind: "app", banner: "linear-gradient(120deg,#9a3412,#ea580c)", logo: svgLogo("#ea580c", "#ffffff", "O365", "OFFICE") },
+  { id: "epic-games", name: "Epic Games", kind: "app", banner: "linear-gradient(120deg,#090d16,#334155)", logo: svgLogo("#111827", "#ffffff", "EPIC", "GAMES") },
+  { id: "runway", name: "Runway", kind: "app", banner: "linear-gradient(120deg,#115e59,#14b8a6)", logo: svgLogo("#0d9488", "#ffffff", "RWY", "RUNWAY") },
+  { id: "netflix", name: "Netflix", kind: "app", banner: "linear-gradient(120deg,#450a0a,#dc2626)", logo: svgLogo("#b91c1c", "#ffffff", "N", "NETFLIX") },
+  { id: "midjourney", name: "Midjourney", kind: "app", banner: "linear-gradient(120deg,#3b0764,#9333ea)", logo: svgLogo("#6d28d9", "#ffffff", "MJ", "ART AI") },
+  { id: "google-play", name: "Google Play", kind: "app", banner: "linear-gradient(120deg,#064e3b,#0ea5e9)", logo: svgLogo("#059669", "#ffffff", "▷", "PLAY") },
+  { id: "belet-film", name: "Belet Film", kind: "app", banner: "linear-gradient(120deg,#881337,#f43f5e)", logo: svgLogo("#e11d48", "#ffffff", "BF", "BELET") }
 ];
 
 const COURSES_CATALOG = [
-  { id: "trading-kurs", name: "Trading Kurs", badge: "TRD", color: "#0f766e", kind: "course" }
+  { id: "trading-kurs", name: "Trading Kurs", kind: "course", banner: "linear-gradient(120deg,#0f766e,#10b981)", logo: svgLogo("#0f766e", "#ffffff", "TRD", "KURS") }
 ];
 
 const ALL_PLATFORMS = [...GAMES_CATALOG, ...APPS_CATALOG, ...COURSES_CATALOG];
 
 function findPlatform(idOrName) {
-  const key = String(idOrName || "").toLowerCase().trim();
-  return ALL_PLATFORMS.find(
-    x => x.id.toLowerCase() === key || x.name.toLowerCase() === key
-  ) || null;
+  const k = String(idOrName || "").toLowerCase().trim();
+  return ALL_PLATFORMS.find(p => p.id.toLowerCase() === k || p.name.toLowerCase() === k) || null;
 }
 
-function getSubcatsForPlatform(platform) {
-  if (!platform) return ["Ählisi", "Hasap", "Arenda", "UC / Bakiýa", "İzlenme", "Like", "Yorum", "Dizayn", "Reklam"];
-  if (platform.kind === "game") return GAME_SUBCATS;
-  if (platform.kind === "course") return COURSE_SUBCATS;
+function getSubcatsForPlatform(plat) {
+  if (!plat) return ["Ählisi", "Hasap", "Arenda", "UC", "İzlenme", "Like", "Yorum", "Dizayn", "Reklam"];
+  if (plat.kind === "game") return GAME_SUBCATS;
+  if (plat.kind === "course") return COURSE_SUBCATS;
   return APP_SUBCATS;
-}
-
-function renderPlatformLogo(platform, sizeClass = "") {
-  const p = platform || { badge: "TKM", color: "#4f46e5" };
-  return `<div class="logo-badge ${sizeClass}" style="background:${p.color};">${esc(p.badge)}</div>`;
 }
 
 function esc(s) {
@@ -101,27 +102,12 @@ function toggleTheme() {
   localStorage.setItem("tkm_theme", next ? "dark" : "light");
 }
 
-function getSession() {
-  try {
-    return JSON.parse(localStorage.getItem("tkm_auth_session") || "null");
-  } catch (_) {
-    return null;
-  }
-}
-
 function getUser() {
-  const s = getSession();
-  if (s && s.username) return s;
-  return { username: "Serkanbey77", role: "Satıcı & Alyjy", loggedIn: false };
-}
-
-function generateCaptchaCode() {
-  const chars = "ABCDEFGHJKLMNPQRSTUVWXYZ23456789";
-  let code = "";
-  for (let i = 0; i < 5; i++) {
-    code += chars[Math.floor(Math.random() * chars.length)];
+  try {
+    return JSON.parse(localStorage.getItem("tkm_auth_session") || "null") || { username: "Serkanbey77" };
+  } catch (_) {
+    return { username: "Serkanbey77" };
   }
-  return code;
 }
 
 function syncUserFields() {
@@ -224,20 +210,25 @@ function getImages(item) {
   return out;
 }
 
-function mountPlayerokShell(activeTab, searchPlaceholder) {
+function mountPlayerokShell(activeTab, searchPlaceholder, showBackArrow = false) {
   applySavedTheme();
   const host = document.getElementById("playerok-shell");
   if (!host) return;
 
-  const u = getUser();
+  const backHtml = showBackArrow
+    ? `<button class="back-btn" type="button" aria-label="Yza" onclick="history.length > 1 ? history.back() : (location.href='kategoriler.html')">←</button>`
+    : "";
+
   host.innerHTML = `
     <header class="top-head">
       <div class="top-inner">
         <div class="top-row">
-          <a class="brand-link" href="index.html">TKM <span>Market</span></a>
+          <div style="display:flex; align-items:center; gap:8px;">
+            ${backHtml}
+            <a class="brand-link" href="index.html">TKM <span>Market</span></a>
+          </div>
           <div class="top-right">
             <span class="db-mini" id="db-status-pill">Supabase</span>
-            <a class="btn btn-soft" style="padding:6px 10px; font-size:11px; text-decoration:none;" href="profil.html">${esc(u.username)}</a>
             <button class="theme-switch" type="button" title="Tema" onclick="toggleTheme()">☀/☾</button>
           </div>
         </div>
@@ -265,9 +256,6 @@ function mountPlayerokShell(activeTab, searchPlaceholder) {
       </a>
       <a class="bnav-item ${activeTab === "orders" ? "active" : ""}" href="sargytlar.html">
         <span class="ico">🛡</span><span>Emanet</span>
-      </a>
-      <a class="bnav-item ${activeTab === "profile" ? "active" : ""}" href="profil.html">
-        <span class="ico">👤</span><span>Profil</span>
       </a>
     </nav>
   `;
