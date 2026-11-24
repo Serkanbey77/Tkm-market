@@ -3,15 +3,17 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>TKM Market — Bazar, Kripto &amp; Satyjy Paneli</title>
+  <title>TKM Market — Sanly Harytlar &amp; Hasap Bazary</title>
   <style>
     :root {
-      --bg: #0b0f17;
-      --panel: #131a26;
-      --panel-2: #192232;
-      --border: #263247;
-      --text: #eef2f7;
+      --bg: #070b14;
+      --panel: #10172a;
+      --panel-2: #17213b;
+      --border: #253358;
+      --text: #f1f5f9;
       --muted: #94a3b8;
+      --primary: #6366f1;
+      --primary-2: #4f46e5;
       --accent: #10b981;
       --warn: #f59e0b;
       --danger: #ef4444;
@@ -20,22 +22,22 @@
     body { background: var(--bg); color: var(--text); min-height: 100vh; }
 
     .ticker-bar {
-      background: #080b11;
+      background: #050811;
       border-bottom: 1px solid var(--border);
       padding: 8px 16px;
       display: flex;
       flex-wrap: wrap;
-      gap: 16px;
-      font-size: 13px;
+      gap: 14px;
+      font-size: 12px;
       align-items: center;
       justify-content: space-between;
     }
-    .ticker-items { display: flex; flex-wrap: wrap; gap: 16px; }
-    .ticker-item strong { color: #fff; margin-right: 4px; }
-    .ticker-val { color: var(--accent); font-weight: 600; }
+    .ticker-items { display: flex; flex-wrap: wrap; gap: 14px; }
+    .ticker-item strong { color: #cbd5e1; margin-right: 4px; }
+    .ticker-val { color: #34d399; font-weight: 700; }
     .db-badge {
-      font-size: 12px;
-      padding: 3px 8px;
+      font-size: 11px;
+      padding: 3px 9px;
       border-radius: 999px;
       background: rgba(245, 158, 11, 0.16);
       color: #fcd34d;
@@ -43,61 +45,114 @@
     }
 
     header {
-      max-width: 1120px;
+      position: sticky;
+      top: 0;
+      z-index: 40;
+      background: rgba(7, 11, 20, 0.92);
+      backdrop-filter: blur(10px);
+      border-bottom: 1px solid var(--border);
+    }
+    .nav-wrap {
+      max-width: 1160px;
       margin: 0 auto;
-      padding: 18px 16px 8px;
+      padding: 12px 16px;
       display: flex;
       flex-wrap: wrap;
       gap: 12px;
       align-items: center;
       justify-content: space-between;
     }
-    .brand { font-size: 22px; font-weight: 800; }
-    .brand span { color: var(--accent); }
+    .brand { display: flex; align-items: center; gap: 10px; font-weight: 800; font-size: 18px; cursor: pointer; }
+    .brand-box {
+      width: 34px; height: 34px; border-radius: 9px;
+      background: linear-gradient(135deg, var(--primary), #8b5cf6);
+      display: flex; align-items: center; justify-content: center; color: #fff; font-size: 14px;
+    }
+    .brand span { color: #818cf8; }
     .tabs { display: flex; flex-wrap: wrap; gap: 8px; }
     .tab-btn {
       background: var(--panel);
       color: var(--muted);
       border: 1px solid var(--border);
-      padding: 8px 14px;
-      border-radius: 8px;
+      padding: 8px 13px;
+      border-radius: 9px;
       cursor: pointer;
       font-weight: 600;
-      font-size: 14px;
+      font-size: 13px;
     }
     .tab-btn.active {
-      background: var(--accent);
-      color: #062116;
-      border-color: var(--accent);
+      background: linear-gradient(135deg, var(--primary), #7c3aed);
+      color: #fff;
+      border-color: transparent;
     }
 
-    main { max-width: 1120px; margin: 0 auto; padding: 16px; }
+    main { max-width: 1160px; margin: 0 auto; padding: 18px 16px 48px; }
     .section { display: none; }
     .section.active { display: block; }
 
-    .toolbar { display: flex; flex-wrap: wrap; gap: 10px; margin-bottom: 18px; }
+    .hero {
+      background: radial-gradient(circle at top right, rgba(99, 102, 241, 0.28), rgba(16, 23, 42, 0.96) 65%);
+      border: 1px solid var(--border);
+      border-radius: 18px;
+      padding: 22px;
+      margin-bottom: 18px;
+    }
+    .hero-tag {
+      display: inline-block;
+      font-size: 11px;
+      font-weight: 700;
+      color: #a5b4fc;
+      background: rgba(99, 102, 241, 0.16);
+      border: 1px solid rgba(99, 102, 241, 0.35);
+      padding: 4px 10px;
+      border-radius: 999px;
+      margin-bottom: 10px;
+    }
+    .hero h1 { font-size: 24px; line-height: 1.25; margin-bottom: 8px; }
+    .hero p { font-size: 14px; color: var(--muted); max-width: 720px; margin-bottom: 16px; }
+    .search-bar { display: flex; gap: 8px; max-width: 600px; }
+
+    .cat-strip {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(150px, 1fr));
+      gap: 10px;
+      margin-bottom: 18px;
+    }
+    .cat-card {
+      background: var(--panel);
+      border: 1px solid var(--border);
+      border-radius: 12px;
+      padding: 12px;
+      cursor: pointer;
+      text-align: left;
+    }
+    .cat-card.active {
+      background: linear-gradient(135deg, rgba(99, 102, 241, 0.25), rgba(124, 58, 237, 0.25));
+      border-color: #818cf8;
+    }
+    .cat-card strong { display: block; font-size: 13px; margin-bottom: 2px; }
+    .cat-card span { font-size: 11px; color: var(--muted); }
+
     input, select, textarea {
       background: var(--panel);
       color: var(--text);
       border: 1px solid var(--border);
       padding: 10px 12px;
-      border-radius: 8px;
+      border-radius: 9px;
       font-size: 14px;
       width: 100%;
     }
     input[type="file"] { padding: 8px; }
-    .toolbar input { max-width: 300px; }
-    .toolbar select { max-width: 200px; }
 
     .grid {
       display: grid;
-      grid-template-columns: repeat(auto-fill, minmax(260px, 1fr));
+      grid-template-columns: repeat(auto-fill, minmax(265px, 1fr));
       gap: 14px;
     }
     .card {
       background: var(--panel);
       border: 1px solid var(--border);
-      border-radius: 12px;
+      border-radius: 14px;
       padding: 14px;
       display: flex;
       flex-direction: column;
@@ -105,152 +160,109 @@
       gap: 12px;
     }
     .card-img {
-      width: 100%;
-      height: 170px;
-      object-fit: cover;
-      border-radius: 8px;
-      border: 1px solid var(--border);
-      background: var(--panel-2);
-      display: block;
-    }
-    .gallery-thumbs {
-      display: flex;
-      gap: 6px;
-      flex-wrap: wrap;
-      margin-top: 8px;
-      margin-bottom: 10px;
-    }
-    .gallery-thumb {
-      width: 42px;
-      height: 42px;
-      object-fit: cover;
-      border-radius: 6px;
-      border: 1px solid var(--border);
-      cursor: pointer;
-      opacity: 0.7;
-    }
-    .gallery-thumb.active {
-      opacity: 1;
-      border-color: var(--accent);
-    }
-    .preview-strip {
-      display: flex;
-      gap: 8px;
-      flex-wrap: wrap;
-      margin-top: 8px;
-    }
-    .preview-img {
-      width: 56px;
-      height: 56px;
-      object-fit: cover;
-      border-radius: 8px;
-      border: 1px solid var(--border);
-      background: var(--panel-2);
+      width: 100%; height: 160px; object-fit: cover;
+      border-radius: 10px; border: 1px solid var(--border);
+      background: var(--panel-2); margin-bottom: 10px; display: block;
     }
     .badge {
-      display: inline-block;
-      font-size: 11px;
-      font-weight: 700;
-      padding: 3px 8px;
-      border-radius: 6px;
-      background: var(--panel-2);
-      color: #93c5fd;
-      margin-bottom: 6px;
+      display: inline-block; font-size: 11px; font-weight: 700;
+      padding: 3px 8px; border-radius: 6px;
+      background: rgba(99, 102, 241, 0.18); color: #a5b4fc; margin-bottom: 6px;
     }
-    .title { font-size: 16px; font-weight: 700; margin-bottom: 6px; }
-    .desc { font-size: 13px; color: var(--muted); line-height: 1.45; margin-bottom: 8px; }
+    .escrow-tag {
+      display: inline-block; font-size: 10px; font-weight: 700;
+      padding: 3px 7px; border-radius: 6px;
+      background: rgba(16, 185, 129, 0.14); color: #6ee7b7; margin-left: 4px;
+    }
+    .title { font-size: 16px; font-weight: 700; margin-bottom: 5px; }
+    .desc { font-size: 13px; color: var(--muted); line-height: 1.42; margin-bottom: 8px; }
     .meta { font-size: 12px; color: var(--muted); }
-    .price-row { display: flex; align-items: baseline; gap: 8px; margin-top: 6px; }
-    .price { font-size: 18px; font-weight: 800; color: var(--accent); }
+    .price-row { display: flex; align-items: baseline; gap: 8px; margin-top: 8px; }
+    .price { font-size: 18px; font-weight: 800; color: #34d399; }
     .compare { font-size: 13px; color: var(--muted); text-decoration: line-through; }
 
     button.primary {
-      background: var(--accent);
-      color: #052015;
-      border: none;
-      padding: 10px 14px;
-      border-radius: 8px;
-      font-weight: 700;
-      cursor: pointer;
-      width: 100%;
+      background: linear-gradient(135deg, var(--primary), #7c3aed);
+      color: #fff; border: none; padding: 10px 14px; border-radius: 9px;
+      font-weight: 700; cursor: pointer; width: 100%;
     }
-    button.primary:disabled { opacity: 0.6; cursor: not-allowed; }
+    button.success-btn {
+      background: var(--accent);
+      color: #052015; border: none; padding: 9px 12px; border-radius: 8px;
+      font-weight: 700; cursor: pointer; font-size: 12px;
+    }
     button.secondary {
-      background: var(--panel-2);
-      color: var(--text);
-      border: 1px solid var(--border);
-      padding: 8px 12px;
-      border-radius: 8px;
-      font-weight: 600;
-      cursor: pointer;
+      background: var(--panel-2); color: var(--text); border: 1px solid var(--border);
+      padding: 9px 12px; border-radius: 9px; font-weight: 600; cursor: pointer; font-size: 13px;
     }
     button.danger {
-      background: rgba(239, 68, 68, 0.16);
-      color: #fca5a5;
+      background: rgba(239, 68, 68, 0.16); color: #fca5a5;
       border: 1px solid rgba(239, 68, 68, 0.45);
-      padding: 8px 12px;
-      border-radius: 8px;
-      font-weight: 600;
-      cursor: pointer;
+      padding: 8px 12px; border-radius: 8px; font-weight: 600; cursor: pointer; font-size: 12px;
     }
     .btn-row { display: flex; flex-wrap: wrap; gap: 8px; margin-top: 12px; }
 
     .panel-box {
-      background: var(--panel);
-      border: 1px solid var(--border);
-      border-radius: 12px;
-      padding: 16px;
-      margin-bottom: 18px;
+      background: var(--panel); border: 1px solid var(--border);
+      border-radius: 14px; padding: 16px; margin-bottom: 16px;
     }
     .form-grid {
-      display: grid;
-      grid-template-columns: repeat(auto-fit, minmax(210px, 1fr));
-      gap: 12px;
-      margin-top: 12px;
+      display: grid; grid-template-columns: repeat(auto-fit, minmax(210px, 1fr));
+      gap: 12px; margin-top: 12px;
     }
     .form-group label { display: block; font-size: 12px; color: var(--muted); margin-bottom: 5px; }
+    .cred-box {
+      background: rgba(99, 102, 241, 0.08);
+      border: 1px dashed rgba(129, 140, 248, 0.45);
+      border-radius: 12px;
+      padding: 14px;
+      margin-top: 14px;
+    }
+    .cred-box h3 { font-size: 14px; color: #c7d2fe; margin-bottom: 4px; }
+
     .list-item {
-      background: var(--panel-2);
-      border: 1px solid var(--border);
-      border-radius: 10px;
-      padding: 12px;
-      margin-top: 10px;
-      display: flex;
-      flex-wrap: wrap;
-      justify-content: space-between;
-      gap: 10px;
-      align-items: center;
+      background: var(--panel-2); border: 1px solid var(--border);
+      border-radius: 12px; padding: 13px; margin-top: 10px;
+      display: flex; flex-wrap: wrap; justify-content: space-between; gap: 12px; align-items: center;
     }
-    .list-left { display: flex; gap: 12px; align-items: center; flex: 1; min-width: 220px; }
-    .thumb-img {
-      width: 58px;
-      height: 58px;
-      object-fit: cover;
-      border-radius: 8px;
-      border: 1px solid var(--border);
-      background: var(--panel);
-      flex-shrink: 0;
-    }
-    .item-actions { display: flex; gap: 8px; flex-wrap: wrap; }
+    .item-actions { display: flex; gap: 8px; flex-wrap: wrap; align-items: center; }
     .status-pill {
-      font-size: 12px;
-      padding: 4px 10px;
-      border-radius: 999px;
-      background: rgba(59, 130, 246, 0.16);
-      color: #93c5fd;
+      font-size: 11px; font-weight: 700; padding: 4px 10px; border-radius: 999px;
+      background: rgba(245, 158, 11, 0.18); color: #fcd34d;
     }
+    .status-pill.done {
+      background: rgba(16, 185, 129, 0.18); color: #6ee7b7;
+    }
+
+    /* Çoklu Pencere / Modal */
+    .modal-backdrop {
+      position: fixed; inset: 0; background: rgba(3, 6, 14, 0.78);
+      backdrop-filter: blur(4px); z-index: 80;
+      display: none; align-items: center; justify-content: center; padding: 16px;
+    }
+    .modal-backdrop.open { display: flex; }
+    .modal-card {
+      background: var(--panel); border: 1px solid var(--border);
+      border-radius: 16px; max-width: 560px; width: 100%;
+      max-height: 90vh; overflow-y: auto; padding: 18px;
+    }
+    .modal-head {
+      display: flex; justify-content: space-between; align-items: center;
+      border-bottom: 1px solid var(--border); padding-bottom: 10px; margin-bottom: 14px;
+    }
+    .secret-box {
+      background: #090e1a; border: 1px solid var(--border);
+      border-radius: 10px; padding: 12px; margin-top: 10px; font-size: 13px;
+    }
+    .secret-line { margin-bottom: 6px; }
+    .secret-line strong { color: #93c5fd; }
+
+    .preview-strip { display: flex; gap: 8px; flex-wrap: wrap; margin-top: 8px; }
+    .preview-img { width: 54px; height: 54px; object-fit: cover; border-radius: 8px; border: 1px solid var(--border); }
     .toast {
-      position: fixed;
-      bottom: 18px;
-      right: 18px;
-      background: #111827;
-      color: #fff;
-      border: 1px solid var(--accent);
-      padding: 12px 16px;
-      border-radius: 10px;
-      font-size: 13px;
-      z-index: 999;
-      display: none;
+      position: fixed; bottom: 18px; right: 18px; background: #0f172a; color: #fff;
+      border: 1px solid var(--accent); padding: 12px 16px; border-radius: 10px;
+      font-size: 13px; z-index: 120; display: none;
     }
   </style>
 </head>
@@ -265,69 +277,102 @@
   </div>
 
   <header>
-    <div class="brand">TKM <span>Market</span></div>
-    <div class="tabs">
-      <button class="tab-btn active" data-tab="market">Bazar &amp; Kripto</button>
-      <button class="tab-btn" data-tab="seller">Satyjy Paneli</button>
-      <button class="tab-btn" data-tab="orders">Sargytlar &amp; Çekimler</button>
+    <div class="nav-wrap">
+      <div class="brand" onclick="openTab('market')">
+        <div class="brand-box">TM</div>
+        <div>TKM <span>Market</span></div>
+      </div>
+      <div class="tabs">
+        <button class="tab-btn active" data-tab="market">Bazar &amp; Kripto</button>
+        <button class="tab-btn" data-tab="seller">Satyjy Paneli</button>
+        <button class="tab-btn" data-tab="orders">Sargytlar &amp; Escrow</button>
+      </div>
     </div>
   </header>
 
   <main>
+    <!-- PENCERE 1: VİTRİN -->
     <section id="tab-market" class="section active">
-      <div class="toolbar">
-        <input id="search-input" type="text" placeholder="Haryt ýa-da satyjy gözle..." />
-        <select id="cat-filter">
-          <option value="ALL">Ähli kategoriýalar</option>
-          <option value="DIGITAL">DIGITAL</option>
-          <option value="CRYPTO">CRYPTO</option>
-          <option value="SERVICE">SERVICE</option>
-          <option value="GOODS">GOODS</option>
-        </select>
-        <button class="secondary" id="refresh-btn">Täzele</button>
+      <div class="hero">
+        <div class="hero-tag">ÇIFT TARAPLY EMANET (ESCROW) GORAGY</div>
+        <h1>Türkmenistan we Global Sanly Harytlar &amp; Hasap Bazary</h1>
+        <p>Oýun hasaplary, sanly hyzmatlar we kripto hödürleri. Satyn alnandan soň hasap maglumatlary açylýar, iki tarapyň tassygyndan soň pul satyja geçýär.</p>
+        <div class="search-bar">
+          <input id="search-input" type="text" placeholder="Haryt, hasap ýa-da satyjy gözle..." />
+          <button class="secondary" id="refresh-btn">Täzele</button>
+        </div>
       </div>
+
+      <div class="cat-strip" id="cat-strip">
+        <button class="cat-card active" data-cat="ALL"><strong>Ählisi</strong><span>Bütin harytlar</span></button>
+        <button class="cat-card" data-cat="ACCOUNT"><strong>HASAP / OYUN</strong><span>Giriş &amp; parol</span></button>
+        <button class="cat-card" data-cat="CRYPTO"><strong>KRIPTO</strong><span>USDT &amp; çalşyk</span></button>
+        <button class="cat-card" data-cat="DIGITAL"><strong>SANLY HARYT</strong><span>Hasap &amp; ulgam</span></button>
+        <button class="cat-card" data-cat="SERVICE"><strong>HYZMAT</strong><span>Goldaw &amp; gurnama</span></button>
+      </div>
+
       <div class="grid" id="products-grid"></div>
     </section>
 
+    <!-- PENCERE 2: SATICI PANELİ -->
     <section id="tab-seller" class="section">
       <div class="panel-box">
-        <h2 id="form-heading">Täze Haryt Goş</h2>
+        <h2 id="form-heading">Täze Haryt / Hasap Goş</h2>
         <div class="form-grid">
           <div class="form-group">
-            <label>Harydyň ady</label>
-            <input id="p-title" type="text" placeholder="Mysal: USDT BEP20 100$" />
+            <label>Harydyň / Hasabyň ady</label>
+            <input id="p-title" type="text" placeholder="Mysal: Steam / PUBG / Sanly Hasap" />
           </div>
           <div class="form-group">
             <label>Kategoriýa</label>
             <select id="p-cat">
+              <option value="ACCOUNT">ACCOUNT (Hasap)</option>
               <option value="CRYPTO">CRYPTO</option>
               <option value="DIGITAL">DIGITAL</option>
               <option value="SERVICE">SERVICE</option>
-              <option value="GOODS">GOODS</option>
             </select>
           </div>
           <div class="form-group">
             <label>Baha (TMT)</label>
-            <input id="p-price" type="number" step="0.01" placeholder="1950" />
+            <input id="p-price" type="number" step="0.01" placeholder="250" />
           </div>
           <div class="form-group">
             <label>Deňeşdirme bahasy (TMT)</label>
-            <input id="p-compare" type="number" step="0.01" placeholder="2000" />
+            <input id="p-compare" type="number" step="0.01" placeholder="300" />
           </div>
           <div class="form-group">
             <label>Satyjy ady</label>
             <input id="p-seller" type="text" value="Serkanbey77" />
           </div>
           <div class="form-group">
-            <label>Suratlar saýlaň (birnäçe surat bolup biler)</label>
+            <label>Suratlar (birnäçe saýlap bolýar)</label>
             <input id="p-files" type="file" accept="image/*" multiple />
-            <div class="meta" id="p-file-info">Heniz täze surat saýlanmady.</div>
             <div class="preview-strip" id="p-file-preview"></div>
           </div>
         </div>
+
+        <div class="cred-box">
+          <h3>Gizlin Hasap Giriş Maglumatlary (Diňe Satyn Alandan Soň Görünýär)</h3>
+          <p class="meta">Dolandyryşyň öňüni almak üçin hasap ady we paroly vitrinde görünmez; sargyt açylanda alyja berilýär.</p>
+          <div class="form-grid">
+            <div class="form-group">
+              <label>Hasap Ady / Ulanyjy (Login)</label>
+              <input id="p-acc-login" type="text" placeholder="username veya e-mail" />
+            </div>
+            <div class="form-group">
+              <label>Hasap Paroly (Password)</label>
+              <input id="p-acc-pass" type="text" placeholder="••••••••" />
+            </div>
+            <div class="form-group">
+              <label>Goşmaça Maglumat (2FA / E-mail / Bellik)</label>
+              <input id="p-acc-extra" type="text" placeholder="Mysal: Poçta bilen bilelikde" />
+            </div>
+          </div>
+        </div>
+
         <div class="form-group" style="margin-top:12px;">
-          <label>Düşündiriş</label>
-          <textarea id="p-desc" rows="2" placeholder="Gysgaça maglumat ýazyň..."></textarea>
+          <label>Açyk Düşündiriş</label>
+          <textarea id="p-desc" rows="2" placeholder="Haryt barada gysgaça maglumat..."></textarea>
         </div>
         <div class="btn-row">
           <button class="primary" id="save-product-btn" style="flex:1; min-width:180px;">Harydy Ýerleşdir</button>
@@ -336,12 +381,19 @@
       </div>
 
       <div class="panel-box">
-        <h3>Harytlary Dolandyrmak (Üýtgetmek / Pozmak)</h3>
+        <h3>Harytlary Dolandyrmak</h3>
         <div id="seller-products-list"></div>
       </div>
     </section>
 
+    <!-- PENCERE 3: SARGYTLAR, ÇİFT ONAYLI ESCROW & ÇEKİMLER -->
     <section id="tab-orders" class="section">
+      <div class="panel-box">
+        <h2>Emanet (Escrow) Sargytlary — Iki Taraply Tassyklama</h2>
+        <p class="meta">Pul diňe <strong>Satyjy "Satdym"</strong> we <strong>Alyjy "Aldym"</strong> tassyklanyndan soň hasaba geçýär.</p>
+        <div id="orders-list"></div>
+      </div>
+
       <div class="panel-box">
         <h2>Täze Pul Çekme Ýüz Tutmasy</h2>
         <div class="form-grid">
@@ -357,19 +409,32 @@
         <div style="margin-top:12px;">
           <button class="primary" id="add-withdrawal-btn">Çekme Ýüz Tutmasyny Iber</button>
         </div>
-      </div>
-
-      <div class="panel-box">
-        <h3>Sargytlar</h3>
-        <div id="orders-list"></div>
-      </div>
-
-      <div class="panel-box">
-        <h3>Pul Çekme Ýüz Tutmalary</h3>
-        <div id="withdrawals-list"></div>
+        <div id="withdrawals-list" style="margin-top:12px;"></div>
       </div>
     </section>
   </main>
+
+  <!-- ÇOKLU PENCERE 1: HARYT DETAY & SATYN ALMAK PENCERESİ -->
+  <div class="modal-backdrop" id="product-modal">
+    <div class="modal-card">
+      <div class="modal-head">
+        <h3 id="pm-title">Haryt</h3>
+        <button class="secondary" onclick="closeModal('product-modal')">Ýap</button>
+      </div>
+      <div id="pm-body"></div>
+    </div>
+  </div>
+
+  <!-- ÇOKLU PENCERE 2: HASAP TESLİM & ÇİFT ONAY PENCERESİ -->
+  <div class="modal-backdrop" id="escrow-modal">
+    <div class="modal-card">
+      <div class="modal-head">
+        <h3 id="em-title">Hasap &amp; Escrow Tassygy</h3>
+        <button class="secondary" onclick="closeModal('escrow-modal')">Ýap</button>
+      </div>
+      <div id="em-body"></div>
+    </div>
+  </div>
 
   <div class="toast" id="toast"></div>
 
@@ -378,36 +443,8 @@
     const SUPABASE_KEY = "sb_publishable_gQFoj3SUxW-TUMjYmTGrIg_5_6hwBAH";
     const STORAGE_BUCKET = "product-images";
 
-    const FALLBACK_PRODUCTS = [
-      {
-        id: 1,
-        title: "USDT (BEP20) — Tiz Geçirim",
-        cat: "CRYPTO",
-        price_tmt: 1950,
-        market_compare_tmt: 2000,
-        seller: "TKM_Escrow",
-        rating: 4.9,
-        sales: 42,
-        image_urls: [],
-        description: "BNB Smart Chain (BEP20) ulgamy arkaly ygtybarly kripto çalşygy.",
-        is_trading: true
-      },
-      {
-        id: 2,
-        title: "Sanly Hasap we Ulgam Kömekçisi",
-        cat: "DIGITAL",
-        price_tmt: 120,
-        market_compare_tmt: 150,
-        seller: "Serkanbey77",
-        rating: 5.0,
-        sales: 18,
-        image_urls: [],
-        description: "Sanly hyzmatlar we gurnama goldawy.",
-        is_trading: false
-      }
-    ];
-
     let state = { products: [], orders: [], withdrawals: [], online: false };
+    let activeCat = "ALL";
     let editingProductId = null;
     let existingEditImages = [];
     let selectedFiles = [];
@@ -428,13 +465,27 @@
       badge.style.borderColor = ok ? "rgba(16, 185, 129, 0.35)" : "rgba(245, 158, 11, 0.4)";
     }
 
+    function openTab(tabName) {
+      document.querySelectorAll(".tab-btn").forEach(b => b.classList.toggle("active", b.dataset.tab === tabName));
+      document.querySelectorAll(".section").forEach(s => s.classList.toggle("active", s.id === "tab-" + tabName));
+    }
+
+    function openModal(id) { document.getElementById(id).classList.add("open"); }
+    function closeModal(id) { document.getElementById(id).classList.remove("open"); }
+
+    function escapeHtml(str) {
+      return String(str || "")
+        .replace(/&/g, "&amp;")
+        .replace(/</g, "&lt;")
+        .replace(/>/g, "&gt;")
+        .replace(/"/g, "&quot;");
+    }
+
     function getProductImages(item) {
       const list = [];
       if (Array.isArray(item.image_urls)) {
         for (const u of item.image_urls) {
-          if (typeof u === "string" && /^https?:\/\//i.test(u.trim())) {
-            list.push(u.trim());
-          }
+          if (typeof u === "string" && /^https?:\/\//i.test(u.trim())) list.push(u.trim());
         }
       }
       if (!list.length && typeof item.image_url === "string" && /^https?:\/\//i.test(item.image_url.trim())) {
@@ -443,74 +494,11 @@
       return list;
     }
 
-    function updateFilePreview() {
-      const infoEl = document.getElementById("p-file-info");
-      const previewEl = document.getElementById("p-file-preview");
-      previewEl.innerHTML = "";
-
-      if (selectedFiles.length) {
-        infoEl.textContent = `${selectedFiles.length} sany täze surat saýlandy.`;
-        selectedFiles.forEach(file => {
-          const url = URL.createObjectURL(file);
-          const img = document.createElement("img");
-          img.src = url;
-          img.className = "preview-img";
-          img.onload = () => URL.revokeObjectURL(url);
-          previewEl.appendChild(img);
-        });
-      } else if (editingProductId !== null && existingEditImages.length) {
-        infoEl.textContent = `Harytda ${existingEditImages.length} sany bar bolan surat bar. Täze saýlasaňyz üstüne goşular.`;
-        existingEditImages.forEach(src => {
-          const img = document.createElement("img");
-          img.src = src;
-          img.className = "preview-img";
-          previewEl.appendChild(img);
-        });
-      } else {
-        infoEl.textContent = "Heniz täze surat saýlanmady.";
-      }
-    }
-
-    async function uploadImagesToStorage(files) {
-      const uploadedUrls = [];
-      for (const file of files) {
-        const ext = (file.name.split(".").pop() || "jpg").toLowerCase().replace(/[^a-z0-9]/g, "") || "jpg";
-        const fileName = `${Date.now()}-${Math.random().toString(36).slice(2, 8)}.${ext}`;
-        const objectPath = `products/${fileName}`;
-
-        const res = await fetch(`${SUPABASE_URL}/storage/v1/object/${STORAGE_BUCKET}/${objectPath}`, {
-          method: "POST",
-          headers: {
-            "apikey": SUPABASE_KEY,
-            "Authorization": `Bearer ${SUPABASE_KEY}`,
-            "Content-Type": file.type || "image/jpeg",
-            "x-upsert": "true"
-          },
-          body: file
-        });
-
-        if (!res.ok) {
-          const txt = await res.text();
-          throw new Error(`Storage ýükleme ýalňyşlygy: ${res.status} ${txt}`);
-        }
-
-        const publicUrl = `${SUPABASE_URL}/storage/v1/object/public/${STORAGE_BUCKET}/${objectPath}`;
-        uploadedUrls.push(publicUrl);
-      }
-      return uploadedUrls;
-    }
-
     async function restGet(table) {
       const res = await fetch(`${SUPABASE_URL}/rest/v1/${table}?select=*&order=id.desc`, {
-        headers: {
-          "apikey": SUPABASE_KEY,
-          "Authorization": `Bearer ${SUPABASE_KEY}`
-        }
+        headers: { "apikey": SUPABASE_KEY, "Authorization": `Bearer ${SUPABASE_KEY}` }
       });
-      if (!res.ok) {
-        const txt = await res.text();
-        throw new Error(`${table}: ${res.status} ${txt}`);
-      }
+      if (!res.ok) throw new Error(`${table}: ${res.status} ${await res.text()}`);
       return await res.json();
     }
 
@@ -525,10 +513,7 @@
         },
         body: JSON.stringify(payload)
       });
-      if (!res.ok) {
-        const txt = await res.text();
-        throw new Error(`${table} insert: ${res.status} ${txt}`);
-      }
+      if (!res.ok) throw new Error(`${table} insert: ${res.status} ${await res.text()}`);
       const rows = await res.json();
       return Array.isArray(rows) ? rows[0] : rows;
     }
@@ -544,10 +529,7 @@
         },
         body: JSON.stringify(payload)
       });
-      if (!res.ok) {
-        const txt = await res.text();
-        throw new Error(`${table} update: ${res.status} ${txt}`);
-      }
+      if (!res.ok) throw new Error(`${table} update: ${res.status} ${await res.text()}`);
       const rows = await res.json();
       return Array.isArray(rows) && rows[0] ? rows[0] : payload;
     }
@@ -555,39 +537,46 @@
     async function restDelete(table, id) {
       const res = await fetch(`${SUPABASE_URL}/rest/v1/${table}?id=eq.${encodeURIComponent(id)}`, {
         method: "DELETE",
-        headers: {
-          "apikey": SUPABASE_KEY,
-          "Authorization": `Bearer ${SUPABASE_KEY}`,
-          "Prefer": "return=representation"
-        }
+        headers: { "apikey": SUPABASE_KEY, "Authorization": `Bearer ${SUPABASE_KEY}` }
       });
-      if (!res.ok) {
-        const txt = await res.text();
-        throw new Error(`${table} delete: ${res.status} ${txt}`);
+      if (!res.ok) throw new Error(`${table} delete: ${res.status} ${await res.text()}`);
+    }
+
+    async function uploadImagesToStorage(files) {
+      const urls = [];
+      for (const file of files) {
+        const ext = (file.name.split(".").pop() || "jpg").toLowerCase().replace(/[^a-z0-9]/g, "") || "jpg";
+        const path = `products/${Date.now()}-${Math.random().toString(36).slice(2, 8)}.${ext}`;
+        const res = await fetch(`${SUPABASE_URL}/storage/v1/object/${STORAGE_BUCKET}/${path}`, {
+          method: "POST",
+          headers: {
+            "apikey": SUPABASE_KEY,
+            "Authorization": `Bearer ${SUPABASE_KEY}`,
+            "Content-Type": file.type || "image/jpeg",
+            "x-upsert": "true"
+          },
+          body: file
+        });
+        if (!res.ok) throw new Error(`Storage: ${res.status} ${await res.text()}`);
+        urls.push(`${SUPABASE_URL}/storage/v1/object/public/${STORAGE_BUCKET}/${path}`);
       }
+      return urls;
     }
 
     function saveLocal() {
       try {
-        localStorage.setItem("tkm_products", JSON.stringify(state.products));
-        localStorage.setItem("tkm_orders", JSON.stringify(state.orders));
-        localStorage.setItem("tkm_withdrawals", JSON.stringify(state.withdrawals));
+        localStorage.setItem("tkm_products_v2", JSON.stringify(state.products));
+        localStorage.setItem("tkm_orders_v2", JSON.stringify(state.orders));
+        localStorage.setItem("tkm_withdrawals_v2", JSON.stringify(state.withdrawals));
       } catch (_) {}
     }
 
     function loadLocal() {
       try {
-        const p = JSON.parse(localStorage.getItem("tkm_products") || "null");
-        const o = JSON.parse(localStorage.getItem("tkm_orders") || "null");
-        const w = JSON.parse(localStorage.getItem("tkm_withdrawals") || "null");
-        state.products = Array.isArray(p) && p.length ? p : [...FALLBACK_PRODUCTS];
-        state.orders = Array.isArray(o) ? o : [];
-        state.withdrawals = Array.isArray(w) ? w : [];
-      } catch (_) {
-        state.products = [...FALLBACK_PRODUCTS];
-        state.orders = [];
-        state.withdrawals = [];
-      }
+        state.products = JSON.parse(localStorage.getItem("tkm_products_v2") || "[]") || [];
+        state.orders = JSON.parse(localStorage.getItem("tkm_orders_v2") || "[]") || [];
+        state.withdrawals = JSON.parse(localStorage.getItem("tkm_withdrawals_v2") || "[]") || [];
+      } catch (_) {}
     }
 
     async function syncFromSupabase() {
@@ -600,45 +589,25 @@
           restGet("withdrawals")
         ]);
         state.online = true;
-        if (Array.isArray(pData)) {
-          state.products = pData;
-        }
-        state.orders = oData || [];
-        state.withdrawals = wData || [];
+        if (Array.isArray(pData)) state.products = pData;
+        if (Array.isArray(oData)) state.orders = oData;
+        if (Array.isArray(wData)) state.withdrawals = wData;
         saveLocal();
         setDbBadge(true, "Supabase: Baglanyşyk işjeň");
         renderAll();
       } catch (err) {
         state.online = false;
         setDbBadge(false, "Supabase: Ýerli ätiýaç");
-        showToast("Baglanyşyk duýduryşy: " + err.message);
-      }
-    }
-
-    function switchCardPhoto(productId, idx, thumbEl) {
-      const mainImg = document.getElementById(`card-main-img-${productId}`);
-      if (!mainImg) return;
-      const item = state.products.find(x => String(x.id) === String(productId));
-      if (!item) return;
-      const imgs = getProductImages(item);
-      if (!imgs[idx]) return;
-      mainImg.src = imgs[idx];
-
-      const parent = thumbEl && thumbEl.parentElement;
-      if (parent) {
-        parent.querySelectorAll(".gallery-thumb").forEach((el, i) => {
-          el.classList.toggle("active", i === idx);
-        });
+        showToast("Duýduryş: " + err.message);
       }
     }
 
     function renderProducts() {
       const grid = document.getElementById("products-grid");
       const q = document.getElementById("search-input").value.trim().toLowerCase();
-      const cat = document.getElementById("cat-filter").value;
 
       const filtered = state.products.filter(item => {
-        const matchCat = cat === "ALL" || item.cat === cat;
+        const matchCat = activeCat === "ALL" || item.cat === activeCat;
         const matchQ = !q ||
           String(item.title || "").toLowerCase().includes(q) ||
           String(item.seller || "").toLowerCase().includes(q) ||
@@ -647,82 +616,87 @@
       });
 
       if (!filtered.length) {
-        grid.innerHTML = `<div class="panel-box"><p class="meta">Haryt tapylmady.</p></div>`;
+        grid.innerHTML = `<div class="panel-box"><p class="meta">Haryt tapylmady. Satyjy Panelinden täze haryt goşup bilersiňiz.</p></div>`;
         return;
       }
 
       grid.innerHTML = filtered.map(item => {
         const imgs = getProductImages(item);
-        const hasImgs = imgs.length > 0;
-        const thumbsHtml = imgs.length > 1
-          ? `<div class="gallery-thumbs">${imgs.map((src, idx) => `
-              <img class="gallery-thumb ${idx === 0 ? "active" : ""}" src="${escapeHtml(src)}" alt="Surat ${idx + 1}" loading="lazy" onclick="switchCardPhoto(${item.id}, ${idx}, this)" onerror="this.style.display='none'" />
-            `).join("")}</div>`
-          : `<div style="margin-bottom:8px;"></div>`;
-
         return `
           <div class="card">
             <div>
-              ${hasImgs ? `
-                <img id="card-main-img-${item.id}" class="card-img" src="${escapeHtml(imgs[0])}" alt="${escapeHtml(item.title)}" loading="lazy" onerror="this.style.display='none'" />
-                ${thumbsHtml}
-              ` : ""}
-              <span class="badge">${escapeHtml(item.cat || "DIGITAL")}</span>
+              ${imgs[0] ? `<img class="card-img" src="${escapeHtml(imgs[0])}" alt="${escapeHtml(item.title)}" loading="lazy" onerror="this.style.display='none'" />` : ""}
+              <span class="badge">${escapeHtml(item.cat || "ACCOUNT")}</span>
+              <span class="escrow-tag">ESCROW</span>
               <div class="title">${escapeHtml(item.title)}</div>
               <div class="desc">${escapeHtml(item.description || "")}</div>
-              <div class="meta">Satyjy: <strong>${escapeHtml(item.seller || "TKM_Seller")}</strong> · Satylan: ${Number(item.sales || 0)}</div>
+              <div class="meta">Satyjy: <strong>${escapeHtml(item.seller || "Serkanbey77")}</strong></div>
               <div class="price-row">
                 <div class="price">${Number(item.price_tmt || 0).toLocaleString()} TMT</div>
                 ${item.market_compare_tmt ? `<div class="compare">${Number(item.market_compare_tmt).toLocaleString()} TMT</div>` : ""}
               </div>
             </div>
-            <button class="primary" onclick="buyProduct(${item.id})">Sargyt Et</button>
+            <div class="btn-row">
+              <button class="secondary" style="flex:1;" onclick="openProductModal(${item.id})">Aç / Detay</button>
+              <button class="primary" style="flex:1;" onclick="buyProduct(${item.id})">Satyn Al</button>
+            </div>
           </div>
         `;
       }).join("");
     }
 
-    function renderSellerProducts() {
-      const list = document.getElementById("seller-products-list");
-      if (!state.products.length) {
-        list.innerHTML = `<p class="meta">Heniz haryt ýok.</p>`;
-        return;
-      }
+    function openProductModal(productId) {
+      const item = state.products.find(x => String(x.id) === String(productId));
+      if (!item) return;
+      const imgs = getProductImages(item);
+      document.getElementById("pm-title").textContent = item.title;
+      document.getElementById("pm-body").innerHTML = `
+        ${imgs.map(src => `<img class="card-img" style="margin-bottom:8px;" src="${escapeHtml(src)}" alt="${escapeHtml(item.title)}" />`).join("")}
+        <span class="badge">${escapeHtml(item.cat || "ACCOUNT")}</span>
+        <span class="escrow-tag">ÇIFT ONAYLY EMANET</span>
+        <p class="desc" style="margin-top:8px;">${escapeHtml(item.description || "Düşündiriş ýok.")}</p>
+        <div class="meta">Satyjy: <strong>${escapeHtml(item.seller || "Serkanbey77")}</strong></div>
+        <div class="secret-box">
+          <div class="secret-line"><strong>Howpsuzlyk düzgüni:</strong> Hasap ady we paroly satyn alnandan soň Sargytlar penjiresinde açylýar. Satyn alan we satyjy ikisi hem tassyklamasa, pul emanetde saklanýar.</div>
+        </div>
+        <div class="price-row" style="margin-top:12px;">
+          <div class="price">${Number(item.price_tmt || 0).toLocaleString()} TMT</div>
+        </div>
+        <div class="btn-row">
+          <button class="primary" onclick="closeModal('product-modal'); buyProduct(${item.id});">Emanet Bilen Satyn Al</button>
+        </div>
+      `;
+      openModal("product-modal");
+    }
 
-      list.innerHTML = state.products.map(item => {
-        const imgs = getProductImages(item);
-        return `
-          <div class="list-item">
-            <div class="list-left">
-              ${imgs[0] ? `<img class="thumb-img" src="${escapeHtml(imgs[0])}" alt="${escapeHtml(item.title)}" loading="lazy" onerror="this.style.display='none'" />` : ""}
-              <div>
-                <span class="badge">${escapeHtml(item.cat || "DIGITAL")}</span>
-                <strong>${escapeHtml(item.title)}</strong>
-                <div class="meta">Baha: <strong>${Number(item.price_tmt || 0).toLocaleString()} TMT</strong> · Satyjy: ${escapeHtml(item.seller || "Serkanbey77")} · Surat: ${imgs.length}</div>
-                ${item.description ? `<div class="meta">${escapeHtml(item.description)}</div>` : ""}
-              </div>
-            </div>
-            <div class="item-actions">
-              <button class="secondary" onclick="startEditProduct(${item.id})">Üýtget</button>
-              <button class="danger" onclick="deleteProduct(${item.id})">Poz</button>
-            </div>
-          </div>
-        `;
-      }).join("");
+    function updateFilePreview() {
+      const previewEl = document.getElementById("p-file-preview");
+      previewEl.innerHTML = "";
+      selectedFiles.forEach(file => {
+        const url = URL.createObjectURL(file);
+        const img = document.createElement("img");
+        img.src = url;
+        img.className = "preview-img";
+        img.onload = () => URL.revokeObjectURL(url);
+        previewEl.appendChild(img);
+      });
     }
 
     function resetProductForm() {
       editingProductId = null;
       existingEditImages = [];
       selectedFiles = [];
-      document.getElementById("form-heading").textContent = "Täze Haryt Goş";
+      document.getElementById("form-heading").textContent = "Täze Haryt / Hasap Goş";
       document.getElementById("save-product-btn").textContent = "Harydy Ýerleşdir";
       document.getElementById("cancel-edit-btn").style.display = "none";
       document.getElementById("p-title").value = "";
-      document.getElementById("p-cat").value = "CRYPTO";
+      document.getElementById("p-cat").value = "ACCOUNT";
       document.getElementById("p-price").value = "";
       document.getElementById("p-compare").value = "";
       document.getElementById("p-seller").value = "Serkanbey77";
+      document.getElementById("p-acc-login").value = "";
+      document.getElementById("p-acc-pass").value = "";
+      document.getElementById("p-acc-extra").value = "";
       document.getElementById("p-files").value = "";
       document.getElementById("p-desc").value = "";
       updateFilePreview();
@@ -731,24 +705,22 @@
     function startEditProduct(productId) {
       const item = state.products.find(x => String(x.id) === String(productId));
       if (!item) return;
-
       editingProductId = item.id;
       existingEditImages = getProductImages(item);
       selectedFiles = [];
-      document.getElementById("p-files").value = "";
-
       document.getElementById("form-heading").textContent = `Harydy Üýtget (#${item.id})`;
       document.getElementById("save-product-btn").textContent = "Üýtgeşmeleri Ýatda Sakla";
       document.getElementById("cancel-edit-btn").style.display = "inline-block";
-
       document.getElementById("p-title").value = item.title || "";
-      document.getElementById("p-cat").value = item.cat || "CRYPTO";
+      document.getElementById("p-cat").value = item.cat || "ACCOUNT";
       document.getElementById("p-price").value = item.price_tmt ?? "";
       document.getElementById("p-compare").value = item.market_compare_tmt ?? "";
       document.getElementById("p-seller").value = item.seller || "Serkanbey77";
+      document.getElementById("p-acc-login").value = item.account_login || "";
+      document.getElementById("p-acc-pass").value = item.account_password || "";
+      document.getElementById("p-acc-extra").value = item.account_extra || "";
       document.getElementById("p-desc").value = item.description || "";
-
-      updateFilePreview();
+      openTab("seller");
       window.scrollTo({ top: 0, behavior: "smooth" });
     }
 
@@ -759,6 +731,9 @@
       const compareVal = document.getElementById("p-compare").value.trim();
       const marketCompareTmt = compareVal ? parseFloat(compareVal) : null;
       const seller = document.getElementById("p-seller").value.trim() || "Serkanbey77";
+      const accountLogin = document.getElementById("p-acc-login").value.trim();
+      const accountPassword = document.getElementById("p-acc-pass").value.trim();
+      const accountExtra = document.getElementById("p-acc-extra").value.trim();
       const description = document.getElementById("p-desc").value.trim();
 
       if (!title || isNaN(priceTmt) || priceTmt <= 0) {
@@ -768,17 +743,13 @@
 
       const btn = document.getElementById("save-product-btn");
       btn.disabled = true;
-
       try {
-        let uploadedUrls = [];
+        let uploaded = [];
         if (selectedFiles.length > 0) {
-          showToast(`${selectedFiles.length} surat Storage-a ýüklenýär...`);
-          uploadedUrls = await uploadImagesToStorage(selectedFiles);
+          showToast(`${selectedFiles.length} surat ýüklenýär...`);
+          uploaded = await uploadImagesToStorage(selectedFiles);
         }
-
-        const finalImages = editingProductId !== null
-          ? [...existingEditImages, ...uploadedUrls]
-          : uploadedUrls;
+        const finalImages = editingProductId !== null ? [...existingEditImages, ...uploaded] : uploaded;
 
         const payload = {
           title,
@@ -786,54 +757,27 @@
           price_tmt: priceTmt,
           market_compare_tmt: marketCompareTmt && !isNaN(marketCompareTmt) ? marketCompareTmt : null,
           seller,
+          account_login: accountLogin || null,
+          account_password: accountPassword || null,
+          account_extra: accountExtra || null,
           image_urls: finalImages,
           description,
           is_trading: cat === "CRYPTO"
         };
 
         if (editingProductId !== null) {
-          if (state.online) {
-            const updated = await restPatch("products", editingProductId, payload);
-            state.products = state.products.map(x =>
-              String(x.id) === String(editingProductId) ? { ...x, ...(updated || payload) } : x
-            );
-            saveLocal();
-            renderProducts();
-            renderSellerProducts();
-            resetProductForm();
-            showToast("Haryt we suratlary täzelendi!");
-            return;
-          }
-
-          state.products = state.products.map(x =>
-            String(x.id) === String(editingProductId) ? { ...x, ...payload } : x
-          );
-          saveLocal();
-          renderProducts();
-          renderSellerProducts();
-          resetProductForm();
-          showToast("Haryt ýerli ýatda täzelendi.");
-          return;
-        }
-
-        const insertPayload = { ...payload, rating: 5.0, sales: 1 };
-        if (state.online) {
-          const saved = await restInsert("products", insertPayload);
+          const updated = state.online ? await restPatch("products", editingProductId, payload) : payload;
+          state.products = state.products.map(x => String(x.id) === String(editingProductId) ? { ...x, ...(updated || payload) } : x);
+          showToast("Haryt täzelendi!");
+        } else {
+          const insertPayload = { ...payload, rating: 5.0, sales: 0 };
+          const saved = state.online ? await restInsert("products", insertPayload) : { id: Date.now(), ...insertPayload };
           state.products.unshift(saved || { id: Date.now(), ...insertPayload });
-          saveLocal();
-          renderProducts();
-          renderSellerProducts();
-          resetProductForm();
-          showToast("Haryt we suratlary Supabase-a ýazyldy!");
-          return;
+          showToast("Haryt ýerleşdirildi!");
         }
-
-        state.products.unshift({ id: Date.now(), ...insertPayload });
         saveLocal();
-        renderProducts();
-        renderSellerProducts();
         resetProductForm();
-        showToast("Haryt ýerli ýada ýazyldy.");
+        renderAll();
       } catch (err) {
         showToast("Ýalňyşlyk: " + err.message);
       } finally {
@@ -842,32 +786,16 @@
     }
 
     async function deleteProduct(productId) {
-      const item = state.products.find(x => String(x.id) === String(productId));
-      const label = item ? `"${item.title}"` : `#${productId}`;
-      if (!confirm(`${label} harydy pozmak isleýärsiňizmi?`)) return;
-
-      if (state.online) {
-        try {
-          await restDelete("products", productId);
-          state.products = state.products.filter(x => String(x.id) !== String(productId));
-          if (String(editingProductId) === String(productId)) resetProductForm();
-          saveLocal();
-          renderProducts();
-          renderSellerProducts();
-          showToast("Haryt Supabase-dan pozuldy!");
-          return;
-        } catch (err) {
-          showToast("Pozmak başartmady: " + err.message);
-          return;
-        }
+      if (!confirm("Bu harydy pozmak isleýärsiňizmi?")) return;
+      try {
+        if (state.online) await restDelete("products", productId);
+        state.products = state.products.filter(x => String(x.id) !== String(productId));
+        saveLocal();
+        renderAll();
+        showToast("Haryt pozuldy.");
+      } catch (err) {
+        showToast("Pozulmady: " + err.message);
       }
-
-      state.products = state.products.filter(x => String(x.id) !== String(productId));
-      if (String(editingProductId) === String(productId)) resetProductForm();
-      saveLocal();
-      renderProducts();
-      renderSellerProducts();
-      showToast("Haryt ýerli ýatdan pozuldy.");
     }
 
     async function buyProduct(productId) {
@@ -879,93 +807,162 @@
       const newOrder = {
         order_code: orderCode,
         product_title: prod.title,
+        seller: prod.seller || "Serkanbey77",
         price_tmt: Number(prod.price_tmt || 0),
         status: "pending_delivery",
+        escrow_status: "escrow_hold",
+        seller_confirmed: false,
+        buyer_confirmed: false,
+        account_login: prod.account_login || "Satyjy bilen habarlaşyň",
+        account_password: prod.account_password || "Sargyt kody: " + secretCode,
+        account_extra: prod.account_extra || "",
         secret_code: secretCode
       };
 
-      if (state.online) {
-        try {
-          const saved = await restInsert("orders", newOrder);
-          state.orders.unshift(saved || { id: Date.now(), ...newOrder });
-          saveLocal();
-          renderOrders();
-          showToast(`Sargyt döredildi: ${orderCode}`);
-          return;
-        } catch (err) {
-          showToast("Ýazylmady: " + err.message);
-        }
+      try {
+        const saved = state.online ? await restInsert("orders", newOrder) : { id: Date.now(), ...newOrder };
+        const record = saved || { id: Date.now(), ...newOrder };
+        state.orders.unshift(record);
+        saveLocal();
+        renderOrders();
+        openTab("orders");
+        openEscrowModal(record.id);
+        showToast(`Emanet sargyt açyldy: ${orderCode}`);
+      } catch (err) {
+        showToast("Sargyt döredilmedi: " + err.message);
       }
-
-      state.orders.unshift({ id: Date.now(), ...newOrder });
-      saveLocal();
-      renderOrders();
-      showToast(`Sargyt ýazyldy: ${orderCode}`);
     }
 
-    async function addWithdrawal() {
-      const seller = document.getElementById("w-seller").value.trim() || "Serkanbey77";
-      const amountLabel = document.getElementById("w-amount").value.trim();
-      if (!amountLabel) {
-        showToast("Çekjek mukdaryňyzy ýazyň.");
-        return;
-      }
+    function openEscrowModal(orderId) {
+      const o = state.orders.find(x => String(x.id) === String(orderId));
+      if (!o) return;
+      const bothDone = Boolean(o.seller_confirmed) && Boolean(o.buyer_confirmed);
 
-      const payload = {
-        seller,
-        amount_label: amountLabel,
-        status: "Admin tassyklamasyna garaşylýar"
+      document.getElementById("em-title").textContent = `Sargyt ${o.order_code} — Hasap & Tassyklama`;
+      document.getElementById("em-body").innerHTML = `
+        <div class="meta">Haryt: <strong>${escapeHtml(o.product_title)}</strong> · Baha: <strong>${Number(o.price_tmt || 0).toLocaleString()} TMT</strong></div>
+        <div class="meta" style="margin-top:4px;">Pul ýagdaýy: <strong>${bothDone ? "Satyn alyjy hasabyna geçirildi (Tassyklanan)" : "ORTADA EMANETDE SAKLANÝAR"}</strong></div>
+
+        <div class="secret-box">
+          <div class="secret-line"><strong>Hasap Ady / Login:</strong> ${escapeHtml(o.account_login || "Görkezilmedik")}</div>
+          <div class="secret-line"><strong>Hasap Paroly:</strong> ${escapeHtml(o.account_password || "Görkezilmedik")}</div>
+          ${o.account_extra ? `<div class="secret-line"><strong>Goşmaça:</strong> ${escapeHtml(o.account_extra)}</div>` : ""}
+          <div class="secret-line"><strong>Gözegçilik kody:</strong> ${escapeHtml(o.secret_code || "")}</div>
+        </div>
+
+        <div class="secret-box">
+          <div class="secret-line">1. Satyjy tassygy ("Satdym"): <strong>${o.seller_confirmed ? "Tassyklanyldy ✅" : "Garaşylýar ⏳"}</strong></div>
+          <div class="secret-line">2. Alyjy tassygy ("Aldym"): <strong>${o.buyer_confirmed ? "Tassyklanyldy ✅" : "Garaşylýar ⏳"}</strong></div>
+        </div>
+
+        <div class="btn-row">
+          ${!o.seller_confirmed ? `<button class="secondary" style="flex:1;" onclick="confirmEscrowSide(${o.id}, 'seller')">Satyjy: Satdym Tassyklamak</button>` : ""}
+          ${!o.buyer_confirmed ? `<button class="success-btn" style="flex:1;" onclick="confirmEscrowSide(${o.id}, 'buyer')">Alyjy: Aldym Tassyklamak</button>` : ""}
+        </div>
+      `;
+      openModal("escrow-modal");
+    }
+
+    async function confirmEscrowSide(orderId, side) {
+      const o = state.orders.find(x => String(x.id) === String(orderId));
+      if (!o) return;
+
+      const sellerConfirmed = side === "seller" ? true : Boolean(o.seller_confirmed);
+      const buyerConfirmed = side === "buyer" ? true : Boolean(o.buyer_confirmed);
+      const bothConfirmed = sellerConfirmed && buyerConfirmed;
+
+      const patchData = {
+        seller_confirmed: sellerConfirmed,
+        buyer_confirmed: buyerConfirmed,
+        escrow_status: bothConfirmed ? "released_to_seller" : "escrow_hold",
+        status: bothConfirmed ? "completed" : "pending_dual_confirmation"
       };
 
-      if (state.online) {
-        try {
-          const saved = await restInsert("withdrawals", payload);
-          state.withdrawals.unshift(saved || { id: Date.now(), ...payload });
-          saveLocal();
-          renderWithdrawals();
-          document.getElementById("w-amount").value = "";
-          showToast("Çekme ýüz tutmasy Supabase-a ýazyldy!");
-          return;
-        } catch (err) {
-          showToast("Supabase ýalňyşlygy: " + err.message);
-          return;
-        }
+      try {
+        const updated = state.online ? await restPatch("orders", orderId, patchData) : patchData;
+        state.orders = state.orders.map(x => String(x.id) === String(orderId) ? { ...x, ...patchData, ...(updated || {}) } : x);
+        saveLocal();
+        renderOrders();
+        openEscrowModal(orderId);
+        showToast(bothConfirmed
+          ? "Iki tarap hem tassyklady! Pul satyja geçirildi."
+          : (side === "seller" ? "Satyjy 'Satdym' tassygy ýazyldy." : "Alyjy 'Aldym' tassygy ýazyldy."));
+      } catch (err) {
+        showToast("Tassyklama ýalňyşlygy: " + err.message);
       }
+    }
 
-      state.withdrawals.unshift({ id: Date.now(), ...payload });
-      saveLocal();
-      renderWithdrawals();
-      showToast("Çekme ýüz tutmasy ýazyldy.");
+    function renderSellerProducts() {
+      const list = document.getElementById("seller-products-list");
+      if (!state.products.length) {
+        list.innerHTML = `<p class="meta">Heniz haryt ýok.</p>`;
+        return;
+      }
+      list.innerHTML = state.products.map(item => `
+        <div class="list-item">
+          <div>
+            <span class="badge">${escapeHtml(item.cat || "ACCOUNT")}</span>
+            <strong>${escapeHtml(item.title)}</strong>
+            <div class="meta">Baha: <strong>${Number(item.price_tmt || 0).toLocaleString()} TMT</strong> · Hasap: ${item.account_login ? "Girizilen 🔒" : "Ýok"}</div>
+          </div>
+          <div class="item-actions">
+            <button class="secondary" onclick="startEditProduct(${item.id})">Üýtget</button>
+            <button class="danger" onclick="deleteProduct(${item.id})">Poz</button>
+          </div>
+        </div>
+      `).join("");
     }
 
     function renderOrders() {
       const el = document.getElementById("orders-list");
       if (!state.orders.length) {
-        el.innerHTML = `<p class="meta">Heniz sargyt ýok.</p>`;
+        el.innerHTML = `<p class="meta" style="margin-top:8px;">Heniz sargyt ýok.</p>`;
         return;
       }
-      el.innerHTML = state.orders.map(o => `
-        <div class="list-item">
-          <div>
-            <strong>${escapeHtml(o.order_code)}</strong> — ${escapeHtml(o.product_title)}
-            <div class="meta">Baha: ${Number(o.price_tmt || 0).toLocaleString()} TMT · Kod: ${escapeHtml(o.secret_code || "")}</div>
+      el.innerHTML = state.orders.map(o => {
+        const bothDone = Boolean(o.seller_confirmed) && Boolean(o.buyer_confirmed);
+        return `
+          <div class="list-item">
+            <div>
+              <strong>${escapeHtml(o.order_code)}</strong> — ${escapeHtml(o.product_title)}
+              <div class="meta">Baha: <strong>${Number(o.price_tmt || 0).toLocaleString()} TMT</strong> · Satyjy: ${o.seller_confirmed ? "✅" : "⏳"} · Alyjy: ${o.buyer_confirmed ? "✅" : "⏳"}</div>
+            </div>
+            <div class="item-actions">
+              <span class="status-pill ${bothDone ? "done" : ""}">${bothDone ? "Tassyklanan (Geçirildi)" : "Emanetde Saklanýar"}</span>
+              <button class="secondary" onclick="openEscrowModal(${o.id})">Hasap &amp; Tassyklama Penjiresi</button>
+            </div>
           </div>
-          <span class="status-pill">${escapeHtml(o.status || "pending_delivery")}</span>
-        </div>
-      `).join("");
+        `;
+      }).join("");
+    }
+
+    async function addWithdrawal() {
+      const seller = document.getElementById("w-seller").value.trim() || "Serkanbey77";
+      const amountLabel = document.getElementById("w-amount").value.trim();
+      if (!amountLabel) { showToast("Çekjek mukdaryňyzy ýazyň."); return; }
+
+      const payload = { seller, amount_label: amountLabel, status: "Admin tassyklamasyna garaşylýar" };
+      try {
+        const saved = state.online ? await restInsert("withdrawals", payload) : { id: Date.now(), ...payload };
+        state.withdrawals.unshift(saved || { id: Date.now(), ...payload });
+        saveLocal();
+        renderWithdrawals();
+        document.getElementById("w-amount").value = "";
+        showToast("Çekme ýüz tutmasy iberildi.");
+      } catch (err) {
+        showToast("Ýalňyşlyk: " + err.message);
+      }
     }
 
     function renderWithdrawals() {
       const el = document.getElementById("withdrawals-list");
       if (!state.withdrawals.length) {
-        el.innerHTML = `<p class="meta">Heniz pul çekme ýüz tutmasy ýok.</p>`;
+        el.innerHTML = `<p class="meta">Heniz çekme ýüz tutmasy ýok.</p>`;
         return;
       }
       el.innerHTML = state.withdrawals.map(w => `
         <div class="list-item">
-          <div>
-            <strong>${escapeHtml(w.seller)}</strong> — ${escapeHtml(w.amount_label)}
-          </div>
+          <div><strong>${escapeHtml(w.seller)}</strong> — ${escapeHtml(w.amount_label)}</div>
           <span class="status-pill">${escapeHtml(w.status)}</span>
         </div>
       `).join("");
@@ -978,20 +975,16 @@
       renderWithdrawals();
     }
 
-    function escapeHtml(str) {
-      return String(str || "")
-        .replace(/&/g, "&amp;")
-        .replace(/</g, "&lt;")
-        .replace(/>/g, "&gt;")
-        .replace(/"/g, "&quot;");
-    }
-
     document.querySelectorAll(".tab-btn").forEach(btn => {
-      btn.addEventListener("click", () => {
-        document.querySelectorAll(".tab-btn").forEach(b => b.classList.remove("active"));
-        document.querySelectorAll(".section").forEach(s => s.classList.remove("active"));
-        btn.classList.add("active");
-        document.getElementById("tab-" + btn.dataset.tab).classList.add("active");
+      btn.addEventListener("click", () => openTab(btn.dataset.tab));
+    });
+
+    document.querySelectorAll(".cat-card").forEach(card => {
+      card.addEventListener("click", () => {
+        activeCat = card.dataset.cat;
+        document.querySelectorAll(".cat-card").forEach(c => c.classList.remove("active"));
+        card.classList.add("active");
+        renderProducts();
       });
     });
 
@@ -1001,7 +994,6 @@
     });
 
     document.getElementById("search-input").addEventListener("input", renderProducts);
-    document.getElementById("cat-filter").addEventListener("change", renderProducts);
     document.getElementById("refresh-btn").addEventListener("click", syncFromSupabase);
     document.getElementById("save-product-btn").addEventListener("click", saveProduct);
     document.getElementById("cancel-edit-btn").addEventListener("click", resetProductForm);
