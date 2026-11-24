@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>TKM Market — Hasap, Oýun &amp; Sanly Harytlar</title>
+  <title>TKM Market — 4K Oýun &amp; Sanly Bazary</title>
   <link rel="stylesheet" href="assets/tkm.css" />
 </head>
 <body>
@@ -11,18 +11,18 @@
 
   <main class="page-wrap">
     <section class="promo-banner">
-      <div class="promo-tag">ÇIFT TARAPLY EMANET (ESCROW)</div>
+      <div class="promo-tag">❄ GYŞLY 4K EMANET (ESCROW) ARENASY</div>
       <h1>Hasaplar, Oýunlar &amp; Sanly Harytlar Bazary</h1>
       <p>Satyn alnandan soň hasap maglumatlary açylýar; satyjy we alyjy ikisi hem tassyklamasa pul ortada saklanýar.</p>
       <div class="btn-row" style="margin-top:0;">
         <a class="btn btn-main" style="text-decoration:none;" href="satyjy.html">Hasap / Haryt Sat</a>
-        <a class="btn btn-soft" style="text-decoration:none; color:#0f172a; background:#fff;" href="mesajlar.html">Hasap Sorag Iber</a>
+        <a class="btn btn-soft" style="text-decoration:none;" href="mesajlar.html">Hasap Sorag Iber</a>
       </div>
     </section>
 
     <div class="sec-header">
       <h2>Meşhur Bölümler</h2>
-      <a class="muted" style="text-decoration:none; font-weight:700; color:var(--primary);" href="kategoriler.html">Ählisi →</a>
+      <a class="muted" style="text-decoration:none; font-weight:700; color:#c084fc;" href="kategoriler.html">Ählisi →</a>
     </div>
 
     <div class="home-quick-5" id="home-quick-5"></div>
@@ -52,12 +52,14 @@
 
       wrap.innerHTML = items.map(p => `
         <button class="quick-tile" type="button" onclick="location.href='uygulama.html?slug=${encodeURIComponent(p.id)}'">
-          <div class="app-icon-box" style="width:44px; height:44px; border-radius:12px;">${p.logo}</div>
+          <div class="app-icon-box" style="width:46px; height:46px; border-radius:13px;">${renderLogoWithAsset(p)}</div>
           <span>${esc(p.name)}</span>
         </button>
       `).join("") + `
         <button class="quick-tile active" type="button" onclick="location.href='kategoriler.html'">
-          <div class="app-icon-box" style="width:44px; height:44px; border-radius:12px;">${makeLogo("#4f46e5", "#ffffff", "ÄHLI", "", "⊞")}</div>
+          <div class="app-icon-box" style="width:46px; height:46px; border-radius:13px;">
+            ${artLogo("#6366f1", "#a855f7", "ALL", "ÄHLI", "diamond")}
+          </div>
           <span>Ählisi</span>
         </button>
       `;
@@ -87,7 +89,7 @@
       );
 
       if (!filtered.length) {
-        wrap.innerHTML = `<div class="panel"><p class="muted">Haryt tapylmady. <strong>Satmak</strong> sekmesinden täze haryt goşup ýa-da <strong>Hatlar</strong> sekmesinden isleg ibere bilersiňiz.</p></div>`;
+        wrap.innerHTML = `<div class="panel"><p class="muted">Heniz haryt ýok. <strong>Satmak</strong> sekmesinden täze haryt goşup ýa-da <strong>Hatlar</strong> sekmesinden isleg ibere bilersiňiz.</p></div>`;
         return;
       }
 
