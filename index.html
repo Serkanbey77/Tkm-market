@@ -85,6 +85,7 @@
       font-size: 14px;
       width: 100%;
     }
+    input[type="file"] { padding: 8px; }
     .toolbar input { max-width: 300px; }
     .toolbar select { max-width: 200px; }
 
@@ -102,6 +103,49 @@
       flex-direction: column;
       justify-content: space-between;
       gap: 12px;
+    }
+    .card-img {
+      width: 100%;
+      height: 170px;
+      object-fit: cover;
+      border-radius: 8px;
+      border: 1px solid var(--border);
+      background: var(--panel-2);
+      display: block;
+    }
+    .gallery-thumbs {
+      display: flex;
+      gap: 6px;
+      flex-wrap: wrap;
+      margin-top: 8px;
+      margin-bottom: 10px;
+    }
+    .gallery-thumb {
+      width: 42px;
+      height: 42px;
+      object-fit: cover;
+      border-radius: 6px;
+      border: 1px solid var(--border);
+      cursor: pointer;
+      opacity: 0.7;
+    }
+    .gallery-thumb.active {
+      opacity: 1;
+      border-color: var(--accent);
+    }
+    .preview-strip {
+      display: flex;
+      gap: 8px;
+      flex-wrap: wrap;
+      margin-top: 8px;
+    }
+    .preview-img {
+      width: 56px;
+      height: 56px;
+      object-fit: cover;
+      border-radius: 8px;
+      border: 1px solid var(--border);
+      background: var(--panel-2);
     }
     .badge {
       display: inline-block;
@@ -130,6 +174,7 @@
       cursor: pointer;
       width: 100%;
     }
+    button.primary:disabled { opacity: 0.6; cursor: not-allowed; }
     button.secondary {
       background: var(--panel-2);
       color: var(--text);
@@ -175,6 +220,16 @@
       justify-content: space-between;
       gap: 10px;
       align-items: center;
+    }
+    .list-left { display: flex; gap: 12px; align-items: center; flex: 1; min-width: 220px; }
+    .thumb-img {
+      width: 58px;
+      height: 58px;
+      object-fit: cover;
+      border-radius: 8px;
+      border: 1px solid var(--border);
+      background: var(--panel);
+      flex-shrink: 0;
     }
     .item-actions { display: flex; gap: 8px; flex-wrap: wrap; }
     .status-pill {
@@ -263,6 +318,12 @@
             <label>Satyjy ady</label>
             <input id="p-seller" type="text" value="Serkanbey77" />
           </div>
+          <div class="form-group">
+            <label>Suratlar saýlaň (birnäçe surat bolup biler)</label>
+            <input id="p-files" type="file" accept="image/*" multiple />
+            <div class="meta" id="p-file-info">Heniz täze surat saýlanmady.</div>
+            <div class="preview-strip" id="p-file-preview"></div>
+          </div>
         </div>
         <div class="form-group" style="margin-top:12px;">
           <label>Düşündiriş</label>
@@ -315,6 +376,7 @@
   <script>
     const SUPABASE_URL = "https://piajbopfeqlyupkrsnik.supabase.co";
     const SUPABASE_KEY = "sb_publishable_gQFoj3SUxW-TUMjYmTGrIg_5_6hwBAH";
+    const STORAGE_BUCKET = "product-images";
 
     const FALLBACK_PRODUCTS = [
       {
@@ -326,6 +388,7 @@
         seller: "TKM_Escrow",
         rating: 4.9,
         sales: 42,
+        image_urls: [],
         description: "BNB Smart Chain (BEP20) ulgamy arkaly ygtybarly kripto çalşygy.",
         is_trading: true
       },
@@ -338,6 +401,7 @@
         seller: "Serkanbey77",
         rating: 5.0,
         sales: 18,
+        image_urls: [],
         description: "Sanly hyzmatlar we gurnama goldawy.",
         is_trading: false
       }
@@ -345,13 +409,15 @@
 
     let state = { products: [], orders: [], withdrawals: [], online: false };
     let editingProductId = null;
+    let existingEditImages = [];
+    let selectedFiles = [];
 
     function showToast(msg) {
       const el = document.getElementById("toast");
       el.textContent = msg;
       el.style.display = "block";
       clearTimeout(window.__toastTimer);
-      window.__toastTimer = setTimeout(() => { el.style.display = "none"; }, 3200);
+      window.__toastTimer = setTimeout(() => { el.style.display = "none"; }, 3400);
     }
 
     function setDbBadge(ok, text) {
@@ -360,6 +426,78 @@
       badge.style.background = ok ? "rgba(16, 185, 129, 0.14)" : "rgba(245, 158, 11, 0.16)";
       badge.style.color = ok ? "#6ee7b7" : "#fcd34d";
       badge.style.borderColor = ok ? "rgba(16, 185, 129, 0.35)" : "rgba(245, 158, 11, 0.4)";
+    }
+
+    function getProductImages(item) {
+      const list = [];
+      if (Array.isArray(item.image_urls)) {
+        for (const u of item.image_urls) {
+          if (typeof u === "string" && /^https?:\/\//i.test(u.trim())) {
+            list.push(u.trim());
+          }
+        }
+      }
+      if (!list.length && typeof item.image_url === "string" && /^https?:\/\//i.test(item.image_url.trim())) {
+        list.push(item.image_url.trim());
+      }
+      return list;
+    }
+
+    function updateFilePreview() {
+      const infoEl = document.getElementById("p-file-info");
+      const previewEl = document.getElementById("p-file-preview");
+      previewEl.innerHTML = "";
+
+      if (selectedFiles.length) {
+        infoEl.textContent = `${selectedFiles.length} sany täze surat saýlandy.`;
+        selectedFiles.forEach(file => {
+          const url = URL.createObjectURL(file);
+          const img = document.createElement("img");
+          img.src = url;
+          img.className = "preview-img";
+          img.onload = () => URL.revokeObjectURL(url);
+          previewEl.appendChild(img);
+        });
+      } else if (editingProductId !== null && existingEditImages.length) {
+        infoEl.textContent = `Harytda ${existingEditImages.length} sany bar bolan surat bar. Täze saýlasaňyz üstüne goşular.`;
+        existingEditImages.forEach(src => {
+          const img = document.createElement("img");
+          img.src = src;
+          img.className = "preview-img";
+          previewEl.appendChild(img);
+        });
+      } else {
+        infoEl.textContent = "Heniz täze surat saýlanmady.";
+      }
+    }
+
+    async function uploadImagesToStorage(files) {
+      const uploadedUrls = [];
+      for (const file of files) {
+        const ext = (file.name.split(".").pop() || "jpg").toLowerCase().replace(/[^a-z0-9]/g, "") || "jpg";
+        const fileName = `${Date.now()}-${Math.random().toString(36).slice(2, 8)}.${ext}`;
+        const objectPath = `products/${fileName}`;
+
+        const res = await fetch(`${SUPABASE_URL}/storage/v1/object/${STORAGE_BUCKET}/${objectPath}`, {
+          method: "POST",
+          headers: {
+            "apikey": SUPABASE_KEY,
+            "Authorization": `Bearer ${SUPABASE_KEY}`,
+            "Content-Type": file.type || "image/jpeg",
+            "x-upsert": "true"
+          },
+          body: file
+        });
+
+        if (!res.ok) {
+          const txt = await res.text();
+          throw new Error(`Storage ýükleme ýalňyşlygy: ${res.status} ${txt}`);
+        }
+
+        const publicUrl = `${SUPABASE_URL}/storage/v1/object/public/${STORAGE_BUCKET}/${objectPath}`;
+        uploadedUrls.push(publicUrl);
+      }
+      return uploadedUrls;
     }
 
     async function restGet(table) {
@@ -477,6 +615,23 @@
       }
     }
 
+    function switchCardPhoto(productId, idx, thumbEl) {
+      const mainImg = document.getElementById(`card-main-img-${productId}`);
+      if (!mainImg) return;
+      const item = state.products.find(x => String(x.id) === String(productId));
+      if (!item) return;
+      const imgs = getProductImages(item);
+      if (!imgs[idx]) return;
+      mainImg.src = imgs[idx];
+
+      const parent = thumbEl && thumbEl.parentElement;
+      if (parent) {
+        parent.querySelectorAll(".gallery-thumb").forEach((el, i) => {
+          el.classList.toggle("active", i === idx);
+        });
+      }
+    }
+
     function renderProducts() {
       const grid = document.getElementById("products-grid");
       const q = document.getElementById("search-input").value.trim().toLowerCase();
@@ -496,21 +651,35 @@
         return;
       }
 
-      grid.innerHTML = filtered.map(item => `
-        <div class="card">
-          <div>
-            <span class="badge">${escapeHtml(item.cat || "DIGITAL")}</span>
-            <div class="title">${escapeHtml(item.title)}</div>
-            <div class="desc">${escapeHtml(item.description || "")}</div>
-            <div class="meta">Satyjy: <strong>${escapeHtml(item.seller || "TKM_Seller")}</strong> · Satylan: ${Number(item.sales || 0)}</div>
-            <div class="price-row">
-              <div class="price">${Number(item.price_tmt || 0).toLocaleString()} TMT</div>
-              ${item.market_compare_tmt ? `<div class="compare">${Number(item.market_compare_tmt).toLocaleString()} TMT</div>` : ""}
+      grid.innerHTML = filtered.map(item => {
+        const imgs = getProductImages(item);
+        const hasImgs = imgs.length > 0;
+        const thumbsHtml = imgs.length > 1
+          ? `<div class="gallery-thumbs">${imgs.map((src, idx) => `
+              <img class="gallery-thumb ${idx === 0 ? "active" : ""}" src="${escapeHtml(src)}" alt="Surat ${idx + 1}" loading="lazy" onclick="switchCardPhoto(${item.id}, ${idx}, this)" onerror="this.style.display='none'" />
+            `).join("")}</div>`
+          : `<div style="margin-bottom:8px;"></div>`;
+
+        return `
+          <div class="card">
+            <div>
+              ${hasImgs ? `
+                <img id="card-main-img-${item.id}" class="card-img" src="${escapeHtml(imgs[0])}" alt="${escapeHtml(item.title)}" loading="lazy" onerror="this.style.display='none'" />
+                ${thumbsHtml}
+              ` : ""}
+              <span class="badge">${escapeHtml(item.cat || "DIGITAL")}</span>
+              <div class="title">${escapeHtml(item.title)}</div>
+              <div class="desc">${escapeHtml(item.description || "")}</div>
+              <div class="meta">Satyjy: <strong>${escapeHtml(item.seller || "TKM_Seller")}</strong> · Satylan: ${Number(item.sales || 0)}</div>
+              <div class="price-row">
+                <div class="price">${Number(item.price_tmt || 0).toLocaleString()} TMT</div>
+                ${item.market_compare_tmt ? `<div class="compare">${Number(item.market_compare_tmt).toLocaleString()} TMT</div>` : ""}
+              </div>
             </div>
+            <button class="primary" onclick="buyProduct(${item.id})">Sargyt Et</button>
           </div>
-          <button class="primary" onclick="buyProduct(${item.id})">Sargyt Et</button>
-        </div>
-      `).join("");
+        `;
+      }).join("");
     }
 
     function renderSellerProducts() {
@@ -520,24 +689,32 @@
         return;
       }
 
-      list.innerHTML = state.products.map(item => `
-        <div class="list-item">
-          <div>
-            <span class="badge">${escapeHtml(item.cat || "DIGITAL")}</span>
-            <strong>${escapeHtml(item.title)}</strong>
-            <div class="meta">Baha: <strong>${Number(item.price_tmt || 0).toLocaleString()} TMT</strong> · Satyjy: ${escapeHtml(item.seller || "Serkanbey77")}</div>
-            ${item.description ? `<div class="meta">${escapeHtml(item.description)}</div>` : ""}
+      list.innerHTML = state.products.map(item => {
+        const imgs = getProductImages(item);
+        return `
+          <div class="list-item">
+            <div class="list-left">
+              ${imgs[0] ? `<img class="thumb-img" src="${escapeHtml(imgs[0])}" alt="${escapeHtml(item.title)}" loading="lazy" onerror="this.style.display='none'" />` : ""}
+              <div>
+                <span class="badge">${escapeHtml(item.cat || "DIGITAL")}</span>
+                <strong>${escapeHtml(item.title)}</strong>
+                <div class="meta">Baha: <strong>${Number(item.price_tmt || 0).toLocaleString()} TMT</strong> · Satyjy: ${escapeHtml(item.seller || "Serkanbey77")} · Surat: ${imgs.length}</div>
+                ${item.description ? `<div class="meta">${escapeHtml(item.description)}</div>` : ""}
+              </div>
+            </div>
+            <div class="item-actions">
+              <button class="secondary" onclick="startEditProduct(${item.id})">Üýtget</button>
+              <button class="danger" onclick="deleteProduct(${item.id})">Poz</button>
+            </div>
           </div>
-          <div class="item-actions">
-            <button class="secondary" onclick="startEditProduct(${item.id})">Üýtget</button>
-            <button class="danger" onclick="deleteProduct(${item.id})">Poz</button>
-          </div>
-        </div>
-      `).join("");
+        `;
+      }).join("");
     }
 
     function resetProductForm() {
       editingProductId = null;
+      existingEditImages = [];
+      selectedFiles = [];
       document.getElementById("form-heading").textContent = "Täze Haryt Goş";
       document.getElementById("save-product-btn").textContent = "Harydy Ýerleşdir";
       document.getElementById("cancel-edit-btn").style.display = "none";
@@ -546,7 +723,9 @@
       document.getElementById("p-price").value = "";
       document.getElementById("p-compare").value = "";
       document.getElementById("p-seller").value = "Serkanbey77";
+      document.getElementById("p-files").value = "";
       document.getElementById("p-desc").value = "";
+      updateFilePreview();
     }
 
     function startEditProduct(productId) {
@@ -554,6 +733,10 @@
       if (!item) return;
 
       editingProductId = item.id;
+      existingEditImages = getProductImages(item);
+      selectedFiles = [];
+      document.getElementById("p-files").value = "";
+
       document.getElementById("form-heading").textContent = `Harydy Üýtget (#${item.id})`;
       document.getElementById("save-product-btn").textContent = "Üýtgeşmeleri Ýatda Sakla";
       document.getElementById("cancel-edit-btn").style.display = "inline-block";
@@ -565,6 +748,7 @@
       document.getElementById("p-seller").value = item.seller || "Serkanbey77";
       document.getElementById("p-desc").value = item.description || "";
 
+      updateFilePreview();
       window.scrollTo({ top: 0, behavior: "smooth" });
     }
 
@@ -582,19 +766,33 @@
         return;
       }
 
-      const payload = {
-        title,
-        cat,
-        price_tmt: priceTmt,
-        market_compare_tmt: marketCompareTmt && !isNaN(marketCompareTmt) ? marketCompareTmt : null,
-        seller,
-        description,
-        is_trading: cat === "CRYPTO"
-      };
+      const btn = document.getElementById("save-product-btn");
+      btn.disabled = true;
 
-      if (editingProductId !== null) {
-        if (state.online) {
-          try {
+      try {
+        let uploadedUrls = [];
+        if (selectedFiles.length > 0) {
+          showToast(`${selectedFiles.length} surat Storage-a ýüklenýär...`);
+          uploadedUrls = await uploadImagesToStorage(selectedFiles);
+        }
+
+        const finalImages = editingProductId !== null
+          ? [...existingEditImages, ...uploadedUrls]
+          : uploadedUrls;
+
+        const payload = {
+          title,
+          cat,
+          price_tmt: priceTmt,
+          market_compare_tmt: marketCompareTmt && !isNaN(marketCompareTmt) ? marketCompareTmt : null,
+          seller,
+          image_urls: finalImages,
+          description,
+          is_trading: cat === "CRYPTO"
+        };
+
+        if (editingProductId !== null) {
+          if (state.online) {
             const updated = await restPatch("products", editingProductId, payload);
             state.products = state.products.map(x =>
               String(x.id) === String(editingProductId) ? { ...x, ...(updated || payload) } : x
@@ -603,48 +801,44 @@
             renderProducts();
             renderSellerProducts();
             resetProductForm();
-            showToast("Haryt Supabase-da täzelendi!");
-            return;
-          } catch (err) {
-            showToast("Üýtgetmek başartmady: " + err.message);
+            showToast("Haryt we suratlary täzelendi!");
             return;
           }
+
+          state.products = state.products.map(x =>
+            String(x.id) === String(editingProductId) ? { ...x, ...payload } : x
+          );
+          saveLocal();
+          renderProducts();
+          renderSellerProducts();
+          resetProductForm();
+          showToast("Haryt ýerli ýatda täzelendi.");
+          return;
         }
 
-        state.products = state.products.map(x =>
-          String(x.id) === String(editingProductId) ? { ...x, ...payload } : x
-        );
-        saveLocal();
-        renderProducts();
-        renderSellerProducts();
-        resetProductForm();
-        showToast("Haryt ýerli ýatda täzelendi.");
-        return;
-      }
-
-      const insertPayload = { ...payload, rating: 5.0, sales: 1 };
-      if (state.online) {
-        try {
+        const insertPayload = { ...payload, rating: 5.0, sales: 1 };
+        if (state.online) {
           const saved = await restInsert("products", insertPayload);
           state.products.unshift(saved || { id: Date.now(), ...insertPayload });
           saveLocal();
           renderProducts();
           renderSellerProducts();
           resetProductForm();
-          showToast("Haryt Supabase-a ýazyldy!");
-          return;
-        } catch (err) {
-          showToast("Supabase ýalňyşlygy: " + err.message);
+          showToast("Haryt we suratlary Supabase-a ýazyldy!");
           return;
         }
-      }
 
-      state.products.unshift({ id: Date.now(), ...insertPayload });
-      saveLocal();
-      renderProducts();
-      renderSellerProducts();
-      resetProductForm();
-      showToast("Haryt ýerli ýada ýazyldy.");
+        state.products.unshift({ id: Date.now(), ...insertPayload });
+        saveLocal();
+        renderProducts();
+        renderSellerProducts();
+        resetProductForm();
+        showToast("Haryt ýerli ýada ýazyldy.");
+      } catch (err) {
+        showToast("Ýalňyşlyk: " + err.message);
+      } finally {
+        btn.disabled = false;
+      }
     }
 
     async function deleteProduct(productId) {
@@ -799,6 +993,11 @@
         btn.classList.add("active");
         document.getElementById("tab-" + btn.dataset.tab).classList.add("active");
       });
+    });
+
+    document.getElementById("p-files").addEventListener("change", e => {
+      selectedFiles = Array.from(e.target.files || []);
+      updateFilePreview();
     });
 
     document.getElementById("search-input").addEventListener("input", renderProducts);
