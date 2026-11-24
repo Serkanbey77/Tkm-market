@@ -220,9 +220,12 @@ body:not(.dark) .top-head { background: rgba(255, 255, 255, 0.92); }
   transition: transform 0.16s ease;
 }
 .app-tile:hover .app-icon-box { transform: scale(1.05); }
-.app-icon-box .custom-asset {
-  position: absolute; inset: 0; width: 100%; height: 100%; object-fit: cover; z-index: 2;
+.app-icon-box .custom-asset,
+.app-icon-box .custom-video {
+  position: absolute; inset: 0; width: 100%; height: 100%; object-fit: cover; display: block;
 }
+.app-icon-box .custom-asset { z-index: 2; }
+.app-icon-box .custom-video { z-index: 3; pointer-events: none; }
 .app-icon-box .svg-fallback {
   position: relative; z-index: 1; width: 100%; height: 100%; display: block;
 }
@@ -235,7 +238,10 @@ body:not(.dark) .top-head { background: rgba(255, 255, 255, 0.92); }
   position: relative; width: 68px; height: 68px; border-radius: 16px; overflow: hidden;
   border: 2px solid rgba(255, 255, 255, 0.55); flex-shrink: 0;
 }
-.platform-hero-logo .custom-asset { position: absolute; inset: 0; width: 100%; height: 100%; object-fit: cover; z-index: 2; }
+.platform-hero-logo .custom-asset,
+.platform-hero-logo .custom-video { position: absolute; inset: 0; width: 100%; height: 100%; object-fit: cover; display: block; }
+.platform-hero-logo .custom-asset { z-index: 2; }
+.platform-hero-logo .custom-video { z-index: 3; pointer-events: none; }
 .platform-hero-logo .svg-fallback { position: relative; z-index: 1; width: 100%; height: 100%; display: block; }
 
 .subtabs-scroll {
@@ -333,22 +339,45 @@ input[type="file"] { padding: 7px; }
 }
 .badge-status.ok { background: rgba(16, 185, 129, 0.18); color: #34d399; }
 
-/* Alt Sabit Menü (6 sekmeli: Gözleg, Kategorýa, Exness, Hatlar, Satmak, Emanet) */
+/* Alt Sabit Menü (6 sekmeli: Gözleg, Kategorýa, Exness, Hatlar, Satmak, Pul Çek) */
 .bottom-nav {
   position: fixed; left: 0; right: 0; bottom: 0; z-index: 60;
   background: rgba(13, 20, 38, 0.95); backdrop-filter: blur(12px);
   border-top: 1px solid var(--border);
-  padding: 7px 4px calc(7px + env(safe-area-inset-bottom));
-  display: grid; grid-template-columns: repeat(6, 1fr); gap: 2px;
+  padding: 6px 4px calc(6px + env(safe-area-inset-bottom));
+  display: grid; grid-template-columns: repeat(6, 1fr); gap: 3px;
 }
 body:not(.dark) .bottom-nav { background: rgba(255, 255, 255, 0.96); }
 .bnav-item {
   text-decoration: none; color: var(--muted);
   display: flex; flex-direction: column; align-items: center; justify-content: center;
-  gap: 2px; font-size: 10px; font-weight: 600; padding: 5px 2px; border-radius: 10px;
+  gap: 3px; font-size: 10px; font-weight: 600; padding: 4px 2px; border-radius: 11px;
+  transition: transform 0.14s ease, background 0.14s ease;
+}
+.bnav-logo-box {
+  position: relative;
+  width: 22px; height: 22px; border-radius: 7px; overflow: hidden;
+  border: 1px solid rgba(168, 85, 247, 0.45);
+  box-shadow: 0 0 10px rgba(99, 102, 241, 0.28);
+  display: flex; align-items: center; justify-content: center;
+  background: var(--surface-2);
+}
+.bnav-logo-box .custom-asset,
+.bnav-logo-box .custom-video {
+  position: absolute; inset: 0; width: 100%; height: 100%; object-fit: cover; display: block;
+}
+.bnav-logo-box .custom-asset { z-index: 2; }
+.bnav-logo-box .custom-video { z-index: 3; pointer-events: none; }
+.bnav-logo-box .svg-fallback {
+  position: relative; z-index: 1; width: 100%; height: 100%; display: block;
 }
 .bnav-item .ico { font-size: 14px; line-height: 1; }
-.bnav-item.active { color: #e879f9; background: rgba(168, 85, 247, 0.16); font-weight: 700; }
+.bnav-item.active { color: #e879f9; background: rgba(168, 85, 247, 0.18); font-weight: 700; }
+.bnav-item.active .bnav-logo-box {
+  border-color: #e879f9;
+  box-shadow: 0 0 14px rgba(232, 121, 249, 0.6);
+  transform: translateY(-1px);
+}
 
 .modal-bg {
   position: fixed; inset: 0; background: rgba(2, 6, 15, 0.78);
