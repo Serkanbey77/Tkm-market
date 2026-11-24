@@ -2,7 +2,7 @@
   --bg: #eef2ff;
   --surface: #ffffff;
   --surface-2: #f1f5f9;
-  --border: rgba(15, 23, 42, 0.1);
+  --border: rgba(15, 23, 42, 0.12);
   --text: #0f172a;
   --muted: #64748b;
   --primary: #4f46e5;
@@ -25,8 +25,7 @@ body {
   background: var(--bg);
   color: var(--text);
   min-height: 100vh;
-  padding-bottom: 86px;
-  transition: background 0.2s ease, color 0.2s ease;
+  padding-bottom: 90px;
 }
 
 .top-head {
@@ -37,7 +36,7 @@ body {
   border-bottom: 1px solid var(--border);
   padding: 12px 16px;
 }
-.top-inner { max-width: 980px; margin: 0 auto; }
+.top-inner { max-width: 1040px; margin: 0 auto; }
 .top-row {
   display: flex;
   align-items: center;
@@ -50,7 +49,6 @@ body {
   font-size: 20px;
   font-weight: 800;
   color: var(--primary);
-  letter-spacing: -0.02em;
 }
 .brand-link span { color: var(--text); }
 .top-right { display: flex; align-items: center; gap: 8px; }
@@ -63,13 +61,13 @@ body {
   color: #d97706;
 }
 .theme-switch {
-  width: 48px;
+  width: 46px;
   height: 26px;
   border-radius: 999px;
   border: 1px solid var(--border);
   background: #fde68a;
   color: #1e293b;
-  font-size: 13px;
+  font-size: 12px;
   cursor: pointer;
   display: inline-flex;
   align-items: center;
@@ -101,7 +99,7 @@ body.dark .theme-switch {
   outline: none;
 }
 
-.page-wrap { max-width: 980px; margin: 0 auto; padding: 14px 16px 24px; }
+.page-wrap { max-width: 1040px; margin: 0 auto; padding: 14px 16px 24px; }
 
 .promo-banner {
   border-radius: 18px;
@@ -109,13 +107,11 @@ body.dark .theme-switch {
   background: linear-gradient(125deg, #312e81 0%, #6d28d9 52%, #db2777 100%);
   color: #fff;
   margin-bottom: 16px;
-  box-shadow: 0 12px 28px rgba(79, 70, 229, 0.22);
 }
 .promo-tag {
   display: inline-block;
   font-size: 10px;
   font-weight: 800;
-  letter-spacing: 0.04em;
   background: rgba(255, 255, 255, 0.2);
   padding: 3px 9px;
   border-radius: 999px;
@@ -124,49 +120,107 @@ body.dark .theme-switch {
 .promo-banner h1 { font-size: 22px; line-height: 1.25; margin-bottom: 6px; }
 .promo-banner p { font-size: 13px; opacity: 0.92; margin-bottom: 12px; }
 
-.quick-games {
+.section-title-row {
   display: flex;
-  gap: 12px;
-  overflow-x: auto;
-  padding-bottom: 8px;
+  align-items: center;
+  justify-content: space-between;
+  gap: 10px;
+  margin: 14px 0 10px;
+}
+.section-title-row h2, .section-title-row h3 { font-size: 16px; }
+
+/* Ana sayfa 5'li hızlı şerit (4 uygulama/oyun + Ählisi) */
+.home-quick-5 {
+  display: grid;
+  grid-template-columns: repeat(5, 1fr);
+  gap: 8px;
   margin-bottom: 16px;
 }
-.game-chip {
-  flex: 0 0 auto;
-  width: 76px;
-  background: transparent;
-  border: none;
+.quick-tile {
+  background: var(--surface);
+  border: 1.5px solid var(--border);
+  border-radius: 14px;
+  padding: 10px 6px;
+  text-align: center;
   color: var(--text);
   cursor: pointer;
-  text-align: center;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 6px;
 }
-.game-icon {
-  width: 56px;
-  height: 56px;
-  margin: 0 auto 6px;
-  border-radius: 16px;
-  background: var(--surface);
-  border: 2px solid var(--border);
+.quick-tile.active {
+  border-color: var(--primary);
+  background: rgba(79, 70, 229, 0.1);
+}
+.logo-badge {
+  width: 42px;
+  height: 42px;
+  border-radius: 12px;
   display: grid;
   place-items: center;
   font-weight: 800;
-  font-size: 13px;
-  color: var(--primary);
+  font-size: 12px;
+  color: #fff;
+  flex-shrink: 0;
 }
-.game-chip.active .game-icon {
+.quick-tile span {
+  font-size: 11px;
+  font-weight: 700;
+  line-height: 1.2;
+  max-width: 100%;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+/* Tüm kategoriler ızgarası */
+.catalog-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(118px, 1fr));
+  gap: 10px;
+  margin-bottom: 16px;
+}
+.catalog-card {
+  background: var(--surface);
+  border: 1.5px solid var(--border);
+  border-radius: 14px;
+  padding: 12px 8px;
+  text-align: center;
+  color: var(--text);
+  cursor: pointer;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 7px;
+}
+.catalog-card.selected {
   border-color: var(--primary);
   background: rgba(79, 70, 229, 0.12);
 }
-.game-chip span {
-  display: block;
-  font-size: 11px;
-  font-weight: 600;
-  color: var(--muted);
-  white-space: nowrap;
-  overflow: hidden;
-  text-overflow: ellipsis;
+.catalog-card span { font-size: 12px; font-weight: 700; line-height: 1.25; }
+
+.subcat-bar {
+  display: flex;
+  gap: 8px;
+  flex-wrap: wrap;
+  margin: 10px 0 14px;
 }
-.game-chip.active span { color: var(--primary); font-weight: 700; }
+.subcat-btn {
+  border: 1px solid var(--border);
+  background: var(--surface);
+  color: var(--text);
+  border-radius: 999px;
+  padding: 7px 13px;
+  font-size: 12px;
+  font-weight: 700;
+  cursor: pointer;
+}
+.subcat-btn.active {
+  background: linear-gradient(135deg, var(--primary), var(--primary-2));
+  color: #fff;
+  border-color: transparent;
+}
 
 .cards-grid {
   display: grid;
@@ -185,7 +239,7 @@ body.dark .theme-switch {
 }
 .item-img {
   width: 100%;
-  height: 152px;
+  height: 150px;
   object-fit: cover;
   border-radius: 12px;
   background: var(--surface-2);
@@ -212,7 +266,6 @@ body.dark .theme-switch {
   margin-left: 4px;
 }
 body.dark .chip-escrow { color: #6ee7b7; }
-
 .item-title { font-size: 15px; font-weight: 700; margin: 6px 0 4px; }
 .item-desc { font-size: 12px; color: var(--muted); line-height: 1.4; margin-bottom: 6px; }
 .item-price-row { display: flex; align-items: baseline; gap: 8px; margin-top: 6px; }
@@ -229,7 +282,7 @@ body.dark .chip-escrow { color: #6ee7b7; }
 .muted { font-size: 12px; color: var(--muted); }
 .form-grid {
   display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+  grid-template-columns: repeat(auto-fit, minmax(195px, 1fr));
   gap: 12px;
   margin-top: 12px;
 }
@@ -251,6 +304,29 @@ input[type="file"] { padding: 7px; }
   border-radius: 12px;
   background: rgba(79, 70, 229, 0.08);
   border: 1px dashed rgba(79, 70, 229, 0.45);
+}
+
+.captcha-box {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  flex-wrap: wrap;
+  background: var(--surface-2);
+  border: 1px solid var(--border);
+  border-radius: 12px;
+  padding: 10px 12px;
+  margin-top: 12px;
+}
+.captcha-code {
+  font-family: monospace;
+  font-size: 16px;
+  font-weight: 800;
+  letter-spacing: 2px;
+  padding: 6px 12px;
+  border-radius: 8px;
+  background: linear-gradient(135deg, #312e81, #7c3aed);
+  color: #fff;
+  user-select: none;
 }
 
 .btn {
@@ -290,7 +366,7 @@ input[type="file"] { padding: 7px; }
 .badge-status.ok { background: rgba(16, 185, 129, 0.16); color: #059669; }
 body.dark .badge-status.ok { color: #6ee7b7; }
 
-/* Alt Sabit Playerok Menüsü */
+/* Alt Sabit Menü (6 sekmeli akıcı bar) */
 .bottom-nav {
   position: fixed;
   left: 0;
@@ -299,10 +375,10 @@ body.dark .badge-status.ok { color: #6ee7b7; }
   z-index: 60;
   background: var(--surface);
   border-top: 1px solid var(--border);
-  padding: 8px 10px calc(8px + env(safe-area-inset-bottom));
+  padding: 7px 6px calc(7px + env(safe-area-inset-bottom));
   display: grid;
-  grid-template-columns: repeat(5, 1fr);
-  gap: 4px;
+  grid-template-columns: repeat(6, 1fr);
+  gap: 2px;
 }
 .bnav-item {
   text-decoration: none;
@@ -311,13 +387,13 @@ body.dark .badge-status.ok { color: #6ee7b7; }
   flex-direction: column;
   align-items: center;
   justify-content: center;
-  gap: 3px;
-  font-size: 11px;
+  gap: 2px;
+  font-size: 10px;
   font-weight: 600;
-  padding: 5px 4px;
-  border-radius: 12px;
+  padding: 5px 2px;
+  border-radius: 10px;
 }
-.bnav-item .ico { font-size: 16px; line-height: 1; }
+.bnav-item .ico { font-size: 15px; line-height: 1; }
 .bnav-item.active {
   color: var(--primary);
   background: rgba(79, 70, 229, 0.12);
