@@ -4,7 +4,6 @@ const TKM_API = {
   bucket: "product-images"
 };
 
-/* Her oyuna ve uygulamaya ÖZGÜ alt kategoriler */
 const PLATFORM_SUBCATS = {
   "pubg-mobile": ["Ählisi", "Hasap", "Arenda", "UC"],
   "pubg-mobile-korea": ["Ählisi", "Hasap", "Arenda", "UC"],
@@ -36,22 +35,23 @@ const PLATFORM_SUBCATS = {
   "midjourney": ["Ählisi", "Hasap", "Plan"],
   "google-play": ["Ählisi", "Hasap", "Karta / Bakiýa"],
   "belet-film": ["Ählisi", "Hasap", "Abonelik"],
+  "exness-account": ["Ählisi", "MT5 Hasap", "Ýatyrmak / Çykarmak", "Kâr Çekimi"],
   "trading-kurs": ["Ählisi", "Kripto Trading", "Forex & Altın", "Sinyal"]
 };
 
-function artLogo(c1, c2, badge, label, shapeType = "ring") {
-  const shapes = {
-    ring: `<circle cx="40" cy="36" r="14" fill="none" stroke="#fff" stroke-width="3.2"/><circle cx="40" cy="36" r="4" fill="#fde047"/>`,
-    shield: `<path d="M40 16 L57 23 L54 43 C52 53, 40 59, 40 59 C40 59, 28 53, 26 43 L23 23 Z" fill="rgba(255,255,255,0.22)" stroke="#fff" stroke-width="2.5"/>`,
-    diamond: `<polygon points="40,16 58,36 40,56 22,36" fill="rgba(255,255,255,0.24)" stroke="#fff" stroke-width="2.5"/>`,
-    play: `<polygon points="33,22 55,36 33,50" fill="#fff"/>`,
-    wave: `<path d="M20 42 Q30 24 40 42 T60 42" fill="none" stroke="#fff" stroke-width="3.5" stroke-linecap="round"/>`,
-    chart: `<polyline points="22,48 33,36 43,42 58,24" fill="none" stroke="#fde047" stroke-width="3.8" stroke-linecap="round" stroke-linejoin="round"/>`
+function artLogo(c1, c2, badge, label, motif = "ring") {
+  const motifs = {
+    ring: `<circle cx="40" cy="35" r="15" fill="rgba(255,255,255,0.14)" stroke="#fff" stroke-width="3"/><circle cx="40" cy="35" r="5" fill="#fde047"/>`,
+    shield: `<path d="M40 15 L58 22 L55 43 C53 53, 40 60, 40 60 C40 60, 27 53, 25 43 L22 22 Z" fill="rgba(255,255,255,0.22)" stroke="#fff" stroke-width="2.5"/>`,
+    diamond: `<polygon points="40,15 59,35 40,55 21,35" fill="rgba(255,255,255,0.22)" stroke="#fff" stroke-width="2.5"/>`,
+    play: `<circle cx="40" cy="35" r="15" fill="rgba(255,255,255,0.18)"/><polygon points="35,26 51,35 35,44" fill="#fff"/>`,
+    wave: `<path d="M18 42 Q29 22 40 42 T62 42" fill="none" stroke="#fff" stroke-width="3.8" stroke-linecap="round"/>`,
+    chart: `<polyline points="20,48 32,35 43,42 60,22" fill="none" stroke="#fde047" stroke-width="4" stroke-linecap="round" stroke-linejoin="round"/><circle cx="60" cy="22" r="4" fill="#34d399"/>`
   };
   return `<svg class="svg-fallback" viewBox="0 0 80 80" xmlns="http://www.w3.org/2000/svg">
     <defs><linearGradient id="g_${badge.replace(/\W/g,"")}" x1="0" y1="0" x2="1" y2="1"><stop offset="0%" stop-color="${c1}"/><stop offset="100%" stop-color="${c2}"/></linearGradient></defs>
     <rect width="80" height="80" rx="18" fill="url(#g_${badge.replace(/\W/g,"")})"/>
-    ${shapes[shapeType] || shapes.ring}
+    ${motifs[motif] || motifs.ring}
     <text x="40" y="69" text-anchor="middle" fill="#fff" font-size="10" font-weight="900" letter-spacing="0.4" font-family="system-ui,sans-serif">${label}</text>
   </svg>`;
 }
@@ -92,11 +92,15 @@ const APPS_CATALOG = [
   { id: "belet-film", name: "Belet Film", kind: "app", color: "#e11d48", tag: "HASAP • ABONELIK", svg: artLogo("#f43f5e", "#4c0519", "BF", "BELET", "play") }
 ];
 
+const EXNESS_CATALOG = [
+  { id: "exness-account", name: "Exness Account", kind: "exness", color: "#eab308", tag: "EXNESS METATRADER 5 • YATYRMAK & ÇYKARYŞ", svg: artLogo("#facc15", "#0f172a", "MT5", "EXNESS", "chart") }
+];
+
 const COURSES_CATALOG = [
   { id: "trading-kurs", name: "Trading Kurs", kind: "course", color: "#0d9488", tag: "KRIPTO TRADING • FOREX • SINYAL", svg: artLogo("#10b981", "#042f2e", "TRD", "TRADING", "chart") }
 ];
 
-const ALL_PLATFORMS = [...GAMES_CATALOG, ...APPS_CATALOG, ...COURSES_CATALOG];
+const ALL_PLATFORMS = [...GAMES_CATALOG, ...APPS_CATALOG, ...EXNESS_CATALOG, ...COURSES_CATALOG];
 
 function findPlatform(idOrName) {
   const k = String(idOrName || "").toLowerCase().trim();
@@ -124,7 +128,7 @@ function renderLogoWithAsset(plat) {
 function renderBannerWithAsset(plat) {
   const subs = getSubcatsForPlatform(plat).filter(x => x !== "Ählisi").join(" • ");
   const base = `assets/banners/${plat.id}`;
-  return `<div style="position:relative; width:100%; border-radius:18px; overflow:hidden; min-height:132px; display:flex; align-items:center; gap:14px; padding:16px; color:#fff; background:linear-gradient(120deg, #0f172a 0%, ${plat.color} 100%); border:1px solid rgba(255,255,255,0.22); box-shadow:0 0 24px rgba(99,102,241,0.3);">
+  return `<div style="position:relative; width:100%; border-radius:18px; overflow:hidden; min-height:132px; display:flex; align-items:center; gap:14px; padding:16px; color:#fff; background:linear-gradient(120deg, #090d1e 0%, ${plat.color} 100%); border:1.5px solid rgba(255,255,255,0.25); box-shadow:0 0 24px rgba(139,92,246,0.32);">
     <img src="${base}.jpg" data-exts="png,webp" data-base="${base}" alt="${esc(plat.name)}" style="position:absolute; inset:0; width:100%; height:100%; object-fit:cover; opacity:0.35; pointer-events:none;" onerror="const e=(this.dataset.exts||'').split(',');const n=e.shift();if(n){this.dataset.exts=e.join(',');this.src=this.dataset.base+'.'+n;}else{this.remove();}" />
     <div style="position:absolute; inset:0; background:linear-gradient(90deg, rgba(2,6,23,0.82) 0%, rgba(2,6,23,0.35) 100%); pointer-events:none;"></div>
     <div class="platform-hero-logo" style="z-index:2;">${renderLogoWithAsset(plat)}</div>
@@ -326,6 +330,9 @@ function mountPlayerokShell(activeTab, searchPlaceholder, showBackArrow = false)
       </a>
       <a class="bnav-item ${activeTab === "catalog" ? "active" : ""}" href="kategoriler.html">
         <span class="ico">⊞</span><span>Kategorýa</span>
+      </a>
+      <a class="bnav-item ${activeTab === "exness" ? "active" : ""}" href="uygulama.html?slug=exness-account">
+        <span class="ico">📈</span><span>Exness</span>
       </a>
       <a class="bnav-item ${activeTab === "messages" ? "active" : ""}" href="mesajlar.html">
         <span class="ico">✉</span><span>Hatlar</span>
