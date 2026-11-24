@@ -10,13 +10,7 @@
   <div id="playerok-shell"></div>
 
   <main class="page-wrap">
-    <section class="platform-hero" id="plat-hero">
-      <div class="platform-hero-logo" id="plat-hero-logo"></div>
-      <div>
-        <h1 id="plat-hero-title">Bölüm</h1>
-        <p id="plat-hero-sub">Bölüm saýlaň we harytlary görüň</p>
-      </div>
-    </section>
+    <div id="plat-banner-slot" style="margin-bottom:12px;"></div>
 
     <div class="subtabs-scroll" id="subtabs-bar"></div>
 
@@ -34,10 +28,8 @@
     let allProducts = [];
 
     document.title = `${platform.name} — TKM Market`;
-    const heroEl = document.getElementById("plat-hero");
-    heroEl.style.background = platform.banner;
+    document.getElementById("plat-banner-slot").innerHTML = platform.bannerHtml;
     document.getElementById("plat-hero-logo").innerHTML = platform.logo;
-    document.getElementById("plat-hero-title").textContent = platform.name;
     document.getElementById("plat-hero-sub").textContent =
       platform.kind === "game"
         ? "Oýun bölümleri: Hasap • Arenda • UC"
