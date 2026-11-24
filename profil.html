@@ -1,0 +1,52 @@
+<!DOCTYPE html>
+<html lang="tk">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Profil — TKM Market</title>
+  <link rel="stylesheet" href="assets/tkm.css" />
+</head>
+<body>
+  <div id="playerok-shell"></div>
+
+  <main class="page-wrap">
+    <div class="panel">
+      <h2>Hasap / Giriş / Üye Ol</h2>
+      <p class="muted">Satyjy ýa-da alyjy hökmünde ulanyjy adyňyzy giriziň.</p>
+      <div class="form-grid">
+        <div class="field">
+          <label>Ulanyjy ady</label>
+          <input id="prof-name" type="text" placeholder="Serkanbey77" />
+        </div>
+        <div class="field">
+          <label>Hasap görnüşi</label>
+          <select id="prof-role">
+            <option value="Satıcı & Alyjy">Satıcı &amp; Alyjy</option>
+            <option value="Diňe Alyjy">Diňe Alyjy</option>
+            <option value="Diňe Satyjy">Diňe Satyjy</option>
+          </select>
+        </div>
+      </div>
+      <div class="btn-row">
+        <button class="btn btn-main" type="button" onclick="saveProfile()">Ýatda Sakla</button>
+        <button class="btn btn-soft" type="button" onclick="toggleTheme()">Açyk / Garaňky Tema</button>
+      </div>
+    </div>
+  </main>
+
+  <script src="assets/tkm.js"></script>
+  <script>
+    mountPlayerokShell("profile", "");
+    const u = getUser();
+    document.getElementById("prof-name").value = u.username;
+    document.getElementById("prof-role").value = u.role || "Satıcı & Alyjy";
+
+    function saveProfile() {
+      const name = document.getElementById("prof-name").value.trim();
+      const role = document.getElementById("prof-role").value;
+      if (!name) { showToast("Ulanyjy adyny giriziň."); return; }
+      setUser(name, role);
+    }
+  </script>
+</body>
+</html>
