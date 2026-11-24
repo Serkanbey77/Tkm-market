@@ -1,0 +1,189 @@
+<!DOCTYPE html>
+<html lang="tk">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Sargytlar &amp; Escrow — TKM Market</title>
+  <link rel="stylesheet" href="assets/tkm.css" />
+</head>
+<body>
+  <div id="tkm-shell"></div>
+
+  <main class="container">
+    <div class="box">
+      <h2>Emanet (Escrow) Sargytlary</h2>
+      <p class="muted">Satyn alnandan soň hasap ady we paroly açylýar. Diňe <strong>Satyjy "Satdym"</strong> we <strong>Alyjy "Aldym"</strong> tassyklanyndan soň pul geçýär.</p>
+      <div id="orders-wrap"></div>
+    </div>
+
+    <div class="box">
+      <h2>Pul Çekme Ýüz Tutmasy</h2>
+      <div class="grid-2">
+        <div class="field">
+          <label>Satyjy</label>
+          <input id="w-seller" type="text" oninput="this.dataset.touched='1'" />
+        </div>
+        <div class="field">
+          <label>Mukdar we usul</label>
+          <input id="w-amount" type="text" placeholder="Mysal: 500 TMT / 25 USDT BEP20" />
+        </div>
+      </div>
+      <div class="row-actions">
+        <button class="btn btn-primary" id="w-send-btn" type="button" style="flex:1;">Çekme Ýüz Tutmasyny Iber</button>
+      </div>
+      <div id="withdrawals-wrap" style="margin-top:12px;"></div>
+    </div>
+  </main>
+
+  <div class="modal-bg" id="escrow-modal">
+    <div class="modal-box">
+      <div class="modal-top">
+        <h3 id="em-title">Hasap &amp; Çift Onay</h3>
+        <button class="btn btn-ghost" type="button" onclick="document.getElementById('escrow-modal').classList.remove('open')">Ýap</button>
+      </div>
+      <div id="em-body"></div>
+    </div>
+  </div>
+
+  <script src="assets/tkm.js"></script>
+  <script>
+    mountShell("orders");
+    let orders = [];
+    let withdrawals = [];
+
+    async function loadAll() {
+      try {
+        const [oData, wData] = await Promise.all([sbGet("orders"), sbGet("withdrawals")]);
+        orders = Array.isArray(oData) ? oData : [];
+        withdrawals = Array.isArray(wData) ? wData : [];
+        setDbStatus(true, "Supabase: Baglanyşyk işjeň");
+      } catch (err) {
+        setDbStatus(false, "Supabase: Ýerli ätiýaç");
+        showToast("Duýduryş: " + err.message);
+      }
+      renderOrders();
+      renderWithdrawals();
+
+      const params = new URLSearchParams(window.location.search);
+      const focusId = params.get("order");
+      if (focusId && orders.some(x => String(x.id) === String(focusId))) {
+        openEscrow(focusId);
+      }
+    }
+
+    function renderOrders() {
+      const el = document.getElementById("orders-wrap");
+      if (!orders.length) {
+        el.innerHTML = `<p class="muted" style="margin-top:10px;">Heniz sargyt ýok.</p>`;
+        return;
+      }
+      el.innerHTML = orders.map(o => {
+        const both = Boolean(o.seller_confirmed) && Boolean(o.buyer_confirmed);
+        return `
+          <div class="row-card">
+            <div>
+              <strong>${esc(o.order_code)}</strong> — ${esc(o.product_title)}
+              <div class="muted">Baha: <strong>${Number(o.price_tmt || 0).toLocaleString()} TMT</strong> · Satyjy: ${o.seller_confirmed ? "✅" : "⏳"} · Alyjy: ${o.buyer_confirmed ? "✅" : "⏳"}</div>
+            </div>
+            <div class="row-actions" style="margin-top:0;">
+              <span class="pill ${both ? "ok" : ""}">${both ? "Tassyklanan (Geçirildi)" : "Ortada Emanetde"}</span>
+              <button class="btn btn-ghost" type="button" onclick="openEscrow(${o.id})">Hasap &amp; Tassyklama</button>
+            </div>
+          </div>
+        `;
+      }).join("");
+    }
+
+    function openEscrow(id) {
+      const o = orders.find(x => String(x.id) === String(id));
+      if (!o) return;
+      const both = Boolean(o.seller_confirmed) && Boolean(o.buyer_confirmed);
+
+      document.getElementById("em-title").textContent = `Sargyt ${o.order_code}`;
+      document.getElementById("em-body").innerHTML = `
+        <div class="muted">Haryt: <strong>${esc(o.product_title)}</strong> · Baha: <strong>${Number(o.price_tmt || 0).toLocaleString()} TMT</strong></div>
+        <div class="muted" style="margin-top:4px;">Pul ýagdaýy: <strong>${both ? "Satyjy hasabyna geçirildi ✅" : "ORTADA EMANETDE SAKLANÝAR 🔒"}</strong></div>
+
+        <div class="info-box">
+          <div><strong>Hasap Ady / Login:</strong> ${esc(o.account_login || "Görkezilmedik")}</div>
+          <div><strong>Hasap Paroly:</strong> ${esc(o.account_password || "Görkezilmedik")}</div>
+          ${o.account_extra ? `<div><strong>Goşmaça:</strong> ${esc(o.account_extra)}</div>` : ""}
+          <div><strong>Gözegçilik kody:</strong> ${esc(o.secret_code || "")}</div>
+        </div>
+
+        <div class="info-box">
+          <div>1. Satyjy tassygy ("Satdym"): <strong>${o.seller_confirmed ? "Tassyklanyldy ✅" : "Garaşylýar ⏳"}</strong></div>
+          <div>2. Alyjy tassygy ("Aldym"): <strong>${o.buyer_confirmed ? "Tassyklanyldy ✅" : "Garaşylýar ⏳"}</strong></div>
+        </div>
+
+        <div class="row-actions">
+          ${!o.seller_confirmed ? `<button class="btn btn-ghost" type="button" style="flex:1;" onclick="confirmSide(${o.id}, 'seller')">Satyjy: Satdym Tassyklamak</button>` : ""}
+          ${!o.buyer_confirmed ? `<button class="btn btn-emerald" type="button" style="flex:1;" onclick="confirmSide(${o.id}, 'buyer')">Alyjy: Aldym Tassyklamak</button>` : ""}
+        </div>
+      `;
+      document.getElementById("escrow-modal").classList.add("open");
+    }
+
+    async function confirmSide(id, side) {
+      const o = orders.find(x => String(x.id) === String(id));
+      if (!o) return;
+      const sConf = side === "seller" ? true : Boolean(o.seller_confirmed);
+      const bConf = side === "buyer" ? true : Boolean(o.buyer_confirmed);
+      const both = sConf && bConf;
+
+      const patch = {
+        seller_confirmed: sConf,
+        buyer_confirmed: bConf,
+        escrow_status: both ? "released_to_seller" : "escrow_hold",
+        status: both ? "completed" : "pending_dual_confirmation"
+      };
+
+      try {
+        const upd = await sbPatch("orders", id, patch);
+        orders = orders.map(x => String(x.id) === String(id) ? { ...x, ...patch, ...(upd || {}) } : x);
+        renderOrders();
+        openEscrow(id);
+        showToast(both ? "Iki tarap hem tassyklady! Pul satyja geçirildi." : "Tassyklama ýazyldy.");
+      } catch (err) {
+        showToast("Ýalňyşlyk: " + err.message);
+      }
+    }
+
+    async function sendWithdrawal() {
+      const seller = document.getElementById("w-seller").value.trim() || getCurrentUser().username;
+      const amountLabel = document.getElementById("w-amount").value.trim();
+      if (!amountLabel) { showToast("Mukdary giriziň."); return; }
+
+      try {
+        await sbInsert("withdrawals", {
+          seller,
+          amount_label: amountLabel,
+          status: "Admin tassyklamasyna garaşylýar"
+        });
+        document.getElementById("w-amount").value = "";
+        showToast("Çekme ýüz tutmasy iberildi.");
+        await loadAll();
+      } catch (err) {
+        showToast("Ýalňyşlyk: " + err.message);
+      }
+    }
+
+    function renderWithdrawals() {
+      const el = document.getElementById("withdrawals-wrap");
+      if (!withdrawals.length) {
+        el.innerHTML = `<p class="muted">Heniz çekme ýüz tutmasy ýok.</p>`;
+        return;
+      }
+      el.innerHTML = withdrawals.map(w => `
+        <div class="row-card">
+          <div><strong>${esc(w.seller)}</strong> — ${esc(w.amount_label)}</div>
+          <span class="pill">${esc(w.status)}</span>
+        </div>
+      `).join("");
+    }
+
+    document.getElementById("w-send-btn").addEventListener("click", sendWithdrawal);
+    loadAll();
+  </script>
+</body>
+</html>
