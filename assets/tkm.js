@@ -121,15 +121,26 @@ function esc(s) {
 }
 
 function renderLogoWithAsset(plat) {
-  const localBase = `assets/logos/${plat.id}`;
-  const localImg = `<img class="custom-asset" src="${localBase}.jpg" data-exts="png,webp" data-base="${localBase}" alt="${esc(plat.name)}" loading="lazy" onerror="const e=(this.dataset.exts||'').split(',');const n=e.shift();if(n){this.dataset.exts=e.join(',');this.src=this.dataset.base+'.'+n;}else{this.remove();}" />`;
-  return `${plat.svg}${localImg}`;
+  const candidates = [
+    `assets/logos/${plat.id}.jpg`,
+    `assets/logos/${plat.id}.jpeg`,
+    `assets/logos/${plat.id}.png`,
+    `assets/logos/${plat.id}.webp`,
+    `assets/logos/assets:logos:${plat.id}.jpg.JPG`,
+    `assets/logos/assets:logos:${plat.id}.jpg.JPEG`,
+    `assets/logos/assets:logos:${plat.id}.jpg.PNG`,
+    `assets/logos/assets:logos:${plat.id}.jpeg.JPEG`,
+    `assets/logos/assets:logos:${plat.id}.png.PNG`
+  ];
+  const first = candidates[0];
+  const rest = candidates.slice(1).join("|");
+  return `${plat.svg}<img class="custom-asset" src="${first}" data-cands="${esc(rest)}" alt="${esc(plat.name)}" loading="lazy" onerror="const list=(this.dataset.cands||'').split('|').filter(Boolean);const next=list.shift();if(next){this.dataset.cands=list.join('|');this.src=next;}else{this.remove();}" />`;
 }
 
 function renderBannerWithAsset(plat) {
   const subs = getSubcatsForPlatform(plat).filter(x => x !== "Ählisi").join(" • ");
   const localBase = `assets/banners/${plat.id}`;
-  const localBanner = `<img src="${localBase}.jpg" data-exts="png,webp" data-base="${localBase}" alt="${esc(plat.name)}" style="position:absolute; inset:0; width:100%; height:100%; object-fit:cover; opacity:0.42; pointer-events:none;" onerror="const e=(this.dataset.exts||'').split(',');const n=e.shift();if(n){this.dataset.exts=e.join(',');this.src=this.dataset.base+'.'+n;}else{this.remove();}" />`;
+  const localBanner = `<img src="${localBase}.jpg" data-exts="jpeg,png,webp" data-base="${localBase}" alt="${esc(plat.name)}" style="position:absolute; inset:0; width:100%; height:100%; object-fit:cover; opacity:0.42; pointer-events:none;" onerror="const e=(this.dataset.exts||'').split(',');const n=e.shift();if(n){this.dataset.exts=e.join(',');this.src=this.dataset.base+'.'+n;}else{this.remove();}" />`;
 
   return `<div style="position:relative; width:100%; border-radius:18px; overflow:hidden; min-height:132px; display:flex; align-items:center; gap:14px; padding:16px; color:#fff; background:linear-gradient(120deg, #090d1e 0%, ${plat.color} 100%); border:1.5px solid rgba(255,255,255,0.25); box-shadow:0 0 24px rgba(139,92,246,0.32);">
     ${localBanner}
