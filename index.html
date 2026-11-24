@@ -25,28 +25,7 @@
       <a class="muted" style="text-decoration:none; font-weight:700; color:var(--primary);" href="kategoriler.html">Ählisi →</a>
     </div>
 
-    <div class="home-quick-5">
-      <button class="quick-tile" type="button" onclick="location.href='uygulama.html?slug=pubg-mobile'">
-        <div class="app-icon-box" style="width:44px; height:44px; border-radius:12px;">${svgLogo("#f59e0b","#111827","PUBG","")}</div>
-        <span>PUBG Mobile</span>
-      </button>
-      <button class="quick-tile" type="button" onclick="location.href='uygulama.html?slug=clash-of-clans'">
-        <div class="app-icon-box" style="width:44px; height:44px; border-radius:12px;">${svgLogo("#15803d","#fde047","CoC","")}</div>
-        <span>Clash of Clans</span>
-      </button>
-      <button class="quick-tile" type="button" onclick="location.href='uygulama.html?slug=telegram'">
-        <div class="app-icon-box" style="width:44px; height:44px; border-radius:12px;">${svgLogo("#0284c7","#ffffff","✈","")}</div>
-        <span>Telegram</span>
-      </button>
-      <button class="quick-tile" type="button" onclick="location.href='uygulama.html?slug=tiktok'">
-        <div class="app-icon-box" style="width:44px; height:44px; border-radius:12px;">${svgLogo("#090d16","#ffffff","♪","")}</div>
-        <span>TikTok</span>
-      </button>
-      <button class="quick-tile active" type="button" onclick="location.href='kategoriler.html'">
-        <div class="app-icon-box" style="width:44px; height:44px; border-radius:12px;">${svgLogo("#4f46e5","#ffffff","⊞","")}</div>
-        <span>Ählisi</span>
-      </button>
-    </div>
+    <div class="home-quick-5" id="home-quick-5"></div>
 
     <div class="cards-grid" id="market-grid"></div>
   </main>
@@ -65,6 +44,24 @@
   <script>
     mountPlayerokShell("search", "Haryt, hasap ýa-da satyjy gözle...", false);
     let list = [];
+
+    function renderHomeQuick5() {
+      const quickIds = ["pubg-mobile", "clash-of-clans", "telegram", "tiktok"];
+      const items = quickIds.map(id => findPlatform(id)).filter(Boolean);
+      const wrap = document.getElementById("home-quick-5");
+
+      wrap.innerHTML = items.map(p => `
+        <button class="quick-tile" type="button" onclick="location.href='uygulama.html?slug=${encodeURIComponent(p.id)}'">
+          <div class="app-icon-box" style="width:44px; height:44px; border-radius:12px;">${p.logo}</div>
+          <span>${esc(p.name)}</span>
+        </button>
+      `).join("") + `
+        <button class="quick-tile active" type="button" onclick="location.href='kategoriler.html'">
+          <div class="app-icon-box" style="width:44px; height:44px; border-radius:12px;">${makeLogo("#4f46e5", "#ffffff", "ÄHLI", "", "⊞")}</div>
+          <span>Ählisi</span>
+        </button>
+      `;
+    }
 
     async function loadMarket() {
       try {
@@ -173,6 +170,7 @@
     }
 
     document.getElementById("global-search")?.addEventListener("input", renderMarket);
+    renderHomeQuick5();
     loadMarket();
   </script>
 </body>
