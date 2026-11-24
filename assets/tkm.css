@@ -25,7 +25,7 @@ body {
   background: var(--bg);
   color: var(--text);
   min-height: 100vh;
-  padding-bottom: 90px;
+  padding-bottom: 88px;
 }
 
 .top-head {
@@ -34,40 +34,55 @@ body {
   z-index: 40;
   background: var(--surface);
   border-bottom: 1px solid var(--border);
-  padding: 12px 16px;
+  padding: 10px 14px;
 }
-.top-inner { max-width: 1040px; margin: 0 auto; }
+.top-inner { max-width: 960px; margin: 0 auto; }
 .top-row {
   display: flex;
   align-items: center;
   justify-content: space-between;
-  gap: 10px;
-  margin-bottom: 10px;
+  gap: 8px;
+  margin-bottom: 8px;
+}
+.back-btn {
+  width: 36px;
+  height: 36px;
+  border-radius: 10px;
+  border: 1px solid var(--border);
+  background: var(--surface-2);
+  color: var(--text);
+  font-size: 18px;
+  font-weight: 700;
+  cursor: pointer;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  text-decoration: none;
 }
 .brand-link {
   text-decoration: none;
-  font-size: 20px;
+  font-size: 19px;
   font-weight: 800;
   color: var(--primary);
 }
 .brand-link span { color: var(--text); }
-.top-right { display: flex; align-items: center; gap: 8px; }
+.top-right { display: flex; align-items: center; gap: 6px; }
 .db-mini {
-  font-size: 11px;
+  font-size: 10px;
   font-weight: 700;
-  padding: 4px 9px;
+  padding: 4px 8px;
   border-radius: 999px;
   background: rgba(245, 158, 11, 0.16);
   color: #d97706;
 }
 .theme-switch {
-  width: 46px;
-  height: 26px;
+  width: 44px;
+  height: 24px;
   border-radius: 999px;
   border: 1px solid var(--border);
   background: #fde68a;
   color: #1e293b;
-  font-size: 12px;
+  font-size: 11px;
   cursor: pointer;
   display: inline-flex;
   align-items: center;
@@ -87,7 +102,7 @@ body.dark .theme-switch {
   background: var(--surface-2);
   border: 1px solid var(--border);
   border-radius: 14px;
-  padding: 8px 12px;
+  padding: 7px 12px;
 }
 .search-box input {
   border: none;
@@ -99,7 +114,7 @@ body.dark .theme-switch {
   outline: none;
 }
 
-.page-wrap { max-width: 1040px; margin: 0 auto; padding: 14px 16px 24px; }
+.page-wrap { max-width: 960px; margin: 0 auto; padding: 14px 16px 24px; }
 
 .promo-banner {
   border-radius: 18px;
@@ -117,19 +132,18 @@ body.dark .theme-switch {
   border-radius: 999px;
   margin-bottom: 8px;
 }
-.promo-banner h1 { font-size: 22px; line-height: 1.25; margin-bottom: 6px; }
+.promo-banner h1 { font-size: 21px; line-height: 1.25; margin-bottom: 6px; }
 .promo-banner p { font-size: 13px; opacity: 0.92; margin-bottom: 12px; }
 
-.section-title-row {
+.sec-header {
   display: flex;
   align-items: center;
   justify-content: space-between;
-  gap: 10px;
   margin: 14px 0 10px;
 }
-.section-title-row h2, .section-title-row h3 { font-size: 16px; }
+.sec-header h2, .sec-header h3 { font-size: 16px; font-weight: 800; }
 
-/* Ana sayfa 5'li hızlı şerit (4 uygulama/oyun + Ählisi) */
+/* Ana sayfa 5'li hızlı şerit */
 .home-quick-5 {
   display: grid;
   grid-template-columns: repeat(5, 1fr);
@@ -140,7 +154,7 @@ body.dark .theme-switch {
   background: var(--surface);
   border: 1.5px solid var(--border);
   border-radius: 14px;
-  padding: 10px 6px;
+  padding: 9px 5px;
   text-align: center;
   color: var(--text);
   cursor: pointer;
@@ -151,80 +165,111 @@ body.dark .theme-switch {
 }
 .quick-tile.active {
   border-color: var(--primary);
-  background: rgba(79, 70, 229, 0.1);
-}
-.logo-badge {
-  width: 42px;
-  height: 42px;
-  border-radius: 12px;
-  display: grid;
-  place-items: center;
-  font-weight: 800;
-  font-size: 12px;
-  color: #fff;
-  flex-shrink: 0;
+  background: rgba(79, 70, 229, 0.08);
 }
 .quick-tile span {
-  font-size: 11px;
+  font-size: 10px;
   font-weight: 700;
-  line-height: 1.2;
   max-width: 100%;
   overflow: hidden;
   text-overflow: ellipsis;
   white-space: nowrap;
 }
 
-/* Tüm kategoriler ızgarası */
-.catalog-grid {
+/* Playerok tarzı 4 sütunlu kare ikon gridi */
+.app-grid-4 {
   display: grid;
-  grid-template-columns: repeat(auto-fill, minmax(118px, 1fr));
-  gap: 10px;
-  margin-bottom: 16px;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 12px;
+  margin-bottom: 18px;
 }
-.catalog-card {
-  background: var(--surface);
-  border: 1.5px solid var(--border);
-  border-radius: 14px;
-  padding: 12px 8px;
-  text-align: center;
+.app-tile {
+  background: transparent;
+  border: none;
   color: var(--text);
   cursor: pointer;
   display: flex;
   flex-direction: column;
   align-items: center;
-  gap: 7px;
+  text-align: center;
+  gap: 6px;
+  padding: 4px;
 }
-.catalog-card.selected {
-  border-color: var(--primary);
-  background: rgba(79, 70, 229, 0.12);
-}
-.catalog-card span { font-size: 12px; font-weight: 700; line-height: 1.25; }
-
-.subcat-bar {
-  display: flex;
-  gap: 8px;
-  flex-wrap: wrap;
-  margin: 10px 0 14px;
-}
-.subcat-btn {
+.app-icon-box {
+  width: 66px;
+  height: 66px;
+  border-radius: 18px;
+  overflow: hidden;
   border: 1px solid var(--border);
+  box-shadow: 0 6px 14px rgba(15, 23, 42, 0.08);
+  display: flex;
+  align-items: center;
+  justify-content: center;
   background: var(--surface);
-  color: var(--text);
-  border-radius: 999px;
-  padding: 7px 13px;
-  font-size: 12px;
-  font-weight: 700;
-  cursor: pointer;
 }
-.subcat-btn.active {
-  background: linear-gradient(135deg, var(--primary), var(--primary-2));
+.app-icon-box svg { width: 100%; height: 100%; display: block; }
+.app-tile span {
+  font-size: 12px;
+  font-weight: 600;
+  line-height: 1.25;
+  display: -webkit-box;
+  -webkit-line-clamp: 2;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+}
+
+/* Ayrı uygulama/oyun sayfası üst bannerı */
+.platform-hero {
+  position: relative;
+  border-radius: 16px;
+  overflow: hidden;
+  padding: 20px 16px;
+  margin-bottom: 12px;
   color: #fff;
-  border-color: transparent;
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  min-height: 112px;
+}
+.platform-hero-logo {
+  width: 64px;
+  height: 64px;
+  border-radius: 16px;
+  overflow: hidden;
+  border: 2px solid rgba(255, 255, 255, 0.45);
+  flex-shrink: 0;
+}
+.platform-hero-logo svg { width: 100%; height: 100%; display: block; }
+.platform-hero h1 { font-size: 20px; font-weight: 800; text-shadow: 0 2px 10px rgba(0, 0, 0, 0.45); }
+.platform-hero p { font-size: 12px; opacity: 0.92; margin-top: 3px; }
+
+.subtabs-scroll {
+  display: flex;
+  gap: 16px;
+  overflow-x: auto;
+  border-bottom: 1px solid var(--border);
+  padding: 6px 2px 0;
+  margin-bottom: 14px;
+}
+.subtab-link {
+  background: transparent;
+  border: none;
+  border-bottom: 3px solid transparent;
+  color: var(--muted);
+  font-size: 13px;
+  font-weight: 700;
+  padding: 10px 2px 11px;
+  cursor: pointer;
+  white-space: nowrap;
+}
+.subtab-link.active {
+  color: var(--primary);
+  border-bottom-color: var(--primary);
 }
 
 .cards-grid {
   display: grid;
-  grid-template-columns: repeat(auto-fill, minmax(250px, 1fr));
+  grid-template-columns: repeat(auto-fill, minmax(245px, 1fr));
   gap: 14px;
 }
 .item-card {
@@ -306,29 +351,6 @@ input[type="file"] { padding: 7px; }
   border: 1px dashed rgba(79, 70, 229, 0.45);
 }
 
-.captcha-box {
-  display: flex;
-  align-items: center;
-  gap: 10px;
-  flex-wrap: wrap;
-  background: var(--surface-2);
-  border: 1px solid var(--border);
-  border-radius: 12px;
-  padding: 10px 12px;
-  margin-top: 12px;
-}
-.captcha-code {
-  font-family: monospace;
-  font-size: 16px;
-  font-weight: 800;
-  letter-spacing: 2px;
-  padding: 6px 12px;
-  border-radius: 8px;
-  background: linear-gradient(135deg, #312e81, #7c3aed);
-  color: #fff;
-  user-select: none;
-}
-
 .btn {
   border: none;
   border-radius: 11px;
@@ -366,7 +388,6 @@ input[type="file"] { padding: 7px; }
 .badge-status.ok { background: rgba(16, 185, 129, 0.16); color: #059669; }
 body.dark .badge-status.ok { color: #6ee7b7; }
 
-/* Alt Sabit Menü (6 sekmeli akıcı bar) */
 .bottom-nav {
   position: fixed;
   left: 0;
@@ -377,8 +398,8 @@ body.dark .badge-status.ok { color: #6ee7b7; }
   border-top: 1px solid var(--border);
   padding: 7px 6px calc(7px + env(safe-area-inset-bottom));
   display: grid;
-  grid-template-columns: repeat(6, 1fr);
-  gap: 2px;
+  grid-template-columns: repeat(5, 1fr);
+  gap: 4px;
 }
 .bnav-item {
   text-decoration: none;
