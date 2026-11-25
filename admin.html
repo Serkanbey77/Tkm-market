@@ -1,270 +1,133 @@
 <!DOCTYPE html>
-<html lang="tk">
+<html lang="tr">
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Admin Paneli — TKM Market</title>
-  <link rel="stylesheet" href="assets/tkm.css" />
+  <title>TKM Market — Sahip Kontrol Merkezi</title>
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
   <style>
-    .admin-tabs { display: grid; grid-template-columns: repeat(3, 1fr); gap: 8px; margin-bottom: 14px; }
-    @media (max-width: 600px) { .admin-tabs { grid-template-columns: 1fr; } }
-    .admin-tab {
-      padding: 11px;
-      border-radius: 12px;
-      border: 1.5px solid var(--border);
-      background: var(--surface-2);
-      color: var(--text);
-      font-weight: 800;
-      cursor: pointer;
-    }
-    .admin-tab.active {
-      border-color: #a855f7;
-      background: rgba(168, 85, 247, 0.2);
-      color: #f0abfc;
-    }
-    .wallet-ref-box {
-      padding: 12px;
-      border-radius: 12px;
-      background: var(--surface-2);
-      border: 1px solid var(--border);
-      margin-bottom: 12px;
-      font-size: 13px;
-    }
-    .action-btns { display: flex; gap: 8px; flex-wrap: wrap; margin-top: 8px; }
-    .tx-inline-input {
-      padding: 8px 10px;
-      border-radius: 10px;
-      border: 1px solid var(--border);
-      background: var(--surface);
-      color: var(--text);
-      font-size: 12px;
-      min-width: 180px;
-    }
+    body { margin: 0; font-family: system-ui, sans-serif; background: #090d16; color: #f1f5f9; padding: 16px; }
+    h1 { font-size: 20px; color: #38bdf8; margin-bottom: 16px; }
+    .grid { display: grid; grid-template-columns: repeat(2, 1fr); gap: 10px; margin-bottom: 20px; }
+    .card { background: #111827; border: 1px solid #1e293b; border-radius: 12px; padding: 14px; }
+    .card span { font-size: 12px; color: #94a3b8; display: block; }
+    .card strong { font-size: 22px; color: #22c55e; margin-top: 4px; display: block; }
+    .card.warn strong { color: #f59e0b; }
+    .card.blue strong { color: #38bdf8; }
+    .box { background: #111827; border: 1px solid #1e293b; border-radius: 12px; padding: 14px; margin-bottom: 16px; overflow-x: auto; }
+    h2 { font-size: 15px; margin: 0 0 10px; color: #e2e8f0; }
+    table { width: 100%; border-collapse: collapse; font-size: 12px; }
+    th, td { text-align: left; padding: 8px 6px; border-bottom: 1px solid #1e293b; }
+    th { color: #94a3b8; }
+    .badge { padding: 2px 6px; border-radius: 6px; font-size: 11px; background: #1e293b; }
+    .in { color: #22c55e; } .out { color: #f87171; }
+    button { background: #2563eb; color: #fff; border: none; padding: 8px 14px; border-radius: 8px; font-weight: 600; cursor: pointer; }
   </style>
 </head>
 <body>
-  <div id="playerok-shell"></div>
+  <div style="display:flex; justify-content:space-between; align-items:center;">
+    <h1>TKM Market — Sahip Kontrol Merkezi</h1>
+    <button onclick="loadDashboard()">Yenile</button>
+  </div>
+  <p id="status" style="font-size:13px; color:#94a3b8;">Yetki kontrol ediliyor...</p>
 
-  <main class="page-wrap">
-    <div class="panel">
-      <div style="display:flex; justify-content:space-between; align-items:center; gap:8px; flex-wrap:wrap;">
-        <div>
-          <h2>🛡️ Dolandyryş Paneli (Blockchain)</h2>
-          <p class="muted">USDT BEP20, USDT TRC20 we BTC yatırma hem-de çekiş amallaryny dolandyryň.</p>
-        </div>
-        <button type="button" class="btn btn-soft" onclick="reloadAdminData()">🔄 Täzele</button>
-      </div>
+  <div class="grid" id="stats" style="display:none;">
+    <div class="card blue"><span>Şu An Aktif (Son 5 Dk)</span><strong id="liveUsers">0</strong></div>
+    <div class="card blue"><span>Bugün Tekil Ziyaretçi</span><strong id="todayVisitors">0</strong></div>
+    <div class="card"><span>Toplam Onaylı Yatırım</span><strong id="totalDeposits">$0.00</strong></div>
+    <div class="card warn"><span>Bekleyen Çekim Talebi</span><strong id="pendingWithdraws">0</strong></div>
+    <div class="card"><span>Kasadaki Üye Bakiyesi</span><strong id="totalBalance">$0.00</strong></div>
+    <div class="card blue"><span>Toplam Kayıtlı Üye</span><strong id="totalUsers">0</strong></div>
+  </div>
 
-      <div class="wallet-ref-box" style="margin-top:12px;">
-        <div><strong>USDT BEP20:</strong> <code>0x4589c99db18e63938b565731f9b60267ce9d2c5d</code></div>
-        <div style="margin-top:4px;"><strong>USDT TRC20:</strong> <code>TD9LPTXx9YdksJGmwqYiEh576o7FF67DUt</code></div>
-        <div style="margin-top:4px;"><strong>Bitcoin (BTC):</strong> <code>16LxjLMXRNaijHiCf4MwsvgcaMxAoambT1</code></div>
-      </div>
+  <div class="box" id="eventsBox" style="display:none;">
+    <h2>Canlı Site Akışı (Giriş / Çıkış / Süre)</h2>
+    <table>
+      <thead>
+        <tr><th>Saat</th><th>İşlem</th><th>Sayfa</th><th>Süre</th><th>Cihaz</th><th>Oturum</th></tr>
+      </thead>
+      <tbody id="eventsBody"></tbody>
+    </table>
+  </div>
 
-      <div class="admin-tabs">
-        <button type="button" class="admin-tab active" id="tab-deposits" onclick="switchAdminTab('deposits')">
-          ⛓️ Bakiýe Ýatyrmalar (<span id="cnt-dep">0</span>)
-        </button>
-        <button type="button" class="admin-tab" id="tab-withdrawals" onclick="switchAdminTab('withdrawals')">
-          💸 Pul Çekişler (<span id="cnt-wd">0</span>)
-        </button>
-        <button type="button" class="admin-tab" id="tab-users" onclick="switchAdminTab('users')">
-          👥 Ulanyjylar (<span id="cnt-usr">0</span>)
-        </button>
-      </div>
-
-      <div id="sec-deposits"></div>
-      <div id="sec-withdrawals" style="display:none;"></div>
-      <div id="sec-users" style="display:none;"></div>
-    </div>
-  </main>
-
-  <script src="assets/tkm.js"></script>
   <script>
-    mountPlayerokShell("profile", "", true);
+    const SUPABASE_URL = "https://piajbopfeqlyupkrsnik.supabase.co";
+    const SUPABASE_ANON_KEY = "sb_publishable_gQFoj3SUxW-TUMjYmTGrIg_5_6hwBAH";
+    const sb = supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
 
-    let activeTab = "deposits";
-    let depositsList = [];
-    let withdrawalsList = [];
+    async function loadDashboard() {
+      const statusEl = document.getElementById("status");
+      const { data: { user } } = await sb.auth.getUser();
 
-    function switchAdminTab(tab) {
-      activeTab = tab;
-      document.getElementById("tab-deposits").classList.toggle("active", tab === "deposits");
-      document.getElementById("tab-withdrawals").classList.toggle("active", tab === "withdrawals");
-      document.getElementById("tab-users").classList.toggle("active", tab === "users");
-
-      document.getElementById("sec-deposits").style.display = tab === "deposits" ? "block" : "none";
-      document.getElementById("sec-withdrawals").style.display = tab === "withdrawals" ? "block" : "none";
-      document.getElementById("sec-users").style.display = tab === "users" ? "block" : "none";
-    }
-
-    function readLocalCache(key) {
-      try { return JSON.parse(localStorage.getItem(key) || "[]"); }
-      catch (_) { return []; }
-    }
-
-    function writeLocalCache(key, arr) {
-      localStorage.setItem(key, JSON.stringify(arr));
-    }
-
-    async function reloadAdminData() {
-      try {
-        depositsList = await sbGet("deposits");
-        writeLocalCache("tkm_deposits_cache", depositsList);
-      } catch (_) {
-        depositsList = readLocalCache("tkm_deposits_cache");
-      }
-
-      try {
-        withdrawalsList = await sbGet("withdrawals");
-        writeLocalCache("tkm_withdrawals_cache", withdrawalsList);
-      } catch (_) {
-        withdrawalsList = readLocalCache("tkm_withdrawals_cache");
-      }
-
-      document.getElementById("cnt-dep").textContent = depositsList.length;
-      document.getElementById("cnt-wd").textContent = withdrawalsList.length;
-
-      let usersObj = {};
-      try { usersObj = JSON.parse(localStorage.getItem("tkm_users_registry") || "{}"); } catch (_) {}
-      const usersArr = Object.values(usersObj);
-      document.getElementById("cnt-usr").textContent = usersArr.length;
-
-      renderDepositsAdmin();
-      renderWithdrawalsAdmin();
-      renderUsersAdmin(usersArr);
-      await refreshTopBalancePill();
-    }
-
-    async function updateDepositStatus(id, newStatus) {
-      const target = depositsList.find(x => String(x.id) === String(id));
-      if (!target) return;
-
-      target.status = newStatus;
-      writeLocalCache("tkm_deposits_cache", depositsList);
-
-      if (typeof sbPatch === "function") {
-        try { await sbPatch("deposits", id, { status: newStatus }); } catch (_) {}
-      }
-
-      showToast(newStatus === "approved" ? "Ýatyryş tassyklanyldy ✅" : "Ýatyryş ret edildi ❌");
-      renderDepositsAdmin();
-      await refreshTopBalancePill();
-    }
-
-    async function updateWithdrawalStatus(id, newStatus) {
-      const target = withdrawalsList.find(x => String(x.id) === String(id));
-      if (!target) return;
-
-      const txInput = document.getElementById(`tx-wd-${id}`);
-      const txVal = (txInput?.value || "").trim();
-
-      target.status = newStatus;
-      if (txVal) {
-        target.tx_hash = txVal;
-        target.network_or_coin = `${target.network_or_coin || target.method} · TX: ${txVal.slice(0, 14)}...`;
-      }
-      writeLocalCache("tkm_withdrawals_cache", withdrawalsList);
-
-      if (typeof sbPatch === "function") {
-        try {
-          const patchBody = { status: newStatus };
-          if (txVal) patchBody.tx_hash = txVal;
-          await sbPatch("withdrawals", id, patchBody);
-        } catch (_) {}
-      }
-
-      showToast(newStatus === "approved" ? "Çekiş tassyklanyldy ✅" : "Çekiş ret edildi ❌");
-      renderWithdrawalsAdmin();
-      await refreshTopBalancePill();
-    }
-
-    function renderDepositsAdmin() {
-      const wrap = document.getElementById("sec-deposits");
-      if (!depositsList.length) {
-        wrap.innerHTML = `<p class="muted">Bakiýe ýatyryş ýazgysy ýok.</p>`;
+      if (!user) {
+        statusEl.innerText = "Erişim reddedildi: Önce siteye admin hesabınla giriş yap.";
         return;
       }
 
-      wrap.innerHTML = depositsList.map(d => {
-        const isApproved = d.status === "approved";
-        const isRejected = d.status === "rejected";
-        const badgeLabel = isRejected ? "Ret Edildi ❌" : (isApproved ? "Tassyklanyldy ✅" : "Garaşylýar ⏳");
-        const badgeCls = isApproved ? "badge-status ok" : "badge-status";
-
-        return `
-          <div class="list-row" style="flex-direction:column; align-items:stretch;">
-            <div style="display:flex; justify-content:space-between; align-items:center; gap:8px; flex-wrap:wrap;">
-              <div>
-                <strong>${esc(d.username || "Ulanyjy")}</strong> —
-                <strong style="color:#34d399;">+${Number(d.amount_tmt || 0).toLocaleString()} TMT</strong>
-                <span class="chip-cat">${esc(d.method || "CRYPTO")}</span>
-                <div class="muted" style="word-break:break-all; margin-top:4px;">${esc(d.reference_info || "")}</div>
-              </div>
-              <span class="${badgeCls}">${badgeLabel}</span>
-            </div>
-            <div class="action-btns">
-              <button type="button" class="btn btn-green" onclick="updateDepositStatus('${d.id}', 'approved')">Tassyklamak ✅</button>
-              <button type="button" class="btn btn-del" onclick="updateDepositStatus('${d.id}', 'rejected')">Ret Etmek ❌</button>
-            </div>
-          </div>
-        `;
-      }).join("");
-    }
-
-    function renderWithdrawalsAdmin() {
-      const wrap = document.getElementById("sec-withdrawals");
-      if (!withdrawalsList.length) {
-        wrap.innerHTML = `<p class="muted">Çekiş islegi ýok.</p>`;
+      const { data: profile } = await sb.from("profiles").select("role").eq("id", user.id).single();
+      if (!profile || profile.role !== "admin") {
+        statusEl.innerText = "Yetkisiz hesap: Bu panel sadece site sahibine açıktır.";
         return;
       }
 
-      wrap.innerHTML = withdrawalsList.map(w => {
-        const isApproved = w.status === "approved";
-        const isRejected = w.status === "rejected";
-        const badgeLabel = isApproved ? "Tassyklanyldy ✅" : (isRejected ? "Ret Edildi ❌" : "Garaşylýar ⏳");
-        const badgeCls = isApproved ? "badge-status ok" : "badge-status";
+      statusEl.innerText = "Canlı veriler aktif (" + new Date().toLocaleTimeString("tr-TR") + ")";
+      document.getElementById("stats").style.display = "grid";
+      document.getElementById("eventsBox").style.display = "block";
 
-        return `
-          <div class="list-row" style="flex-direction:column; align-items:stretch;">
-            <div style="display:flex; justify-content:space-between; align-items:center; gap:8px; flex-wrap:wrap;">
-              <div>
-                <strong>${esc(w.seller || "Ulanyjy")}</strong> —
-                <strong style="color:#f472b6;">${Number(w.amount_tmt || 0).toLocaleString()} TMT</strong>
-                <span class="chip-cat">${esc(w.network_or_coin || w.method || "CRYPTO")}</span>
-                <div class="muted" style="word-break:break-all; margin-top:4px;">Salgy: <code>${esc(w.wallet_or_card || "")}</code></div>
-              </div>
-              <span class="${badgeCls}">${badgeLabel}</span>
-            </div>
-            <div class="action-btns">
-              <input id="tx-wd-${w.id}" class="tx-inline-input" type="text" placeholder="TX Hash giriziň (isteğe bağlı)" value="${esc(w.tx_hash || "")}" />
-              <button type="button" class="btn btn-green" onclick="updateWithdrawalStatus('${w.id}', 'approved')">Ugradyldy / Tassyklamak ✅</button>
-              <button type="button" class="btn btn-del" onclick="updateWithdrawalStatus('${w.id}', 'rejected')">Ret Etmek ❌</button>
-            </div>
-          </div>
-        `;
-      }).join("");
-    }
+      const fiveMinAgo = new Date(Date.now() - 5 * 60 * 1000).toISOString();
+      const todayStart = new Date(); todayStart.setHours(0, 0, 0, 0);
 
-    function renderUsersAdmin(usersArr) {
-      const wrap = document.getElementById("sec-users");
-      if (!usersArr.length) {
-        wrap.innerHTML = `<p class="muted">Kayıtly ulanyjy tapylmady.</p>`;
-        return;
+      const { data: events } = await sb
+        .from("site_events")
+        .select("*")
+        .order("created_at", { ascending: false })
+        .limit(40);
+
+      if (events) {
+        const liveSessions = new Set(events.filter(e => e.created_at >= fiveMinAgo).map(e => e.session_id));
+        const todaySessions = new Set(events.filter(e => e.created_at >= todayStart.toISOString()).map(e => e.session_id));
+        document.getElementById("liveUsers").innerText = liveSessions.size;
+        document.getElementById("todayVisitors").innerText = todaySessions.size;
+
+        const tbody = document.getElementById("eventsBody");
+        tbody.innerHTML = events.map(e => {
+          const time = new Date(e.created_at).toLocaleTimeString("tr-TR", { hour: "2-digit", minute: "2-digit", second: "2-digit" });
+          const cls = e.event_type === "page_leave" ? "out" : "in";
+          const label = e.event_type === "page_view" ? "Giriş" : e.event_type === "page_leave" ? "Çıkış" : e.event_type;
+          return `<tr>
+            <td>${time}</td>
+            <td><span class="badge ${cls}">${label}</span></td>
+            <td>${e.page_path}</td>
+            <td>${e.duration_sec ? e.duration_sec + " sn" : "-"}</td>
+            <td>${e.device_type || "-"}</td>
+            <td>${e.session_id.slice(4, 10)}</td>
+          </tr>`;
+        }).join("");
       }
 
-      wrap.innerHTML = usersArr.map(u => `
-        <div class="list-row">
-          <div>
-            <strong>${esc(u.username || "-")}</strong> <span class="chip-cat">${esc(u.role || "buyer")}</span>
-            <div class="muted">E-poçta: ${esc(u.email || "-")} · Ýeri: ${esc(u.address || "-")}</div>
-          </div>
-          <span class="badge-status ok">Tassyklanan ✅</span>
-        </div>
-      `).join("");
+      const { data: profiles } = await sb.from("profiles").select("balance");
+      if (profiles) {
+        document.getElementById("totalUsers").innerText = profiles.length;
+        const sumBal = profiles.reduce((acc, p) => acc + Number(p.balance || 0), 0);
+        document.getElementById("totalBalance").innerText = "$" + sumBal.toFixed(2);
+      }
+
+      const { data: deps } = await sb.from("deposits").select("amount, status");
+      if (deps) {
+        const approvedSum = deps
+          .filter(d => ["completed", "finished", "paid", "approved"].includes((d.status || "").toLowerCase()))
+          .reduce((acc, d) => acc + Number(d.amount || 0), 0);
+        document.getElementById("totalDeposits").innerText = "$" + approvedSum.toFixed(2);
+      }
+
+      const { data: withs } = await sb.from("withdrawals").select("id, status").eq("status", "pending");
+      if (withs) {
+        document.getElementById("pendingWithdraws").innerText = withs.length;
+      }
     }
 
-    reloadAdminData();
+    loadDashboard();
+    setInterval(loadDashboard, 15000);
   </script>
 </body>
 </html>
