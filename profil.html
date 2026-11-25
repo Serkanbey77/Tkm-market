@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>TKM Market — Hesabım ve Cüzdan</title>
+  <title>TKM Market — Giriş, Hesap ve Cüzdan</title>
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
   <style>
     * { box-sizing: border-box; }
@@ -45,6 +45,13 @@
       width: 100%; background: #0b1120; border: 1px solid #283548; color: #fff;
       padding: 11px 12px; border-radius: 10px; margin-bottom: 12px; font-size: 14px;
     }
+    .row-end {
+      display: flex; justify-content: flex-end; margin-top: -6px; margin-bottom: 12px;
+    }
+    .link-btn {
+      background: none; border: none; color: #38bdf8; font-size: 12px;
+      font-weight: 600; cursor: pointer; padding: 0;
+    }
     .captcha-box {
       background: #0b1222; border: 1px solid #243247; border-radius: 12px;
       padding: 12px; margin-bottom: 12px;
@@ -66,6 +73,23 @@
       width: 100%; padding: 12px; border: none; border-radius: 10px;
       background: linear-gradient(135deg, #2563eb, #0284c7);
       color: #fff; font-weight: 700; font-size: 14px; cursor: pointer;
+    }
+    button.secondary {
+      width: 100%; padding: 10px; border: 1px solid #334155; border-radius: 10px;
+      background: #0f172a; color: #cbd5e1; font-weight: 600; font-size: 13px; cursor: pointer;
+      margin-top: 8px;
+    }
+    .divider {
+      display: flex; align-items: center; gap: 10px; margin: 14px 0;
+      color: #64748b; font-size: 12px;
+    }
+    .divider::before, .divider::after {
+      content: ""; flex: 1; height: 1px; background: #1e293b;
+    }
+    .google-btn {
+      width: 100%; display: flex; align-items: center; justify-content: center; gap: 8px;
+      padding: 11px; border-radius: 10px; font-weight: 700; font-size: 13px; cursor: pointer;
+      border: 1px solid #cbd5e1; background: #ffffff; color: #0f172a;
     }
     .profile-head { display: flex; align-items: center; gap: 14px; }
     .avatar {
@@ -121,27 +145,47 @@
       </div>
     </div>
 
-    <!-- Giriş / Kayıt Kartı -->
     <div class="card" id="authCard" style="display:none;">
-      <div class="tabs">
+      <div class="tabs" id="authTabs">
         <button class="tab active" id="tabLogin" onclick="switchTab('login')">Giriş Yap</button>
         <button class="tab" id="tabRegister" onclick="switchTab('register')">Kayıt Ol</button>
       </div>
 
-      <!-- Giriş Formu -->
+      <!-- Giriş Yap -->
       <div id="loginForm">
-        <label>E-posta Adresi</label>
-        <input type="email" id="loginEmail" placeholder="ornek@mail.com" />
+        <label>E-posta Adresi veya Kullanıcı Adı</label>
+        <input type="text" id="loginIdentifier" placeholder="ornek@mail.com veya kullanıcı adı" autocomplete="username" />
         <label>Şifre</label>
-        <input type="password" id="loginPass" placeholder="••••••••" />
+        <input type="password" id="loginPass" placeholder="••••••••" autocomplete="current-password" />
+        <div class="row-end">
+          <button type="button" class="link-btn" onclick="openForgotBox()">Şifremi Unuttum</button>
+        </div>
         <button class="primary" onclick="doLogin()">Hesaba Giriş Yap</button>
       </div>
 
-      <!-- Kayıt Formu + İnsan Doğrulaması (CAPTCHA) -->
-      <div id="registerForm" style="display:none;">
-        <label>Kullanıcı Adı</label>
-        <input type="text" id="regUsername" placeholder="Oyuncu veya satıcı adın" />
+      <!-- Şifremi Unuttum -->
+      <div id="forgotBox" style="display:none;">
+        <div style="font-weight:700; font-size:15px; margin-bottom:8px;">Şifre Sıfırlama</div>
+        <div class="muted" style="margin-bottom:10px;">Kayıtlı e-posta adresini yaz, şifre sıfırlama bağlantısı gönderelim.</div>
         <label>E-posta Adresi</label>
+        <input type="email" id="resetEmail" placeholder="ornek@mail.com" />
+        <button class="primary" onclick="sendPasswordReset()">Sıfırlama Bağlantısı Gönder</button>
+        <button type="button" class="secondary" onclick="switchTab('login')">Giriş Ekranına Dön</button>
+      </div>
+
+      <!-- Yeni Şifre Belirleme -->
+      <div id="newPassBox" style="display:none;">
+        <div style="font-weight:700; font-size:15px; margin-bottom:8px;">Yeni Şifre Belirle</div>
+        <label>Yeni Şifre (en az 6 karakter)</label>
+        <input type="password" id="newPasswordInput" placeholder="Yeni şifreni yaz" />
+        <button class="primary" onclick="updateForgottenPassword()">Şifreyi Güncelle</button>
+      </div>
+
+      <!-- Kayıt Ol + CAPTCHA -->
+      <div id="registerForm" style="display:none;">
+        <label>Kullanıcı Adı (Benzersiz)</label>
+        <input type="text" id="regUsername" placeholder="Başka kimsenin kullanmadığı ad" />
+        <label>E-posta Adresi (Benzersiz)</label>
         <input type="email" id="regEmail" placeholder="ornek@mail.com" />
         <label>Şifre (en az 6 karakter)</label>
         <input type="password" id="regPass" placeholder="En az 6 karakter şifre" />
@@ -160,10 +204,17 @@
         <button class="primary" onclick="doRegister()">Ücretsiz Hesap Oluştur</button>
       </div>
 
+      <!-- Google Giriş -->
+      <div id="oauthArea">
+        <div class="divider">veya</div>
+        <button type="button" class="google-btn" onclick="signInWithGoogle()">
+          <span>G</span> Google ile Gir
+        </button>
+      </div>
+
       <div class="msg" id="authMsg"></div>
     </div>
 
-    <!-- Aktif Profil ve Cüzdan -->
     <div id="profileArea" style="display:none;">
       <div class="card">
         <div style="display:flex; justify-content:space-between; align-items:flex-start; gap:10px;">
@@ -237,6 +288,10 @@
     }
 
     function switchTab(mode) {
+      document.getElementById("authTabs").style.display = "grid";
+      document.getElementById("forgotBox").style.display = "none";
+      document.getElementById("newPassBox").style.display = "none";
+      document.getElementById("oauthArea").style.display = "block";
       document.getElementById("tabLogin").classList.toggle("active", mode === "login");
       document.getElementById("tabRegister").classList.toggle("active", mode === "register");
       document.getElementById("loginForm").style.display = mode === "login" ? "block" : "none";
@@ -245,14 +300,96 @@
       if (mode === "register") generateCaptcha();
     }
 
+    function openForgotBox() {
+      document.getElementById("authTabs").style.display = "none";
+      document.getElementById("loginForm").style.display = "none";
+      document.getElementById("registerForm").style.display = "none";
+      document.getElementById("newPassBox").style.display = "none";
+      document.getElementById("oauthArea").style.display = "none";
+      document.getElementById("forgotBox").style.display = "block";
+      document.getElementById("authMsg").innerText = "";
+    }
+
+    async function sendPasswordReset() {
+      const email = document.getElementById("resetEmail").value.trim().toLowerCase();
+      const msg = document.getElementById("authMsg");
+      msg.className = "msg";
+      if (!email) {
+        msg.className = "msg err";
+        msg.innerText = "Lütfen e-posta adresini gir.";
+        return;
+      }
+      msg.innerText = "Sıfırlama bağlantısı gönderiliyor...";
+      const redirectTo = window.location.origin + window.location.pathname;
+      const { error } = await sb.auth.resetPasswordForEmail(email, { redirectTo });
+      msg.className = error ? "msg err" : "msg ok";
+      msg.innerText = error
+        ? "Gönderilemedi: " + error.message
+        : "Şifre sıfırlama bağlantısı e-postana gönderildi.";
+    }
+
+    async function updateForgottenPassword() {
+      const password = document.getElementById("newPasswordInput").value;
+      const msg = document.getElementById("authMsg");
+      msg.className = "msg";
+      if (!password || password.length < 6) {
+        msg.className = "msg err";
+        msg.innerText = "Yeni şifre en az 6 karakter olmalı.";
+        return;
+      }
+      msg.innerText = "Şifre güncelleniyor...";
+      const { error } = await sb.auth.updateUser({ password });
+      if (error) {
+        msg.className = "msg err";
+        msg.innerText = "Hata: " + error.message;
+        return;
+      }
+      msg.className = "msg ok";
+      msg.innerText = "Şifren güncellendi!";
+      initPage();
+    }
+
+    async function signInWithGoogle() {
+      const msg = document.getElementById("authMsg");
+      msg.className = "msg";
+      msg.innerText = "Google girişine yönlendiriliyor...";
+      const redirectTo = window.location.origin + window.location.pathname;
+      const { error } = await sb.auth.signInWithOAuth({
+        provider: "google",
+        options: { redirectTo }
+      });
+      if (error) {
+        msg.className = "msg err";
+        msg.innerText = "Google girişi hatası: " + error.message;
+      }
+    }
+
     async function doLogin() {
-      const email = document.getElementById("loginEmail").value.trim();
+      let identifier = document.getElementById("loginIdentifier").value.trim();
       const password = document.getElementById("loginPass").value;
       const msg = document.getElementById("authMsg");
       msg.className = "msg";
+
+      if (!identifier || !password) {
+        msg.className = "msg err";
+        msg.innerText = "E-posta/kullanıcı adı ve şifre gir.";
+        return;
+      }
+
       msg.innerText = "Giriş yapılıyor...";
 
-      const { error } = await sb.auth.signInWithPassword({ email, password });
+      if (!identifier.includes("@")) {
+        const { data: prof } = await sb
+          .from("profiles")
+          .select("email")
+          .ilike("username", identifier)
+          .maybeSingle();
+        if (prof?.email) {
+          identifier = prof.email;
+        }
+      }
+
+      const { error } = await sb.auth.signInWithPassword({ email: identifier.toLowerCase(), password });
       if (error) {
         msg.className = "msg err";
         msg.innerText = "Giriş başarısız: " + error.message;
@@ -263,11 +400,17 @@
 
     async function doRegister() {
       const username = document.getElementById("regUsername").value.trim();
-      const email = document.getElementById("regEmail").value.trim();
+      const email = document.getElementById("regEmail").value.trim().toLowerCase();
       const password = document.getElementById("regPass").value;
       const capTyped = document.getElementById("captchaInput").value.trim().toUpperCase();
       const msg = document.getElementById("authMsg");
       msg.className = "msg";
+
+      if (!username || username.length < 3) {
+        msg.className = "msg err";
+        msg.innerText = "En az 3 karakterlik benzersiz bir kullanıcı adı gir.";
+        return;
+      }
 
       if (!email || password.length < 6) {
         msg.className = "msg err";
@@ -277,17 +420,36 @@
 
       if (capTyped !== currentCaptcha) {
         msg.className = "msg err";
-        msg.innerText = "İnsan doğrulaması (CAPTCHA) kodu hatalı. Tekrar dene.";
+        msg.innerText = "İnsan doğrulaması (CAPTCHA) kodu hatalı.";
         generateCaptcha();
         return;
       }
 
-      msg.innerText = "Hesap oluşturuluyor...";
+      msg.innerText = "Kullanıcı adı ve e-posta kontrol ediliyor...";
+
+      const [{ data: existingUser }, { data: existingEmail }] = await Promise.all([
+        sb.from("profiles").select("id").ilike("username", username).maybeSingle(),
+        sb.from("profiles").select("id").ilike("email", email).maybeSingle()
+      ]);
+
+      if (existingUser) {
+        msg.className = "msg err";
+        msg.innerText = "Bu kullanıcı adı zaten alınmış!";
+        generateCaptcha();
+        return;
+      }
+
+      if (existingEmail) {
+        msg.className = "msg err";
+        msg.innerText = "Bu e-posta adresi zaten kayıtlı!";
+        generateCaptcha();
+        return;
+      }
 
       const { data, error } = await sb.auth.signUp({
         email,
         password,
-        options: { data: { username: username || email.split("@")[0] } }
+        options: { data: { username } }
       });
 
       if (error) {
@@ -305,7 +467,7 @@
           initPage();
         } else {
           msg.className = "msg ok";
-          msg.innerText = "Hesap oluşturuldu! Şimdi Giriş Yap sekmesinden giriş yapabilirsin.";
+          msg.innerText = "Hesap oluşturuldu! Giriş Yap sekmesinden girebilirsin.";
           switchTab("login");
         }
       }
@@ -321,6 +483,19 @@
       const username = document.getElementById("editUsername").value.trim();
       const msg = document.getElementById("profMsg");
       if (!user || !username) return;
+
+      const { data: taken } = await sb
+        .from("profiles")
+        .select("id")
+        .ilike("username", username)
+        .neq("id", user.id)
+        .maybeSingle();
+
+      if (taken) {
+        msg.className = "msg err";
+        msg.innerText = "Bu kullanıcı adı başka bir üye tarafından kullanılıyor.";
+        return;
+      }
 
       const { error } = await sb.from("profiles").update({ username }).eq("id", user.id);
       msg.className = error ? "msg err" : "msg ok";
@@ -347,7 +522,11 @@
 
       let { data: prof } = await sb.from("profiles").select("*").eq("id", user.id).maybeSingle();
       if (!prof) {
-        const fallbackName = user.user_metadata?.username || user.email.split("@")[0];
+        const fallbackName =
+          user.user_metadata?.username ||
+          user.user_metadata?.full_name ||
+          user.user_metadata?.name ||
+          (user.email ? user.email.split("@")[0] : "Oyuncu");
         await sb.from("profiles").upsert({
           id: user.id, email: user.email, username: fallbackName, role: "user", balance: 0
         });
@@ -355,11 +534,11 @@
         prof = res.data;
       }
 
-      const name = prof?.username || user.email.split("@")[0];
+      const name = prof?.username || user.email?.split("@")[0] || "Kullanıcı";
       document.getElementById("avatarLetter").innerText = name.charAt(0).toUpperCase();
       document.getElementById("dispUsername").innerText = name;
       document.getElementById("editUsername").value = name;
-      document.getElementById("dispMeta").innerText = `ID: ${user.id.slice(0, 8)}... • ${user.email}`;
+      document.getElementById("dispMeta").innerText = `ID: ${user.id.slice(0, 8)}... • ${user.email || ""}`;
       document.getElementById("dispBalance").innerText = `$${Number(prof?.balance || 0).toFixed(2)}`;
       document.getElementById("dispRole").innerText = prof?.role === "admin" ? "Platform Sahibi" : "Onaylı Üye";
 
@@ -393,6 +572,19 @@
         }).join("");
       }
     }
+
+    sb.auth.onAuthStateChange((event) => {
+      if (event === "PASSWORD_RECOVERY") {
+        document.getElementById("authCard").style.display = "block";
+        document.getElementById("profileArea").style.display = "none";
+        document.getElementById("authTabs").style.display = "none";
+        document.getElementById("loginForm").style.display = "none";
+        document.getElementById("registerForm").style.display = "none";
+        document.getElementById("forgotBox").style.display = "none";
+        document.getElementById("oauthArea").style.display = "none";
+        document.getElementById("newPassBox").style.display = "block";
+      }
+    });
 
     generateCaptcha();
     initPage();
