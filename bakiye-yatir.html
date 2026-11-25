@@ -1,0 +1,203 @@
+<!DOCTYPE html>
+<html lang="tk">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Para Yatır — TKM Market</title>
+  <link rel="stylesheet" href="assets/tkm.css" />
+  <style>
+    .quick-amts { display: grid; grid-template-columns: repeat(3, 1fr); gap: 8px; margin-top: 10px; }
+    @media (min-width: 640px) { .quick-amts { grid-template-columns: repeat(6, 1fr); } }
+    .amt-chip { background: var(--surface-2); border: 1.5px solid var(--border); color: var(--text); border-radius: 12px; padding: 10px 8px; font-weight: 800; font-size: 13px; cursor: pointer; text-align: center; }
+    .amt-chip.active { border-color: #34d399; background: rgba(16, 185, 129, 0.16); color: #34d399; }
+    .channel-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(145px, 1fr)); gap: 10px; margin-top: 10px; }
+    .channel-card { background: var(--surface-2); border: 1.5px solid var(--border); border-radius: 14px; padding: 11px; cursor: pointer; text-align: left; color: var(--text); }
+    .channel-card.active { border-color: #a855f7; box-shadow: 0 0 16px rgba(168, 85, 247, 0.35); background: rgba(168, 85, 247, 0.14); }
+    .addr-box { margin-top: 12px; padding: 12px; border-radius: 14px; background: rgba(56, 189, 248, 0.1); border: 1px solid rgba(56, 189, 248, 0.35); display: flex; justify-content: space-between; align-items: center; gap: 10px; flex-wrap: wrap; }
+    .addr-code { font-family: monospace; font-size: 12px; word-break: break-all; color: #e0f2fe; }
+  </style>
+</head>
+<body>
+  <div id="playerok-shell"></div>
+
+  <main class="page-wrap">
+    <div class="panel">
+      <div style="display:flex; justify-content:space-between; align-items:center; gap:8px; flex-wrap:wrap;">
+        <div>
+          <h2>💳 Para Yatır (Bakiýe Goşmak)</h2>
+          <p class="muted">Ýatyran puluňyz çekilmedikçe bakyýeňizde galýar.</p>
+        </div>
+        <a class="btn btn-soft" href="profil.html">← Profile Dolan</a>
+      </div>
+
+      <div class="quick-amts" id="quick-deposit-amts">
+        <button type="button" class="amt-chip" data-amt="50">50 TMT</button>
+        <button type="button" class="amt-chip" data-amt="100">100 TMT</button>
+        <button type="button" class="amt-chip" data-amt="250">250 TMT</button>
+        <button type="button" class="amt-chip active" data-amt="500">500 TMT</button>
+        <button type="button" class="amt-chip" data-amt="1000">1.000 TMT</button>
+        <button type="button" class="amt-chip" data-amt="2500">2.500 TMT</button>
+      </div>
+
+      <form id="deposit-form" style="margin-top:12px;">
+        <div class="form-grid">
+          <div class="field">
+            <label>Ýatyrjak Möçberiňiz (TMT)</label>
+            <input id="d-amount" type="number" min="1" step="0.01" value="500" required />
+          </div>
+          <div class="field">
+            <label>TXID / Töleg Kody / Bellik</label>
+            <input id="d-ref" type="text" placeholder="0x... TXID ýa-da töleg belligi" required />
+          </div>
+        </div>
+
+        <div class="field" style="margin-top:12px;">
+          <label>Töleg Kanalyny Saýlaň</label>
+          <div class="channel-grid" id="deposit-channel-grid">
+            <button type="button" class="channel-card active" data-method="Visa"><strong>💳 Visa Card</strong><div class="muted">Kart tölegi</div></button>
+            <button type="button" class="channel-card" data-method="Mastercard"><strong>💳 Mastercard</strong><div class="muted">Kart tölegi</div></button>
+            <button type="button" class="channel-card" data-method="USDT (BEP20)"><strong>🪙 USDT BEP20</strong><div class="muted">BSC ulgam</div></button>
+            <button type="button" class="channel-card" data-method="USDT (TRC20)"><strong>🪙 USDT TRC20</strong><div class="muted">TRON ulgam</div></button>
+            <button type="button" class="channel-card" data-method="BTC / TON"><strong>₿ BTC / TON</strong><div class="muted">Kripto geçirimi</div></button>
+          </div>
+        </div>
+
+        <div id="deposit-target-box" class="addr-box"></div>
+
+        <div class="btn-row">
+          <button class="btn btn-green" type="submit" style="width:100%;">Bakiýä Goş</button>
+        </div>
+      </form>
+
+      <div id="deposits-list" style="margin-top:14px;"></div>
+    </div>
+  </main>
+
+  <script src="assets/tkm.js"></script>
+  <script>
+    if (requireVerifiedUser("profil.html")) {
+      mountPlayerokShell("profile", "", true);
+
+      const ADMIN_DEPOSIT_ADDRESSES = {
+        "Visa": "Visa töleg üçin dolandyryjy bilen habarlaşyp kody alyň",
+        "Mastercard": "Mastercard töleg üçin dolandyryjy bilen habarlaşyp kody alyň",
+        "USDT (BEP20)": "0xYOUR_BEP20_WALLET_ADDRESS",
+        "USDT (TRC20)": "TYOUR_TRC20_WALLET_ADDRESS",
+        "BTC / TON": "bc1qYOUR_BTC_OR_TON_WALLET_ADDRESS"
+      };
+
+      let selectedMethod = "Visa";
+      let deposits = [];
+
+      function renderAddrBox() {
+        const addr = ADMIN_DEPOSIT_ADDRESSES[selectedMethod] || "";
+        document.getElementById("deposit-target-box").innerHTML = `
+          <div style="flex:1; min-width:190px;">
+            <div class="muted">${esc(selectedMethod)} Salgysy / Belligi</div>
+            <div class="addr-code" id="dep-addr-txt">${esc(addr)}</div>
+          </div>
+          <button type="button" class="btn btn-soft" onclick="copyAddr()">Kopyala</button>
+        `;
+      }
+
+      function copyAddr() {
+        const t = document.getElementById("dep-addr-txt")?.textContent || "";
+        if (!t) return;
+        if (navigator.clipboard && navigator.clipboard.writeText) {
+          navigator.clipboard.writeText(t).then(() => showToast("Göçürildi!")).catch(() => showToast(t));
+        } else {
+          showToast(t);
+        }
+      }
+
+      document.querySelectorAll("#quick-deposit-amts .amt-chip").forEach(btn => {
+        btn.addEventListener("click", () => {
+          document.querySelectorAll("#quick-deposit-amts .amt-chip").forEach(b => b.classList.remove("active"));
+          btn.classList.add("active");
+          document.getElementById("d-amount").value = btn.dataset.amt;
+        });
+      });
+
+      document.querySelectorAll("#deposit-channel-grid .channel-card").forEach(card => {
+        card.addEventListener("click", () => {
+          document.querySelectorAll("#deposit-channel-grid .channel-card").forEach(c => c.classList.remove("active"));
+          card.classList.add("active");
+          selectedMethod = card.dataset.method;
+          renderAddrBox();
+        });
+      });
+
+      async function loadDeposits() {
+        const u = getUser().username.toLowerCase();
+        try {
+          const all = await sbGet("deposits");
+          deposits = all.filter(d => String(d.username || "").toLowerCase() === u);
+          localStorage.setItem("tkm_deposits_cache", JSON.stringify(all));
+          setDbPill(true, "Onlaýn");
+        } catch (_) {
+          try {
+            const cache = JSON.parse(localStorage.getItem("tkm_deposits_cache") || "[]");
+            deposits = cache.filter(d => String(d.username || "").toLowerCase() === u);
+          } catch (__) { deposits = []; }
+          setDbPill(false, "Ýerli");
+        }
+        renderDeposits();
+        refreshTopBalancePill();
+      }
+
+      function renderDeposits() {
+        const wrap = document.getElementById("deposits-list");
+        if (!deposits.length) {
+          wrap.innerHTML = `<p class="muted">Heniz bakiýe ýatyryş ýok.</p>`;
+          return;
+        }
+        wrap.innerHTML = deposits.map(d => `
+          <div class="list-row">
+            <div>
+              <strong>+${Number(d.amount_tmt || 0).toLocaleString()} TMT</strong> — <span class="chip-cat">${esc(d.method)}</span>
+              <div class="muted">TXID/Kod: ${esc(d.reference_info)}</div>
+            </div>
+            <span class="badge-status ok">Bakiýede ✅</span>
+          </div>
+        `).join("");
+      }
+
+      document.getElementById("deposit-form").addEventListener("submit", async (e) => {
+        e.preventDefault();
+        const u = getUser();
+        const amount = Number(document.getElementById("d-amount").value || 0);
+        const ref = document.getElementById("d-ref").value.trim();
+        if (amount <= 0 || !ref) {
+          showToast("Möçberi we TXID/kody giriziň!");
+          return;
+        }
+
+        const payload = {
+          username: u.username,
+          amount_tmt: amount,
+          method: selectedMethod,
+          reference_info: ref,
+          status: "approved"
+        };
+
+        try {
+          await sbInsert("deposits", payload);
+          showToast(`${amount.toLocaleString()} TMT bakiýäňize goşuldy!`);
+        } catch (_) {
+          let cache = [];
+          try { cache = JSON.parse(localStorage.getItem("tkm_deposits_cache") || "[]"); } catch (__) {}
+          cache.unshift({ id: Date.now(), ...payload });
+          localStorage.setItem("tkm_deposits_cache", JSON.stringify(cache));
+          showToast(`${amount.toLocaleString()} TMT ýerli bakiýede saklandy.`);
+        }
+
+        document.getElementById("d-ref").value = "";
+        loadDeposits();
+      });
+
+      renderAddrBox();
+      loadDeposits();
+    }
+  </script>
+</body>
+</html>
