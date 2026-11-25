@@ -6,24 +6,27 @@
   <title>TKM Market — Sahip Kontrol Merkezi</title>
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
   <style>
-    body { margin: 0; font-family: system-ui, sans-serif; background: #090d16; color: #f1f5f9; padding: 16px; }
-    h1 { font-size: 20px; color: #38bdf8; margin-bottom: 16px; }
-    .grid { display: grid; grid-template-columns: repeat(2, 1fr); gap: 10px; margin-bottom: 20px; }
-    .card { background: #111827; border: 1px solid #1e293b; border-radius: 12px; padding: 14px; }
+    body { margin: 0; font-family: system-ui, sans-serif; background: #090d16; color: #f1f5f9; padding: 14px; }
+    h1 { font-size: 19px; color: #38bdf8; margin: 0; }
+    .grid { display: grid; grid-template-columns: repeat(2, 1fr); gap: 10px; margin: 16px 0; }
+    .card { background: #111827; border: 1px solid #1e293b; border-radius: 12px; padding: 13px; }
     .card span { font-size: 12px; color: #94a3b8; display: block; }
-    .card strong { font-size: 22px; color: #22c55e; margin-top: 4px; display: block; }
+    .card strong { font-size: 21px; color: #22c55e; margin-top: 4px; display: block; }
     .card.warn strong { color: #f59e0b; }
     .card.blue strong { color: #38bdf8; }
-    .box { background: #111827; border: 1px solid #1e293b; border-radius: 12px; padding: 14px; margin-bottom: 16px; overflow-x: auto; }
-    h2 { font-size: 15px; margin: 0 0 10px; color: #e2e8f0; }
+    .box { background: #111827; border: 1px solid #1e293b; border-radius: 12px; padding: 13px; margin-bottom: 14px; overflow-x: auto; }
+    h2 { font-size: 14px; margin: 0 0 10px; color: #e2e8f0; }
     table { width: 100%; border-collapse: collapse; font-size: 12px; }
-    th, td { text-align: left; padding: 8px 6px; border-bottom: 1px solid #1e293b; }
+    th, td { text-align: left; padding: 8px 6px; border-bottom: 1px solid #1e293b; vertical-align: middle; }
     th { color: #94a3b8; }
-    .badge { padding: 2px 6px; border-radius: 6px; font-size: 11px; background: #1e293b; }
-    .in { color: #22c55e; } .out { color: #f87171; }
-    button { background: #2563eb; color: #fff; border: none; padding: 10px 14px; border-radius: 8px; font-weight: 600; cursor: pointer; }
+    .badge { padding: 2px 6px; border-radius: 6px; font-size: 11px; background: #1e293b; white-space: nowrap; }
+    .in { color: #22c55e; } .out { color: #f87171; } .pend { color: #f59e0b; }
+    button { background: #2563eb; color: #fff; border: none; padding: 8px 12px; border-radius: 8px; font-weight: 600; cursor: pointer; font-size: 12px; }
     button.danger { background: #dc2626; }
+    button.ok { background: #16a34a; }
+    button.sm { padding: 5px 9px; font-size: 11px; }
     input { width: 100%; box-sizing: border-box; background: #0f172a; border: 1px solid #334155; color: #fff; padding: 10px; border-radius: 8px; margin-bottom: 10px; font-size: 14px; }
+    .empty { color: #64748b; font-size: 12px; padding: 6px 0; }
   </style>
 </head>
 <body>
@@ -34,33 +37,50 @@
       <button id="logoutBtn" class="danger" style="display:none;" onclick="adminLogout()">Çıkış</button>
     </div>
   </div>
-  <p id="status" style="font-size:13px; color:#94a3b8;">Yetki kontrol ediliyor...</p>
+  <p id="status" style="font-size:12px; color:#94a3b8; margin:8px 0 0;">Yetki kontrol ediliyor...</p>
 
-  <div class="box" id="loginBox" style="display:none; max-width:400px;">
+  <div class="box" id="loginBox" style="display:none; max-width:400px; margin-top:14px;">
     <h2>Sahip Girişi</h2>
-    <input type="email" id="adminEmail" placeholder="Özel Admin E-posta (örn: sahip@tkm-market.store)" />
-    <input type="password" id="adminPass" placeholder="Parola (admin1234)" />
-    <button style="width:100%;" onclick="adminLogin()">Giriş Yap</button>
+    <input type="email" id="adminEmail" placeholder="Admin E-posta" />
+    <input type="password" id="adminPass" placeholder="Parola" />
+    <button style="width:100%; padding:10px;" onclick="adminLogin()">Giriş Yap</button>
     <p id="loginErr" style="color:#f87171; font-size:12px; margin:8px 0 0;"></p>
   </div>
 
-  <div class="grid" id="stats" style="display:none;">
-    <div class="card blue"><span>Şu An Aktif (Son 5 Dk)</span><strong id="liveUsers">0</strong></div>
-    <div class="card blue"><span>Bugün Tekil Ziyaretçi</span><strong id="todayVisitors">0</strong></div>
-    <div class="card"><span>Toplam Onaylı Yatırım</span><strong id="totalDeposits">$0.00</strong></div>
-    <div class="card warn"><span>Bekleyen Çekim Talebi</span><strong id="pendingWithdraws">0</strong></div>
-    <div class="card"><span>Kasadaki Üye Bakiyesi</span><strong id="totalBalance">$0.00</strong></div>
-    <div class="card blue"><span>Toplam Kayıtlı Üye</span><strong id="totalUsers">0</strong></div>
-  </div>
+  <div id="panelContent" style="display:none;">
+    <div class="grid">
+      <div class="card blue"><span>Şu An Aktif (Son 5 Dk)</span><strong id="liveUsers">0</strong></div>
+      <div class="card blue"><span>Bugün Tekil Ziyaretçi</span><strong id="todayVisitors">0</strong></div>
+      <div class="card"><span>Toplam Onaylı Yatırım</span><strong id="totalDeposits">$0.00</strong></div>
+      <div class="card warn"><span>Bekleyen Çekim Talebi</span><strong id="pendingWithdraws">0</strong></div>
+      <div class="card"><span>Kasadaki Üye Bakiyesi</span><strong id="totalBalance">$0.00</strong></div>
+      <div class="card blue"><span>Toplam Kayıtlı Üye</span><strong id="totalUsers">0</strong></div>
+    </div>
 
-  <div class="box" id="eventsBox" style="display:none;">
-    <h2>Canlı Site Akışı (Giriş / Çıkış / Süre)</h2>
-    <table>
-      <thead>
-        <tr><th>Saat</th><th>İşlem</th><th>Sayfa</th><th>Süre</th><th>Cihaz</th><th>Oturum</th></tr>
-      </thead>
-      <tbody id="eventsBody"></tbody>
-    </table>
+    <div class="box">
+      <h2>Bekleyen Para Yatırma Talepleri</h2>
+      <div id="depositsArea"></div>
+    </div>
+
+    <div class="box">
+      <h2>Bekleyen Para Çekme Talepleri</h2>
+      <div id="withdrawsArea"></div>
+    </div>
+
+    <div class="box">
+      <h2>Canlı Site Akışı (Giriş / Çıkış / Süre)</h2>
+      <table>
+        <thead>
+          <tr><th>Saat</th><th>İşlem</th><th>Sayfa</th><th>Süre</th><th>Cihaz</th><th>Oturum</th></tr>
+        </thead>
+        <tbody id="eventsBody"></tbody>
+      </table>
+    </div>
+
+    <div class="box">
+      <h2>Üyeler & Bakiyeler</h2>
+      <div id="usersArea"></div>
+    </div>
   </div>
 
   <script>
@@ -88,18 +108,44 @@
       location.reload();
     }
 
+    async function handleDeposit(depId, userId, amount, action) {
+      if (action === "approve") {
+        const { data: prof } = await sb.from("profiles").select("balance").eq("id", userId).single();
+        const nextBal = Number(prof?.balance || 0) + Number(amount);
+        const { error: pErr } = await sb.from("profiles").update({ balance: nextBal }).eq("id", userId);
+        if (pErr) return alert("Bakiye güncellenemedi: " + pErr.message);
+      }
+      const nextStatus = action === "approve" ? "approved" : "rejected";
+      const { error: dErr } = await sb.from("deposits").update({ status: nextStatus, updated_at: new Date().toISOString() }).eq("id", depId);
+      if (dErr) return alert("Talep güncellenemedi: " + dErr.message);
+      loadDashboard();
+    }
+
+    async function handleWithdraw(wId, userId, amount, action) {
+      if (action === "reject") {
+        const { data: prof } = await sb.from("profiles").select("balance").eq("id", userId).single();
+        const nextBal = Number(prof?.balance || 0) + Number(amount);
+        const { error: pErr } = await sb.from("profiles").update({ balance: nextBal }).eq("id", userId);
+        if (pErr) return alert("Bakiye iadesi başarısız: " + pErr.message);
+      }
+      const nextStatus = action === "approve" ? "approved" : "rejected";
+      const { error: wErr } = await sb.from("withdrawals").update({ status: nextStatus, updated_at: new Date().toISOString() }).eq("id", wId);
+      if (wErr) return alert("Çekim güncellenemedi: " + wErr.message);
+      loadDashboard();
+    }
+
     async function loadDashboard() {
       const statusEl = document.getElementById("status");
       const loginBox = document.getElementById("loginBox");
       const logoutBtn = document.getElementById("logoutBtn");
-      const { data: { user } } = await sb.auth.getUser();
+      const panelContent = document.getElementById("panelContent");
 
+      const { data: { user } } = await sb.auth.getUser();
       if (!user) {
-        statusEl.innerText = "Devam etmek için seçtiğin sahip e-postası ve şifreyle giriş yap:";
+        statusEl.innerText = "Devam etmek için sahip hesabınla giriş yap:";
         loginBox.style.display = "block";
         logoutBtn.style.display = "none";
-        document.getElementById("stats").style.display = "none";
-        document.getElementById("eventsBox").style.display = "none";
+        panelContent.style.display = "none";
         return;
       }
 
@@ -108,32 +154,26 @@
         statusEl.innerText = "Yetkisiz hesap (" + user.email + "): Bu panel sadece site sahibine açıktır.";
         loginBox.style.display = "none";
         logoutBtn.style.display = "inline-block";
+        panelContent.style.display = "none";
         return;
       }
 
       loginBox.style.display = "none";
       logoutBtn.style.display = "inline-block";
+      panelContent.style.display = "block";
       statusEl.innerText = "Hoş geldin " + (profile.username || "Serkanbey") + " • Canlı veriler aktif (" + new Date().toLocaleTimeString("tr-TR") + ")";
-      document.getElementById("stats").style.display = "grid";
-      document.getElementById("eventsBox").style.display = "block";
 
       const fiveMinAgo = new Date(Date.now() - 5 * 60 * 1000).toISOString();
       const todayStart = new Date(); todayStart.setHours(0, 0, 0, 0);
 
-      const { data: events } = await sb
-        .from("site_events")
-        .select("*")
-        .order("created_at", { ascending: false })
-        .limit(40);
-
+      const { data: events } = await sb.from("site_events").select("*").order("created_at", { ascending: false }).limit(40);
       if (events) {
         const liveSessions = new Set(events.filter(e => e.created_at >= fiveMinAgo).map(e => e.session_id));
         const todaySessions = new Set(events.filter(e => e.created_at >= todayStart.toISOString()).map(e => e.session_id));
         document.getElementById("liveUsers").innerText = liveSessions.size;
         document.getElementById("todayVisitors").innerText = todaySessions.size;
 
-        const tbody = document.getElementById("eventsBody");
-        tbody.innerHTML = events.map(e => {
+        document.getElementById("eventsBody").innerHTML = events.map(e => {
           const time = new Date(e.created_at).toLocaleTimeString("tr-TR", { hour: "2-digit", minute: "2-digit", second: "2-digit" });
           const cls = e.event_type === "page_leave" ? "out" : "in";
           const label = e.event_type === "page_view" ? "Giriş" : e.event_type === "page_leave" ? "Çıkış" : e.event_type;
@@ -143,29 +183,57 @@
             <td>${e.page_path}</td>
             <td>${e.duration_sec ? e.duration_sec + " sn" : "-"}</td>
             <td>${e.device_type || "-"}</td>
-            <td>${e.session_id.slice(4, 10)}</td>
+            <td>${(e.session_id || "").slice(4, 10)}</td>
           </tr>`;
-        }).join("");
+        }).join("") || `<tr><td colspan="6" class="empty">Henüz kayıt yok</td></tr>`;
       }
 
-      const { data: profiles } = await sb.from("profiles").select("balance");
+      const { data: profiles } = await sb.from("profiles").select("id, email, username, role, balance").order("balance", { ascending: false });
       if (profiles) {
         document.getElementById("totalUsers").innerText = profiles.length;
         const sumBal = profiles.reduce((acc, p) => acc + Number(p.balance || 0), 0);
         document.getElementById("totalBalance").innerText = "$" + sumBal.toFixed(2);
+        document.getElementById("usersArea").innerHTML = `<table><thead><tr><th>Kullanıcı</th><th>Rol</th><th>Bakiye</th></tr></thead><tbody>` +
+          profiles.map(p => `<tr><td>${p.username || p.email || p.id.slice(0,8)}</td><td><span class="badge">${p.role || "user"}</span></td><td>$${Number(p.balance || 0).toFixed(2)}</td></tr>`).join("") +
+          `</tbody></table>`;
       }
 
-      const { data: deps } = await sb.from("deposits").select("amount, status");
+      const { data: deps } = await sb.from("deposits").select("*").order("created_at", { ascending: false });
       if (deps) {
         const approvedSum = deps
           .filter(d => ["completed", "finished", "paid", "approved"].includes((d.status || "").toLowerCase()))
           .reduce((acc, d) => acc + Number(d.amount || 0), 0);
         document.getElementById("totalDeposits").innerText = "$" + approvedSum.toFixed(2);
+
+        const pendingDeps = deps.filter(d => d.status === "pending");
+        document.getElementById("depositsArea").innerHTML = pendingDeps.length ?
+          `<table><thead><tr><th>Üye</th><th>Tutar</th><th>Yöntem / Ref</th><th>İşlem</th></tr></thead><tbody>` +
+          pendingDeps.map(d => `<tr>
+            <td>${d.email || (d.user_id || "").slice(0,8)}</td>
+            <td><strong>$${Number(d.amount).toFixed(2)}</strong></td>
+            <td>${d.method || "-"}<br><span style="color:#94a3b8">${d.tx_ref || ""}</span></td>
+            <td style="white-space:nowrap;">
+              <button class="ok sm" onclick="handleDeposit('${d.id}','${d.user_id}',${d.amount},'approve')">Onayla</button>
+              <button class="danger sm" onclick="handleDeposit('${d.id}','${d.user_id}',${d.amount},'reject')">Reddet</button>
+            </td>
+          </tr>`).join("") + `</tbody></table>` : `<div class="empty">Bekleyen yatırım talebi yok.</div>`;
       }
 
-      const { data: withs } = await sb.from("withdrawals").select("id, status").eq("status", "pending");
+      const { data: withs } = await sb.from("withdrawals").select("*").order("created_at", { ascending: false });
       if (withs) {
-        document.getElementById("pendingWithdraws").innerText = withs.length;
+        const pendingWiths = withs.filter(w => w.status === "pending");
+        document.getElementById("pendingWithdraws").innerText = pendingWiths.length;
+        document.getElementById("withdrawsArea").innerHTML = pendingWiths.length ?
+          `<table><thead><tr><th>Üye</th><th>Tutar</th><th>Cüzdan / Adres</th><th>İşlem</th></tr></thead><tbody>` +
+          pendingWiths.map(w => `<tr>
+            <td>${w.email || (w.user_id || "").slice(0,8)}</td>
+            <td><strong>$${Number(w.amount).toFixed(2)}</strong></td>
+            <td>${w.method || ""}<br><span style="color:#94a3b8">${w.payout_address}</span></td>
+            <td style="white-space:nowrap;">
+              <button class="ok sm" onclick="handleWithdraw('${w.id}','${w.user_id}',${w.amount},'approve')">Onayla</button>
+              <button class="danger sm" onclick="handleWithdraw('${w.id}','${w.user_id}',${w.amount},'reject')">Reddet & İade</button>
+            </td>
+          </tr>`).join("") + `</tbody></table>` : `<div class="empty">Bekleyen çekim talebi yok.</div>`;
       }
     }
 
