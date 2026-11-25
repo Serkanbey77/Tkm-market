@@ -1,372 +1,324 @@
 <!DOCTYPE html>
-<html lang="tk">
+<html lang="tr">
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Profil & Giriş — TKM Market</title>
-  <link rel="stylesheet" href="assets/tkm.css" />
+  <title>TKM Market — Hesabım ve Cüzdan</title>
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
   <style>
-    .mode-tabs { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; margin-bottom: 14px; }
-    .mode-tab { padding: 11px; border-radius: 12px; border: 1.5px solid var(--border); background: var(--surface-2); color: var(--text); font-weight: 800; cursor: pointer; }
-    .mode-tab.active { border-color: #a855f7; background: rgba(168, 85, 247, 0.18); color: #f0abfc; }
-    .role-picker { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin-top: 8px; }
-    .role-opt { background: var(--surface-2); border: 1.5px solid var(--border); border-radius: 14px; padding: 12px; cursor: pointer; color: var(--text); text-align: left; }
-    .role-opt.active { border-color: #a855f7; background: rgba(168, 85, 247, 0.16); box-shadow: 0 0 16px rgba(168, 85, 247, 0.3); }
-    .wallet-actions-2 { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; margin-top: 14px; }
-    .big-action-btn { text-decoration: none; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 4px; padding: 16px 12px; border-radius: 16px; font-weight: 900; font-size: 14px; border: 1px solid rgba(255, 255, 255, 0.25); }
-    .step-badge { display: inline-block; padding: 4px 10px; border-radius: 999px; font-size: 12px; font-weight: 800; background: rgba(168, 85, 247, 0.16); color: #e9d5ff; margin-bottom: 10px; }
+    * { box-sizing: border-box; }
+    body {
+      margin: 0;
+      font-family: system-ui, -apple-system, sans-serif;
+      background: radial-gradient(circle at top, #111c33 0%, #070b14 65%);
+      color: #f8fafc;
+      min-height: 100vh;
+      padding: 16px;
+    }
+    .wrap { max-width: 520px; margin: 0 auto; }
+    .topbar {
+      display: flex; justify-content: space-between; align-items: center;
+      margin-bottom: 16px; padding-bottom: 12px; border-bottom: 1px solid #1e293b;
+    }
+    .brand { font-weight: 800; font-size: 18px; letter-spacing: .5px; color: #38bdf8; text-decoration: none; }
+    .nav-links a {
+      color: #cbd5e1; text-decoration: none; font-size: 13px; margin-left: 12px;
+      padding: 6px 10px; border-radius: 8px; background: #111827; border: 1px solid #1e293b;
+    }
+    .card {
+      background: rgba(17, 24, 39, 0.92);
+      border: 1px solid #1e293b;
+      border-radius: 16px;
+      padding: 18px;
+      margin-bottom: 14px;
+      box-shadow: 0 12px 30px rgba(0,0,0,.35);
+    }
+    .tabs { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; margin-bottom: 14px; }
+    .tab {
+      padding: 10px; border-radius: 10px; border: 1px solid #263248;
+      background: #0d1424; color: #94a3b8; font-weight: 700; cursor: pointer;
+    }
+    .tab.active { background: #2563eb; color: #fff; border-color: #3b82f6; }
+    label { display: block; font-size: 12px; color: #94a3b8; margin-bottom: 5px; }
+    input {
+      width: 100%; background: #0b1120; border: 1px solid #283548; color: #fff;
+      padding: 11px 12px; border-radius: 10px; margin-bottom: 12px; font-size: 14px;
+    }
+    button.primary {
+      width: 100%; padding: 12px; border: none; border-radius: 10px;
+      background: linear-gradient(135deg, #2563eb, #0284c7);
+      color: #fff; font-weight: 700; font-size: 14px; cursor: pointer;
+    }
+    .profile-head { display: flex; align-items: center; gap: 14px; }
+    .avatar {
+      width: 56px; height: 56px; border-radius: 14px;
+      background: linear-gradient(135deg, #0ea5e9, #6366f1);
+      display: flex; align-items: center; justify-content: center;
+      font-size: 22px; font-weight: 800; color: #fff; flex-shrink: 0;
+    }
+    .badge-row { display: flex; flex-wrap: wrap; gap: 6px; margin-top: 6px; }
+    .pill {
+      font-size: 11px; padding: 3px 8px; border-radius: 999px;
+      background: rgba(34, 197, 94, 0.14); color: #4ade80; border: 1px solid rgba(34, 197, 94, 0.3);
+      font-weight: 600;
+    }
+    .pill.blue {
+      background: rgba(56, 189, 248, 0.14); color: #38bdf8; border-color: rgba(56, 189, 248, 0.3);
+    }
+    .wallet-box {
+      display: flex; justify-content: space-between; align-items: center;
+      background: #0b1222; border: 1px solid #1e293b; border-radius: 14px; padding: 14px;
+      margin-top: 14px;
+    }
+    .bal { font-size: 26px; font-weight: 800; color: #22c55e; }
+    .actions { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin-top: 12px; }
+    .btn-link {
+      display: block; text-align: center; text-decoration: none;
+      padding: 11px; border-radius: 10px; font-weight: 700; font-size: 13px;
+    }
+    .btn-deposit { background: #16a34a; color: #fff; }
+    .btn-withdraw { background: #1e293b; color: #f8fafc; border: 1px solid #334155; }
+    .msg { font-size: 12px; margin-top: 8px; min-height: 18px; }
+    .err { color: #f87171; } .ok { color: #4ade80; }
+    .tx-item {
+      display: flex; justify-content: space-between; align-items: center;
+      padding: 10px 0; border-bottom: 1px solid #1a2436; font-size: 13px;
+    }
+    .tx-item:last-child { border-bottom: none; }
+    .muted { color: #94a3b8; font-size: 12px; }
+    .logout-btn {
+      background: rgba(239, 68, 68, 0.15); color: #f87171; border: 1px solid rgba(239, 68, 68, 0.35);
+      padding: 7px 11px; border-radius: 8px; font-weight: 700; font-size: 12px; cursor: pointer;
+    }
   </style>
 </head>
 <body>
-  <div id="playerok-shell"></div>
-
-  <main class="page-wrap">
-    <!-- Giriş Yapılmış Aktif Profil -->
-    <div class="panel" id="logged-in-profile" style="display:none;">
-      <div style="display:flex; justify-content:space-between; align-items:flex-start; gap:10px; flex-wrap:wrap;">
-        <div>
-          <span class="chip-escrow" id="prof-role-badge">SATYJY ✅</span>
-          <h2 id="prof-username" style="margin-top:6px;">Ulanyjy</h2>
-          <p class="muted" id="prof-verified-line">Hasap tassyklanan</p>
-        </div>
-        <button class="btn btn-del" type="button" onclick="logoutAccount()">Hasapdan Çyk</button>
-      </div>
-
-      <div class="cred-card">
-        <div><strong>E-poçta:</strong> <span id="prof-email">-</span> <span class="chip-escrow">Tassyklanyldy ✅</span></div>
-        <div><strong>Ýaşaýan Ýeri:</strong> <span id="prof-address">-</span></div>
-        <div><strong>Aktiw Bakiýe:</strong> <strong id="prof-balance" style="color:#34d399;">0 TMT</strong></div>
-      </div>
-
-      <div class="wallet-actions-2">
-        <a class="big-action-btn" href="bakiye-yatir.html" style="background:linear-gradient(135deg,#10b981,#22d3ee); color:#042f2e;">
-          <span>⛓️ Para Yatır</span>
-          <small style="font-weight:700; opacity:0.85;">Blockchain Bakiýe</small>
-        </a>
-        <a class="big-action-btn" href="pul-cek.html" style="background:linear-gradient(135deg,#6366f1,#a855f7); color:#fff;">
-          <span>💸 Para Çek</span>
-          <small style="font-weight:700; opacity:0.9;">Blockchain Çekiş</small>
-        </a>
-      </div>
-
-      <div class="btn-row" id="seller-extra-links" style="display:none;">
-        <a class="btn btn-soft" href="satyjy.html">＋ Täze Haryt Goş (Satmak)</a>
+  <div class="wrap">
+    <div class="topbar">
+      <a class="brand" href="index.html">TKM MARKET</a>
+      <div class="nav-links">
+        <a href="index.html">Vitrin</a>
+        <a href="bakiye-yatir.html">Yatır</a>
+        <a href="pul-cek.html">Çek</a>
       </div>
     </div>
 
-    <!-- Giriş / Kayıt Kutusu -->
-    <div class="panel" id="auth-container">
-      <div class="mode-tabs">
-        <button type="button" class="mode-tab active" id="tab-login" onclick="switchAuthMode('login')">Giriş Yap</button>
-        <button type="button" class="mode-tab" id="tab-register" onclick="switchAuthMode('register')">Üye Bol</button>
+    <!-- Giriş / Kayıt Kartı -->
+    <div class="card" id="authCard" style="display:none;">
+      <div class="tabs">
+        <button class="tab active" id="tabLogin" onclick="switchTab('login')">Giriş Yap</button>
+        <button class="tab" id="tabRegister" onclick="switchTab('register')">Kayıt Ol</button>
       </div>
 
-      <!-- 1. Kayıtlı Kullanıcı Giriş Formu (Sadece E-posta + Parola) -->
-      <form id="login-form">
-        <h2>Hasaba Gir</h2>
-        <p class="muted">E-poçta we parolyňyz bilen tiz giriň.</p>
-        <div class="form-grid">
-          <div class="field">
-            <label>E-poçta *</label>
-            <input id="login-email" type="email" placeholder="adyn@gmail.com" required />
-          </div>
-          <div class="field">
-            <label>Parol *</label>
-            <input id="login-password" type="password" placeholder="••••••" required />
-          </div>
-        </div>
-        <div class="btn-row">
-          <button type="submit" class="btn btn-main" style="width:100%;">Giriş Yap</button>
-        </div>
-      </form>
+      <div id="loginForm">
+        <label>E-posta Adresi</label>
+        <input type="email" id="loginEmail" placeholder="ornek@mail.com" />
+        <label>Şifre</label>
+        <input type="password" id="loginPass" placeholder="••••••••" />
+        <button class="primary" onclick="doLogin()">Hesaba Giriş Yap</button>
+      </div>
 
-      <!-- 2. Yeni Üye Formu: Adım 1 Bilgiler -> İleri (Otomatik 6 Haneli Kod) -> Adım 2 Kod Onay & Üye Ol -->
-      <form id="register-flow-form" style="display:none;">
-        <div id="reg-step-1">
-          <span class="step-badge">1 / 2 — Hasap Maglumatlary</span>
-          <h2>Täze Hasap Döret</h2>
+      <div id="registerForm" style="display:none;">
+        <label>Kullanıcı Adı</label>
+        <input type="text" id="regUsername" placeholder="Oyuncu veya satıcı adın" />
+        <label>E-posta Adresi</label>
+        <input type="email" id="regEmail" placeholder="ornek@mail.com" />
+        <label>Şifre (en az 6 karakter)</label>
+        <input type="password" id="regPass" placeholder="En az 6 karakter şifre" />
+        <button class="primary" onclick="doRegister()">Ücretsiz Hesap Oluştur</button>
+      </div>
 
-          <div class="field" style="margin-top:10px;">
-            <label>Hasap Görnüşi</label>
-            <div class="role-picker">
-              <button type="button" class="role-opt active" data-role="seller" onclick="selectRole('seller')">
-                <strong>🛒 Satyjy</strong>
-                <div class="muted">Satyp we satyn alyp biler</div>
-              </button>
-              <button type="button" class="role-opt" data-role="buyer" onclick="selectRole('buyer')">
-                <strong>🛍️ Satyn Alyjy</strong>
-                <div class="muted">Diňe satyn alyp biler</div>
-              </button>
-            </div>
-          </div>
-
-          <div class="form-grid">
-            <div class="field">
-              <label>Ulanyjy Ady *</label>
-              <input id="reg-username" type="text" placeholder="Ulanyjy adyňyz" required />
-            </div>
-            <div class="field">
-              <label>E-poçta *</label>
-              <input id="reg-email" type="email" placeholder="adyn@gmail.com" required />
-            </div>
-            <div class="field">
-              <label>Parol (Azyndan 6 simwol) *</label>
-              <input id="reg-password" type="password" placeholder="••••••" required />
-            </div>
-            <div class="field">
-              <label>Nirede Ýaşaýandygyňyz (Şäher / Welayat / Salgy) *</label>
-              <input id="reg-address" type="text" placeholder="Aşgabat, Lebap..." required />
-            </div>
-          </div>
-
-          <div class="btn-row">
-            <button type="button" id="reg-next-btn" class="btn btn-main" style="width:100%;" onclick="goToOtpStep()">
-              İleri →
-            </button>
-          </div>
-        </div>
-
-        <div id="reg-step-2" style="display:none;">
-          <span class="step-badge">2 / 2 — E-poçta Tassygy</span>
-          <h2>6 Sanly Kody Giriziň</h2>
-          <p class="muted" id="otp-sent-info">E-poçtaňyza 6 sanly kod ugradyldy.</p>
-
-          <div class="field" style="margin-top:12px;">
-            <label>E-poçtaňyza Gelen 6 Sanly Kod *</label>
-            <input id="reg-otp-input" type="text" inputmode="numeric" maxlength="6" placeholder="123456" required />
-          </div>
-
-          <div class="btn-row" style="display:flex; gap:10px;">
-            <button type="button" class="btn btn-soft" onclick="backToStep1()">← Yza</button>
-            <button type="submit" class="btn btn-green" style="flex:1;">Tassyklap Üye Bol</button>
-          </div>
-        </div>
-      </form>
+      <div class="msg" id="authMsg"></div>
     </div>
-  </main>
 
-  <script src="assets/tkm.js"></script>
+    <!-- Aktif Profil ve Cüzdan -->
+    <div id="profileArea" style="display:none;">
+      <div class="card">
+        <div style="display:flex; justify-content:space-between; align-items:flex-start; gap:10px;">
+          <div class="profile-head">
+            <div class="avatar" id="avatarLetter">T</div>
+            <div>
+              <div style="font-size:18px; font-weight:800;" id="dispUsername">Kullanıcı</div>
+              <div class="muted" id="dispMeta">ID: -</div>
+              <div class="badge-row">
+                <span class="pill">Güvenli Cüzdan Aktif</span>
+                <span class="pill blue">Escrow Korumalı</span>
+              </div>
+            </div>
+          </div>
+          <button class="logout-btn" onclick="doLogout()">Çıkış</button>
+        </div>
+
+        <div class="wallet-box">
+          <div>
+            <div class="muted">Mevcut Cüzdan Bakiyesi</div>
+            <div class="bal" id="dispBalance">$0.00</div>
+          </div>
+          <div style="text-align:right;">
+            <div class="muted">Hesap Durumu</div>
+            <div style="font-weight:700; color:#38bdf8; font-size:13px;" id="dispRole">Üye</div>
+          </div>
+        </div>
+
+        <div class="actions">
+          <a class="btn-link btn-deposit" href="bakiye-yatir.html">+ Bakiye Yatır</a>
+          <a class="btn-link btn-withdraw" href="pul-cek.html">↗ Bakiye Çek</a>
+        </div>
+      </div>
+
+      <div class="card">
+        <div style="font-weight:700; font-size:15px; margin-bottom:10px;">Profil Bilgilerini Düzenle</div>
+        <label>Kullanıcı Adı</label>
+        <input type="text" id="editUsername" placeholder="Yeni kullanıcı adı" />
+        <button class="primary" onclick="saveUsername()">Bilgileri Kaydet</button>
+        <div class="msg" id="profMsg"></div>
+      </div>
+
+      <div class="card">
+        <div style="font-weight:700; font-size:15px; margin-bottom:8px;">Son Finansal Hareketler</div>
+        <div id="txList"><div class="muted">Yükleniyor...</div></div>
+      </div>
+    </div>
+  </div>
+
   <script>
-    mountPlayerokShell("profile", "", true);
+    const SUPABASE_URL = "https://piajbopfeqlyupkrsnik.supabase.co";
+    const SUPABASE_ANON_KEY = "sb_publishable_gQFoj3SUxW-TUMjYmTGrIg_5_6hwBAH";
+    const sb = supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
 
-    const EMAILJS_CFG = {
-      publicKey: "6qbsYzdKrNds2jLh2",
-      serviceId: "service_yaoyf8s",
-      templateId: "template_ppr78mx"
-    };
-
-    let chosenRole = "seller";
-    let sentOtpCode = "";
-    let sentOtpEmail = "";
-    let sentOtpExpiresAt = 0;
-
-    function switchAuthMode(mode) {
-      const isLogin = mode === "login";
-      document.getElementById("tab-login").classList.toggle("active", isLogin);
-      document.getElementById("tab-register").classList.toggle("active", !isLogin);
-      document.getElementById("login-form").style.display = isLogin ? "block" : "none";
-      document.getElementById("register-flow-form").style.display = isLogin ? "none" : "block";
+    function switchTab(mode) {
+      document.getElementById("tabLogin").classList.toggle("active", mode === "login");
+      document.getElementById("tabRegister").classList.toggle("active", mode === "register");
+      document.getElementById("loginForm").style.display = mode === "login" ? "block" : "none";
+      document.getElementById("registerForm").style.display = mode === "register" ? "block" : "none";
+      document.getElementById("authMsg").innerText = "";
     }
 
-    function selectRole(role) {
-      chosenRole = role === "buyer" ? "buyer" : "seller";
-      document.querySelectorAll(".role-opt").forEach(btn => {
-        btn.classList.toggle("active", btn.dataset.role === chosenRole);
-      });
+    async function doLogin() {
+      const email = document.getElementById("loginEmail").value.trim();
+      const password = document.getElementById("loginPass").value;
+      const msg = document.getElementById("authMsg");
+      msg.className = "msg";
+      msg.innerText = "Giriş yapılıyor...";
+
+      const { error } = await sb.auth.signInWithPassword({ email, password });
+      if (error) {
+        msg.className = "msg err";
+        msg.innerText = "Giriş başarısız: " + error.message;
+        return;
+      }
+      initPage();
     }
 
-    function backToStep1() {
-      document.getElementById("reg-step-2").style.display = "none";
-      document.getElementById("reg-step-1").style.display = "block";
-    }
+    async function doRegister() {
+      const username = document.getElementById("regUsername").value.trim();
+      const email = document.getElementById("regEmail").value.trim();
+      const password = document.getElementById("regPass").value;
+      const msg = document.getElementById("authMsg");
+      msg.className = "msg";
+      msg.innerText = "Hesap oluşturuluyor...";
 
-    function getSavedUsersMap() {
-      try { return JSON.parse(localStorage.getItem("tkm_users_registry") || "{}"); }
-      catch (_) { return {}; }
-    }
-
-    function saveUsersMap(map) {
-      localStorage.setItem("tkm_users_registry", JSON.stringify(map));
-    }
-
-    function formatExpiryTime(mins = 15) {
-      const d = new Date(Date.now() + mins * 60 * 1000);
-      return d.toLocaleTimeString([], { hour: "2-digit", minute: "2-digit" });
-    }
-
-    // İleri butonuna basıldığında bilgileri kontrol eder ve otomatik 6 haneli kodu e-postaya gönderir
-    async function goToOtpStep() {
-      const username = document.getElementById("reg-username").value.trim();
-      const email = document.getElementById("reg-email").value.trim().toLowerCase();
-      const password = document.getElementById("reg-password").value.trim();
-      const address = document.getElementById("reg-address").value.trim();
-
-      if (!username) {
-        showToast("Ulanyjy adyny giriziň!");
-        return;
-      }
-      if (!email || !email.includes("@")) {
-        showToast("Dogry e-poçta giriziň!");
-        return;
-      }
-      if (password.length < 6) {
-        showToast("Parol azyndan 6 simwol bolmaly!");
-        return;
-      }
-      if (!address) {
-        showToast("Ýaşaýan ýeriňizi giriziň!");
-        return;
-      }
-
-      const nextBtn = document.getElementById("reg-next-btn");
-      nextBtn.disabled = true;
-      nextBtn.textContent = "Kod ugradylýar...";
-
-      const code = String(Math.floor(100000 + Math.random() * 900000));
-      const expireLabel = formatExpiryTime(15);
-
-      try {
-        const res = await fetch("https://api.emailjs.com/api/v1.0/email/send", {
-          method: "POST",
-          headers: { "Content-Type": "application/json" },
-          body: JSON.stringify({
-            service_id: EMAILJS_CFG.serviceId,
-            template_id: EMAILJS_CFG.templateId,
-            user_id: EMAILJS_CFG.publicKey,
-            lib_version: "4.4.1",
-            template_params: {
-              email: email,
-              to_email: email,
-              passcode: code,
-              time: expireLabel
-            }
-          })
-        });
-
-        if (!res.ok) {
-          const errText = await res.text();
-          throw new Error(errText || `HTTP ${res.status}`);
-        }
-
-        sentOtpCode = code;
-        sentOtpEmail = email;
-        sentOtpExpiresAt = Date.now() + 15 * 60 * 1000;
-
-        document.getElementById("otp-sent-info").textContent =
-          `${email} e-poçtaňyza 6 sanly kod ugradyldy (${expireLabel} çenli güýjünde).`;
-        document.getElementById("reg-step-1").style.display = "none";
-        document.getElementById("reg-step-2").style.display = "block";
-        document.getElementById("reg-otp-input").focus();
-        showToast("6 sanly kod e-poçtaňyza ugradyldy!");
-      } catch (err) {
-        showToast("Kod ugradylyp bilinmedi: " + err.message);
-      } finally {
-        nextBtn.disabled = false;
-        nextBtn.textContent = "İleri →";
-      }
-    }
-
-    // Giriş Formu (E-posta + Parola)
-    document.getElementById("login-form").addEventListener("submit", (e) => {
-      e.preventDefault();
-      const email = document.getElementById("login-email").value.trim().toLowerCase();
-      const password = document.getElementById("login-password").value.trim();
-
-      const users = getSavedUsersMap();
-      const foundLocal = Object.values(users).find(
-        u => (u.email || "").toLowerCase() === email && u.password === password
-      );
-
-      if (foundLocal) {
-        const sessionObj = { ...foundLocal, loggedIn: true, emailVerified: true };
-        localStorage.setItem("tkm_auth_session", JSON.stringify(sessionObj));
-        showToast("Üstünlikli girildi!");
-        renderProfileView();
-      } else {
-        showToast("E-poçta ýa-da parol nädogry! Agza bolmak üçin 'Üye Bol' sekmesine geçiň.");
-      }
-    });
-
-    // 2. Adım: Kodu Doğrulayıp Üyeliği Tamamlama
-    document.getElementById("register-flow-form").addEventListener("submit", (e) => {
-      e.preventDefault();
-      const username = document.getElementById("reg-username").value.trim();
-      const email = document.getElementById("reg-email").value.trim().toLowerCase();
-      const password = document.getElementById("reg-password").value.trim();
-      const address = document.getElementById("reg-address").value.trim();
-      const codeInput = document.getElementById("reg-otp-input").value.trim();
-
-      if (!sentOtpCode || sentOtpEmail !== email) {
-        showToast("İlki 'İleri' basyp 6 sanly kod ugradyň!");
-        backToStep1();
-        return;
-      }
-      if (Date.now() > sentOtpExpiresAt) {
-        showToast("Kodyň wagty gutardy — täzeden 'İleri' basyň!");
-        backToStep1();
-        return;
-      }
-      if (codeInput !== sentOtpCode) {
-        showToast("Girizen 6 sanly kod nädogry!");
-        return;
-      }
-
-      const users = getSavedUsersMap();
-      const sessionObj = {
-        username,
+      const { data, error } = await sb.auth.signUp({
         email,
         password,
-        address,
-        role: chosenRole,
-        emailVerified: true,
-        loggedIn: true
-      };
+        options: { data: { username: username || email.split("@")[0] } }
+      });
 
-      users[username] = sessionObj;
-      saveUsersMap(users);
-      localStorage.setItem("tkm_auth_session", JSON.stringify(sessionObj));
-      sentOtpCode = "";
+      if (error) {
+        msg.className = "msg err";
+        msg.innerText = "Kayıt hatası: " + error.message;
+        return;
+      }
 
-      showToast("Hasabyňyz tassyklanyldy we döredildi!");
-      renderProfileView();
-    });
-
-    function logoutAccount() {
-      localStorage.removeItem("tkm_auth_session");
-      showToast("Hasapdan çykyldy.");
-      renderProfileView();
-    }
-
-    async function renderProfileView() {
-      mountPlayerokShell("profile", "", true);
-      const session = getUserSession();
-      const loggedBox = document.getElementById("logged-in-profile");
-      const authBox = document.getElementById("auth-container");
-
-      if (session && session.loggedIn && session.username) {
-        loggedBox.style.display = "block";
-        authBox.style.display = "none";
-
-        const isSeller = session.role === "seller";
-        document.getElementById("prof-role-badge").textContent = isSeller ? "YNAMLY SATYJY ✅" : "SATYN ALYJY ✅";
-        document.getElementById("prof-username").textContent = session.username;
-        document.getElementById("prof-verified-line").textContent =
-          isSeller ? "Satyjy profili tassyklanan" : "Satyn alyjy profili";
-        document.getElementById("prof-email").textContent = session.email || "-";
-        document.getElementById("prof-address").textContent = session.address || "-";
-        document.getElementById("seller-extra-links").style.display = isSeller ? "flex" : "none";
-
-        await refreshTopBalancePill();
-        const topBalText = document.getElementById("top-balance-pill")?.textContent || "💰 0 TMT";
-        document.getElementById("prof-balance").textContent = topBalText.replace("💰 ", "");
+      if (data.session) {
+        initPage();
       } else {
-        loggedBox.style.display = "none";
-        authBox.style.display = "block";
-        backToStep1();
+        msg.className = "msg ok";
+        msg.innerText = "Kayıt başarılı! E-posta onayı açıksa gelen kutunu kontrol edip giriş yap.";
       }
     }
 
-    renderProfileView();
+    async function doLogout() {
+      await sb.auth.signOut();
+      location.reload();
+    }
+
+    async function saveUsername() {
+      const { data: { user } } = await sb.auth.getUser();
+      const username = document.getElementById("editUsername").value.trim();
+      const msg = document.getElementById("profMsg");
+      if (!user || !username) return;
+
+      const { error } = await sb.from("profiles").update({ username }).eq("id", user.id);
+      msg.className = error ? "msg err" : "msg ok";
+      msg.innerText = error ? "Kaydedilemedi: " + error.message : "Kullanıcı adı güncellendi!";
+      if (!error) initPage();
+    }
+
+    async function initPage() {
+      const { data: { user } } = await sb.auth.getUser();
+      const authCard = document.getElementById("authCard");
+      const profileArea = document.getElementById("profileArea");
+
+      if (!user) {
+        authCard.style.display = "block";
+        profileArea.style.display = "none";
+        return;
+      }
+
+      authCard.style.display = "none";
+      profileArea.style.display = "block";
+
+      let { data: prof } = await sb.from("profiles").select("*").eq("id", user.id).maybeSingle();
+      if (!prof) {
+        const fallbackName = user.user_metadata?.username || user.email.split("@")[0];
+        await sb.from("profiles").upsert({
+          id: user.id, email: user.email, username: fallbackName, role: "user", balance: 0
+        });
+        const res = await sb.from("profiles").select("*").eq("id", user.id).single();
+        prof = res.data;
+      }
+
+      const name = prof?.username || user.email.split("@")[0];
+      document.getElementById("avatarLetter").innerText = name.charAt(0).toUpperCase();
+      document.getElementById("dispUsername").innerText = name;
+      document.getElementById("editUsername").value = name;
+      document.getElementById("dispMeta").innerText = `ID: ${user.id.slice(0, 8)}... • ${user.email}`;
+      document.getElementById("dispBalance").innerText = `$${Number(prof?.balance || 0).toFixed(2)}`;
+      document.getElementById("dispRole").innerText = prof?.role === "admin" ? "Platform Sahibi" : "Onaylı Üye";
+
+      const [{ data: deps }, { data: withs }] = await Promise.all([
+        sb.from("deposits").select("amount, method, status, created_at").eq("user_id", user.id).order("created_at", { ascending: false }).limit(5),
+        sb.from("withdrawals").select("amount, method, status, created_at").eq("user_id", user.id).order("created_at", { ascending: false }).limit(5)
+      ]);
+
+      const combined = [
+        ...(deps || []).map(d => ({ ...d, type: "Yatırım" })),
+        ...(withs || []).map(w => ({ ...w, type: "Çekim" }))
+      ].sort((a, b) => new Date(b.created_at) - new Date(a.created_at)).slice(0, 6);
+
+      const txList = document.getElementById("txList");
+      if (!combined.length) {
+        txList.innerHTML = `<div class="muted">Henüz yatırım veya çekim işlemin bulunmuyor.</div>`;
+      } else {
+        txList.innerHTML = combined.map(item => {
+          const stText = item.status === "approved" ? "Onaylandı" : item.status === "rejected" ? "Reddedildi" : "Beklemede";
+          const stColor = item.status === "approved" ? "#4ade80" : item.status === "rejected" ? "#f87171" : "#facc15";
+          return `<div class="tx-item">
+            <div>
+              <strong>${item.type}</strong> <span class="muted">(${item.method || "-"})</span><br>
+              <span class="muted">${new Date(item.created_at).toLocaleDateString("tr-TR")}</span>
+            </div>
+            <div style="text-align:right;">
+              <strong>$${Number(item.amount).toFixed(2)}</strong><br>
+              <span style="font-size:11px; color:${stColor}; font-weight:700;">${stText}</span>
+            </div>
+          </div>`;
+        }).join("");
+      }
+    }
+
+    initPage();
   </script>
 </body>
 </html>
