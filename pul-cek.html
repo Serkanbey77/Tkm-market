@@ -3,29 +3,56 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Blockchain Pul Çek — TKM Market</title>
+  <title>Çykarmak — TKM Market</title>
   <link rel="stylesheet" href="assets/tkm.css" />
   <style>
-    .method-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 10px; margin-top: 10px; }
-    @media (max-width: 600px) { .method-grid { grid-template-columns: 1fr; } }
-    .method-card {
+    .bal-top-tabs { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin-bottom: 14px; }
+    .bal-tab {
       padding: 12px;
       border-radius: 14px;
       border: 1.5px solid var(--border);
       background: var(--surface-2);
       color: var(--text);
-      text-align: left;
+      font-weight: 900;
+      text-align: center;
+      text-decoration: none;
       cursor: pointer;
     }
-    .method-card.active {
-      border-color: #a855f7;
-      background: rgba(168, 85, 247, 0.18);
-      box-shadow: 0 0 16px rgba(168, 85, 247, 0.25);
+    .bal-tab.active {
+      background: linear-gradient(135deg, #2563eb, #4f46e5);
+      border-color: transparent;
+      color: #fff;
     }
-    .rate-pill {
+    .bal-hero-card {
+      padding: 16px;
+      border-radius: 16px;
+      background: var(--surface-2);
+      border: 1px solid var(--border);
+      margin-bottom: 12px;
+    }
+    .bal-hero-label { font-size: 13px; color: var(--muted); font-weight: 700; }
+    .bal-hero-val { font-size: 24px; font-weight: 900; color: #34d399; margin-top: 4px; }
+    .net-pills { display: grid; grid-template-columns: repeat(3, 1fr); gap: 8px; margin-top: 10px; }
+    @media (max-width: 600px) { .net-pills { grid-template-columns: 1fr; } }
+    .net-pill {
+      padding: 11px 8px;
+      border-radius: 12px;
+      border: 1.5px solid var(--border);
+      background: var(--surface);
+      color: var(--text);
+      font-weight: 800;
+      cursor: pointer;
+      text-align: center;
+    }
+    .net-pill.active {
+      border-color: #3b82f6;
+      background: rgba(59, 130, 246, 0.18);
+      color: #93c5fd;
+    }
+    .conv-badge {
       display: inline-block;
-      margin-top: 6px;
-      padding: 5px 10px;
+      margin-top: 8px;
+      padding: 6px 10px;
       border-radius: 10px;
       background: rgba(52, 211, 153, 0.14);
       border: 1px solid rgba(52, 211, 153, 0.35);
@@ -40,55 +67,47 @@
 
   <main class="page-wrap">
     <div class="panel">
-      <div style="display:flex; justify-content:space-between; align-items:center; gap:8px; flex-wrap:wrap;">
-        <div>
-          <h2>💸 Pul Çek (Blockchain)</h2>
-          <p class="muted">Çekip boljak bakiýe: <strong id="wd-cur-bal" style="color:#34d399;">0 TMT</strong></p>
-        </div>
-        <a class="btn btn-soft" href="profil.html">← Profile Dolan</a>
+      <div class="bal-top-tabs">
+        <a class="bal-tab" href="bakiye-yatir.html">Bakiýe Ýatyr</a>
+        <button type="button" class="bal-tab active">Çykarmak</button>
       </div>
 
-      <form id="withdraw-form" style="margin-top:14px;">
-        <div class="field">
-          <label>Blockchain Ulgamyny Saýlaň</label>
-          <div class="method-grid">
-            <button type="button" class="method-card active" data-net="USDT BEP20" onclick="selectWdNet('USDT BEP20')">
-              <strong>🪙 USDT BEP20</strong>
-              <div class="muted">BNB Smart Chain (0x...)</div>
-            </button>
-            <button type="button" class="method-card" data-net="USDT TRC20" onclick="selectWdNet('USDT TRC20')">
-              <strong>🪙 USDT TRC20</strong>
-              <div class="muted">TRON Mainnet (T...)</div>
-            </button>
-            <button type="button" class="method-card" data-net="BTC" onclick="selectWdNet('BTC')">
-              <strong>₿ Bitcoin (BTC)</strong>
-              <div class="muted">BTC Mainnet (bc1... / 1...)</div>
-            </button>
-          </div>
-        </div>
+      <div class="bal-hero-card">
+        <div class="bal-hero-label">Çykaryp Boljak Bakiýe</div>
+        <div class="bal-hero-val" id="wd-cur-bal">0 TMT</div>
+      </div>
 
-        <div class="form-grid" style="margin-top:12px;">
-          <div class="field">
-            <label>Çekjek Möçberiňiz (TMT) *</label>
-            <input id="wd-amount" type="number" min="10" step="1" placeholder="Mysal: 200" required />
-            <div class="rate-pill" id="wd-crypto-preview">Aljak kripto: 0.00 USDT</div>
+      <form id="withdraw-form">
+        <div class="bal-hero-card">
+          <div style="font-weight:900; font-size:15px;">Blockchain Ulgamyny Saýlaň</div>
+          <div class="net-pills">
+            <button type="button" class="net-pill active" data-net="USDT BEP20" onclick="selectWdNet('USDT BEP20')">USDT BEP20</button>
+            <button type="button" class="net-pill" data-net="USDT TRC20" onclick="selectWdNet('USDT TRC20')">USDT TRC20</button>
+            <button type="button" class="net-pill" data-net="BTC" onclick="selectWdNet('BTC')">Bitcoin (BTC)</button>
           </div>
-          <div class="field">
+
+          <div class="field" style="margin-top:12px;">
+            <label>Çekmek Möçberi (TMT) *</label>
+            <input id="wd-amount" type="number" min="10" step="1" placeholder="Mysal: 200" required />
+            <div class="conv-badge" id="wd-crypto-preview">Aljak mukdaryňyz: 0.00 USDT</div>
+          </div>
+
+          <div class="field" style="margin-top:12px;">
             <label id="wd-addr-label">USDT BEP20 Cüzdan Salgyňyz *</label>
             <input id="wd-wallet" type="text" placeholder="0x..." required />
           </div>
-        </div>
 
-        <div class="btn-row">
-          <button type="submit" class="btn btn-main" style="width:100%; padding:13px; font-size:15px;">
-            ⛓️ Blockchain Çekiş İsledigini Ugrat
-          </button>
+          <div class="btn-row">
+            <button type="submit" class="btn btn-main" style="width:100%; padding:13px; font-size:15px;">
+              Çykarmak İsledigini Ugrat
+            </button>
+          </div>
         </div>
       </form>
     </div>
 
     <div class="panel">
-      <h3>Blockchain Çekiş Taryhyňyz</h3>
+      <h3>Taryh (Çekişler)</h3>
       <div id="my-withdrawals-list"></div>
     </div>
   </main>
@@ -114,16 +133,14 @@
 
     function getPayoutCrypto(tmt, net) {
       const usd = tmt / TMT_PER_USDT;
-      if (net === "USDT BEP20" || net === "USDT TRC20") {
-        return { amount: Number(usd.toFixed(2)), symbol: "USDT" };
-      }
-      return { amount: Number((usd / btcUsdPrice).toFixed(6)), symbol: "BTC" };
+      if (net === "BTC") return { amount: Number((usd / btcUsdPrice).toFixed(6)), unit: "BTC" };
+      return { amount: Number(usd.toFixed(2)), unit: "USDT" };
     }
 
     function selectWdNet(net) {
       selectedNet = net;
-      document.querySelectorAll(".method-card").forEach(c => {
-        c.classList.toggle("active", c.dataset.net === net);
+      document.querySelectorAll(".net-pill").forEach(p => {
+        p.classList.toggle("active", p.dataset.net === net);
       });
       const lbl = document.getElementById("wd-addr-label");
       const inp = document.getElementById("wd-wallet");
@@ -137,7 +154,7 @@
     function updateWdPreview() {
       const amt = Math.max(0, Number(document.getElementById("wd-amount").value || 0));
       const p = getPayoutCrypto(amt, selectedNet);
-      document.getElementById("wd-crypto-preview").textContent = `Aljak kripto: ${p.amount} ${p.symbol}`;
+      document.getElementById("wd-crypto-preview").textContent = `Aljak mukdaryňyz: ${p.amount} ${p.unit}`;
     }
 
     function isValidWalletForNetwork(addr, net) {
@@ -171,17 +188,14 @@
         seller: user.username,
         amount_tmt: amountTmt,
         method: "Crypto",
-        network_or_coin: `${selectedNet} (${payout.amount} ${payout.symbol})`,
+        network_or_coin: `${selectedNet} (${payout.amount} ${payout.unit})`,
         wallet_or_card: walletAddr,
         status: "pending"
       };
 
       let savedRow = null;
-      try {
-        savedRow = await sbInsert("withdrawals", payload);
-      } catch (_) {
-        savedRow = { id: "wd-" + Date.now(), ...payload };
-      }
+      try { savedRow = await sbInsert("withdrawals", payload); }
+      catch (_) { savedRow = { id: "wd-" + Date.now(), ...payload }; }
 
       let cache = [];
       try { cache = JSON.parse(localStorage.getItem("tkm_withdrawals_cache") || "[]"); } catch (__) {}
@@ -191,7 +205,7 @@
       document.getElementById("wd-amount").value = "";
       document.getElementById("wd-wallet").value = "";
       updateWdPreview();
-      showToast(`${selectedNet} çekiş islegi ugradyldy (${payout.amount} ${payout.symbol})!`);
+      showToast(`${selectedNet} çekiş islegi ugradyldy (${payout.amount} ${payout.unit})!`);
       await refreshWithdrawalsView();
     });
 
@@ -215,12 +229,12 @@
 
       const wrap = document.getElementById("my-withdrawals-list");
       if (!mine.length) {
-        wrap.innerHTML = `<p class="muted">Heniz çekiş islegi ýok.</p>`;
+        wrap.innerHTML = `<p class="muted">Heniz çekiş taryhy ýok.</p>`;
         return;
       }
 
       wrap.innerHTML = mine.map(w => {
-        const st = w.status === "approved" ? "Tassyklanyldy ✅" : (w.status === "rejected" ? "Ret Edildi ❌" : "Blockchain Ugradylýar ⏳");
+        const st = w.status === "approved" ? "Tassyklanyldy ✅" : (w.status === "rejected" ? "Ret Edildi ❌" : "Ugradylýar ⏳");
         return `
           <div class="list-row">
             <div>
