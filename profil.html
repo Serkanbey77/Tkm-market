@@ -62,7 +62,7 @@
         <button type="button" class="mode-tab" id="tab-register" onclick="switchAuthMode('register')">Üye Bol & E-poçta Tassyklama</button>
       </div>
 
-      <!-- 1. Kayıtlı Kullanıcı Giriş Formu (Sadece E-posta + Parola) -->
+      <!-- 1. Kayıtlı Kullanıcı Giriş Formu -->
       <form id="login-form">
         <h2>Hasaba Gir</h2>
         <p class="muted">Öň agza bolan bolsaňyz, e-poçta salgysy we parolyňyz bilen giriň.</p>
@@ -81,10 +81,10 @@
         </div>
       </form>
 
-      <!-- 2. Yeni Üye Kayıt + Gerçek E-posta Doğrulama Kodu Formu -->
+      <!-- 2. Yeni Üye Kayıt + EmailJS 6 Haneli Doğrulama Kodu Formu -->
       <form id="register-verify-form" style="display:none;">
         <h2>Täze Hasap Döret</h2>
-        <p class="muted">Rolüňizi saýlaň, telefon belgiňizi, salgyňyzy giriziň we e-poçtaňyza gelen tassyk kody bilen agza boluň.</p>
+        <p class="muted">Rolüňizi saýlaň, telefon belgiňizi, salgyňyzy giriziň we e-poçtaňyza gelen 6 sanly tassyk kody bilen agza boluň.</p>
 
         <div class="field" style="margin-top:12px;">
           <label>Hasap Görnüşini Saýlaň</label>
@@ -120,16 +120,16 @@
         </div>
 
         <div class="escrow-box">
-          <strong>E-poçta Salgysyna Tassyk Kody Ibermek</strong>
-          <p class="muted" style="margin-top:4px;">E-poçta gutusyňa (Gelen gutusy ýa-da Spam) iberilen 6 sanly kody aşak ýazyň.</p>
+          <strong>E-poçta Salgysyna 6 Sanly Tassyk Kody Ibermek</strong>
+          <p class="muted" style="margin-top:4px;">E-poçta gutusyňa (Gelen gutusy ýa-da Spam) ugradylan 6 sanly kody aşak ýazyň.</p>
           <div class="verify-row">
-            <button type="button" class="btn btn-soft" id="send-otp-btn" onclick="sendRealEmailOtp()">E-poçtama Kod Iber</button>
+            <button type="button" class="btn btn-soft" id="send-otp-btn" onclick="sendEmailJsOtp()">E-poçtama Kod Iber</button>
             <span class="muted" id="otp-status-txt">Heniz kod ugradylmady</span>
           </div>
           <div class="form-grid" style="margin-top:8px;">
             <div class="field">
-              <label>E-poçtaňyza Gelen Kod *</label>
-              <input id="reg-otp-input" type="text" maxlength="8" placeholder="E-poçtadaky kod" required />
+              <label>E-poçtaňyza Gelen 6 Sanly Kod *</label>
+              <input id="reg-otp-input" type="text" maxlength="6" placeholder="6 sanly kod" required />
             </div>
             <div class="field">
               <label>Salgyňyz (Şäher / Welayat / Salgy) *</label>
@@ -149,8 +149,16 @@
   <script>
     mountPlayerokShell("profile", "", true);
 
+    const EMAILJS_CFG = {
+      publicKey: "6qbsYzdKrNds2jLh2",
+      serviceId: "service_yaoyf8s",
+      templateId: "template_ppr78mx"
+    };
+
     let chosenRole = "seller";
-    let otpSentToEmail = "";
+    let sentOtpCode = "";
+    let sentOtpEmail = "";
+    let sentOtpExpiresAt = 0;
 
     function switchAuthMode(mode) {
       const isLogin = mode === "login";
@@ -176,115 +184,73 @@
       localStorage.setItem("tkm_users_registry", JSON.stringify(map));
     }
 
-    // Supabase Auth üzerinden kullanıcının e-postasına doğrulama kodu/bağlantısı gönderir
-    async function sendRealEmailOtp() {
+    function formatExpiryTime(mins = 15) {
+      const d = new Date(Date.now() + mins * 60 * 1000);
+      return d.toLocaleTimeString([], { hour: "2-digit", minute: "2-digit" });
+    }
+
+    // EmailJS üzerinden kullanıcının e-postasına 6 haneli sayısal kod gönderir
+    async function sendEmailJsOtp() {
       const email = document.getElementById("reg-email").value.trim().toLowerCase();
-      const password = document.getElementById("reg-password").value.trim();
       if (!email || !email.includes("@")) {
         showToast("İlki dogry e-poçta salgysyny giriziň!");
-        return;
-      }
-      if (!password || password.length < 6) {
-        showToast("Kod ibermek üçin azyndan 6 simwolly parol giriziň!");
         return;
       }
 
       const btn = document.getElementById("send-otp-btn");
       const statusEl = document.getElementById("otp-status-txt");
       btn.disabled = true;
-      statusEl.textContent = `${email} salgysyna kod ugradylýar...`;
+      statusEl.textContent = `${email} salgysyna 6 sanly kod ugradylýar...`;
+
+      const code = String(Math.floor(100000 + Math.random() * 900000));
+      const expireLabel = formatExpiryTime(15);
 
       try {
-        const otpRes = await fetch(`${TKM_API.url}/auth/v1/otp`, {
+        const res = await fetch("https://api.emailjs.com/api/v1/email/send", {
           method: "POST",
-          headers: {
-            apikey: TKM_API.key,
-            Authorization: `Bearer ${TKM_API.key}`,
-            "Content-Type": "application/json"
-          },
+          headers: { "Content-Type": "application/json" },
           body: JSON.stringify({
-            email,
-            create_user: true
+            service_id: EMAILJS_CFG.serviceId,
+            template_id: EMAILJS_CFG.templateId,
+            user_id: EMAILJS_CFG.publicKey,
+            template_params: {
+              email: email,
+              to_email: email,
+              passcode: code,
+              time: expireLabel
+            }
           })
         });
 
-        if (otpRes.ok) {
-          otpSentToEmail = email;
-          statusEl.textContent = `Kod ${email} e-poçtaňyza ugradyldy (Spam gutusyny hem barlaň).`;
-          showToast("E-poçtaňyza tassyk kody ugradyldy!");
-        } else {
-          // OTP endpoint kapalıysa Supabase signUp dene
-          const signUpRes = await fetch(`${TKM_API.url}/auth/v1/signup`, {
-            method: "POST",
-            headers: {
-              apikey: TKM_API.key,
-              Authorization: `Bearer ${TKM_API.key}`,
-              "Content-Type": "application/json"
-            },
-            body: JSON.stringify({ email, password })
-          });
-          if (signUpRes.ok) {
-            otpSentToEmail = email;
-            statusEl.textContent = `Tassyk e-poçtasy ${email} salgysyna ugradyldy.`;
-            showToast("E-poçtaňyza tassyklama ugradyldy!");
-          } else {
-            const errTxt = await otpRes.text();
-            statusEl.textContent = "E-poçta ugratmakda säwlik: Supabase Auth Email sazlamasyny barlaň.";
-            showToast("Kod ugradylyp bilinmedi: " + errTxt.slice(0, 80));
-          }
+        if (!res.ok) {
+          const errText = await res.text();
+          throw new Error(errText || `HTTP ${res.status}`);
         }
+
+        sentOtpCode = code;
+        sentOtpEmail = email;
+        sentOtpExpiresAt = Date.now() + 15 * 60 * 1000;
+        statusEl.textContent = `6 sanly kod ${email} e-poçtaňyza ugradyldy (${expireLabel} çenli güýjünde).`;
+        showToast("E-poçtaňyza 6 sanly tassyk kody iberildi!");
       } catch (err) {
-        statusEl.textContent = "Ulgam ýalňyşlygy: " + err.message;
-        showToast("İnternet/Supabase baglanyşygyny barlaň.");
+        statusEl.textContent = "Kod ugratmakda säwlik boldy: " + err.message;
+        showToast("E-poçta ugradylyp bilinmedi! EmailJS sazlamalaryny barlaň.");
       } finally {
         btn.disabled = false;
       }
     }
 
     // Kayıtlı Kullanıcı E-posta + Parola Girişi
-    document.getElementById("login-form").addEventListener("submit", async (e) => {
+    document.getElementById("login-form").addEventListener("submit", (e) => {
       e.preventDefault();
       const email = document.getElementById("login-email").value.trim().toLowerCase();
       const password = document.getElementById("login-password").value.trim();
 
-      // Önce Supabase Auth ile giriş dene
-      try {
-        const res = await fetch(`${TKM_API.url}/auth/v1/token?grant_type=password`, {
-          method: "POST",
-          headers: {
-            apikey: TKM_API.key,
-            Authorization: `Bearer ${TKM_API.key}`,
-            "Content-Type": "application/json"
-          },
-          body: JSON.stringify({ email, password })
-        });
-        if (res.ok) {
-          const data = await res.json();
-          const users = getSavedUsersMap();
-          const found = Object.values(users).find(u => (u.email || "").toLowerCase() === email);
-          const sessionObj = found ? { ...found, loggedIn: true, emailVerified: true } : {
-            username: email.split("@")[0],
-            email,
-            password,
-            role: "seller",
-            phone: "",
-            address: "",
-            emailVerified: true,
-            loggedIn: true,
-            accessToken: data.access_token || ""
-          };
-          localStorage.setItem("tkm_auth_session", JSON.stringify(sessionObj));
-          showToast("E-poçta we parol bilen üstünlikli girildi!");
-          renderProfileView();
-          return;
-        }
-      } catch (_) {}
-
-      // Yerel kayıtlı hesap kontrolü
       const users = getSavedUsersMap();
       const foundLocal = Object.values(users).find(
         u => (u.email || "").toLowerCase() === email && u.password === password
       );
+
       if (foundLocal) {
         const sessionObj = { ...foundLocal, loggedIn: true, emailVerified: true };
         localStorage.setItem("tkm_auth_session", JSON.stringify(sessionObj));
@@ -295,8 +261,8 @@
       }
     });
 
-    // Yeni Üye Kayıt + E-posta Kodu Doğrulama
-    document.getElementById("register-verify-form").addEventListener("submit", async (e) => {
+    // Yeni Üye Kayıt + E-postaya Gelen 6 Haneli Kodu Doğrulama
+    document.getElementById("register-verify-form").addEventListener("submit", (e) => {
       e.preventDefault();
       const username = document.getElementById("reg-username").value.trim();
       const password = document.getElementById("reg-password").value.trim();
@@ -317,35 +283,22 @@
         showToast("Dogry e-poçta salgysyny giriziň!");
         return;
       }
-      if (otpSentToEmail !== email) {
-        showToast("İlki 'E-poçtama Kod Iber' basyp e-poçtaňyza kod ugradyň!");
+      if (!sentOtpCode || sentOtpEmail !== email) {
+        showToast("İlki 'E-poçtama Kod Iber' basyp e-poçtaňyza 6 sanly kod ugradyň!");
         return;
       }
-      if (!codeInput || codeInput.length < 4) {
-        showToast("E-poçtaňyza gelen tassyk kodyny giriziň!");
+      if (Date.now() > sentOtpExpiresAt) {
+        showToast("Tassyk kodynyň wagty gutardy — täze kod ugradyň!");
+        return;
+      }
+      if (codeInput !== sentOtpCode) {
+        showToast("Girizen 6 sanly kod e-poçtaňyza iberilen kod bilen gabat gelmedi!");
         return;
       }
       if (!address) {
         showToast("Salgy maglumatyňyzy giriziň!");
         return;
       }
-
-      // Supabase OTP doğrulama isteği
-      try {
-        await fetch(`${TKM_API.url}/auth/v1/verify`, {
-          method: "POST",
-          headers: {
-            apikey: TKM_API.key,
-            Authorization: `Bearer ${TKM_API.key}`,
-            "Content-Type": "application/json"
-          },
-          body: JSON.stringify({
-            type: "email",
-            email,
-            token: codeInput
-          })
-        });
-      } catch (_) {}
 
       const users = getSavedUsersMap();
       const sessionObj = {
@@ -362,7 +315,8 @@
       users[username] = sessionObj;
       saveUsersMap(users);
       localStorage.setItem("tkm_auth_session", JSON.stringify(sessionObj));
-      showToast("Hasabyňyz tassyklanyldy we döredildi!");
+      sentOtpCode = "";
+      showToast("E-poçta tassyklanyldy we hasabyňyz döredildi!");
       renderProfileView();
     });
 
