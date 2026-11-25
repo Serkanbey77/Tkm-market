@@ -206,13 +206,14 @@
       const expireLabel = formatExpiryTime(15);
 
       try {
-        const res = await fetch("https://api.emailjs.com/api/v1/email/send", {
+        const res = await fetch("https://api.emailjs.com/api/v1.0/email/send", {
           method: "POST",
           headers: { "Content-Type": "application/json" },
           body: JSON.stringify({
             service_id: EMAILJS_CFG.serviceId,
             template_id: EMAILJS_CFG.templateId,
             user_id: EMAILJS_CFG.publicKey,
+            lib_version: "4.4.1",
             template_params: {
               email: email,
               to_email: email,
