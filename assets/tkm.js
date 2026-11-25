@@ -125,28 +125,53 @@ function renderMediaAsset(opts) {
   const imgList = (opts.images || []).filter(Boolean);
   const vidList = (opts.videos || []).filter(Boolean);
 
-  const firstImg = imgList[0] || "";
-  const restImg = imgList.slice(1).join("|");
-  const imgTag = firstImg
-    ? `<img class="custom-asset" src="${esc(firstImg)}" data-cands="${esc(restImg)}" alt="${esc(opts.alt || "")}" loading="lazy" onerror="const list=(this.dataset.cands||'').split('|').filter(Boolean);const next=list.shift();if(next){this.dataset.cands=list.join('|');this.src=next;}else{this.remove();}" />`
-    : "";
+  let imgTag = "";
+  if (imgList.length) {
+    const firstImg = imgList[0];
+    const restImg = imgList.slice(1).join("|");
+    imgTag = `<img class="custom-asset" src="${esc(firstImg)}" data-cands="${esc(restImg)}" alt="${esc(opts.alt || "")}" loading="lazy" onerror="var l=(this.dataset.cands||'').split('|').filter(Boolean);var n=l.shift();if(n){this.dataset.cands=l.join('|');this.src=n;}else{this.style.display='none';}" />`;
+  }
 
-  const firstVid = vidList[0] || "";
-  const restVid = vidList.slice(1).join("|");
-  const vidTag = firstVid
-    ? `<video class="custom-asset custom-video" src="${esc(firstVid)}" data-vcands="${esc(restVid)}" autoplay loop muted playsinline preload="metadata" onerror="const list=(this.dataset.vcands||'').split('|').filter(Boolean);const next=list.shift();if(next){this.dataset.vcands=list.join('|');this.src=next;}else{this.remove();}"></video>`
-    : "";
+  let vidTag = "";
+  if (vidList.length) {
+    const firstVid = vidList[0];
+    const restVid = vidList.slice(1).join("|");
+    vidTag = `<video class="custom-asset custom-video" src="${esc(firstVid)}" data-vcands="${esc(restVid)}" autoplay loop muted playsinline preload="metadata" onerror="var l=(this.dataset.vcands||'').split('|').filter(Boolean);var n=l.shift();if(n){this.dataset.vcands=l.join('|');this.src=n;}else{this.style.display='none';}"></video>`;
+  }
 
-  return `${fallbackHtml}${imgTag}${vidTag}`; }  function renderLogoWithAsset(plat) { const candidates = [ `assets/logos/${plat.id}.jpg`,
-    `assets/logos/${plat.id}.JPG`, `assets/logos/${plat.id}.jpeg`,
-    `assets/logos/${plat.id}.JPEG`, `assets/logos/${plat.id}.png`,
-    `assets/logos/${plat.id}.PNG`, `assets/logos/${plat.id}.webp`,
-    `assets/logos/${plat.id}.jpg.JPG`, `assets/logos/${plat.id}.png.PNG`,
-    `assets/logos/assets:logos:${plat.id}.jpg`, `assets/logos/assets:logos:${plat.id}.jpg.JPG`,
-    `assets/logos/assets:logos:${plat.id}.jpg.JPEG`, `assets/logos/assets:logos:${plat.id}.jpg.PNG`,
-    `assets/logos/assets:logos:${plat.id}.jpeg.JPEG`, `assets/logos/assets:logos:${plat.id}.png`,
-    `assets/logos/assets:logos:${plat.id}.png.PNG` ]; return renderMediaAsset({ fallbackHtml: plat.svg, images: candidates, alt: plat.name }); }  function renderBannerWithAsset(plat) { const subs = getSubcatsForPlatform(plat).filter(x => x !== "Ählisi").join(" • "); const localBase = `assets/banners/${plat.id}`;
-  const localBanner = `<img src="${localBase}.jpg" data-exts="JPG,jpeg,JPEG,png,PNG,webp" data-base="${localBase}" alt="${esc(plat.name)}" style="position:absolute; inset:0; width:100%; height:100%; object-fit:cover; opacity:0.42; pointer-events:none;" onerror="const e=(this.dataset.exts||'').split(',');const n=e.shift();if(n){this.dataset.exts=e.join(',');this.src=this.dataset.base+'.'+n;}else{this.remove();}" />`;
+  return `${fallbackHtml}${imgTag}${vidTag}`;
+}
+
+function renderLogoWithAsset(plat) {
+  const candidates = [
+    `assets/logos/${plat.id}.jpg`,
+    `assets/logos/${plat.id}.JPG`,
+    `assets/logos/${plat.id}.jpeg`,
+    `assets/logos/${plat.id}.JPEG`,
+    `assets/logos/${plat.id}.png`,
+    `assets/logos/${plat.id}.PNG`,
+    `assets/logos/${plat.id}.webp`,
+    `assets/logos/${plat.id}.jpg.JPG`,
+    `assets/logos/${plat.id}.png.PNG`,
+    `assets/logos/assets:logos:${plat.id}.jpg`,
+    `assets/logos/assets:logos:${plat.id}.jpg.JPG`,
+    `assets/logos/assets:logos:${plat.id}.jpg.JPEG`,
+    `assets/logos/assets:logos:${plat.id}.jpg.PNG`,
+    `assets/logos/assets:logos:${plat.id}.jpeg.JPEG`,
+    `assets/logos/assets:logos:${plat.id}.png`,
+    `assets/logos/assets:logos:${plat.id}.png.PNG`
+  ];
+  return renderMediaAsset({
+    fallbackHtml: plat.svg,
+    images: candidates,
+    alt: plat.name
+  });
+}
+
+function renderBannerWithAsset(plat) {
+  const subs = getSubcatsForPlatform(plat).filter(x => x !== "Ählisi").join(" • ");
+  const localBase = `assets/banners/${plat.id}`;
+  const localBanner = `<img src="${localBase}.jpg" data-exts="JPG,jpeg,JPEG,png,PNG,webp" data-base="${localBase}" alt="${esc(plat.name)}" style="position:absolute; inset:0; width:100%; height:100%; object-fit:cover; opacity:0.42; pointer-events:none;" onerror="var e=(this.dataset.exts||'').split(',');var n=e.shift();if(n){this.dataset.exts=e.join(',');this.src=this.dataset.base+'.'+n;}else{this.style.display='none';}" />`;
 
   return `<div style="position:relative; width:100%; border-radius:18px; overflow:hidden; min-height:132px; display:flex; align-items:center; gap:14px; padding:16px; color:#fff; background:linear-gradient(120deg, #090d1e 0%, ${plat.color} 100%); border:1.5px solid rgba(255,255,255,0.25); box-shadow:0 0 24px rgba(139,92,246,0.32);">
     ${localBanner}
@@ -170,156 +195,359 @@ function mountSnowEffect() {
     flake.className = "snowflake";
     flake.textContent = "❄";
     flake.style.left = `${(i * 5.7) % 100}%`;
-    flake.style.fontSize = `${10 + (i \% 4) * 4}px`; flake.style.animationDuration = `${7 + (i % 6) * 2}s`;
-    flake.style.animationDelay = `${-(i \% 5) * 1.4}s`; layer.appendChild(flake); } document.body.appendChild(layer); }  function showToast(msg) { let el = document.getElementById("tkm-toast"); if (!el) { el = document.createElement("div"); el.id = "tkm-toast"; el.className = "toast"; document.body.appendChild(el); } el.textContent = msg; el.style.display = "block"; clearTimeout(window.__toastT); window.__toastT = setTimeout(() => { el.style.display = "none"; }, 3200); }  function applySavedTheme() { const saved = localStorage.getItem("tkm_theme"); const isDark = saved === null ? true : saved === "dark"; document.body.classList.toggle("dark", isDark); }  function toggleTheme() { const next = !document.body.classList.contains("dark"); document.body.classList.toggle("dark", next); localStorage.setItem("tkm_theme", next ? "dark" : "light"); }  /* Doğrulamalı Kullanıcı Oturumu ve Rol Yönetimi */ function getUserSession() { try { return JSON.parse(localStorage.getItem("tkm_auth_session") \vert{}\vert{} "null"); } catch (_) { return null; } }  function getUser() { const s = getUserSession(); if (s && s.username) return s; return { username: "Myhman", role: "buyer", loggedIn: false, emailVerified: false, phone: "", email: "", address: "" }; }  function isUserLoggedIn() { const s = getUserSession(); return Boolean(s && s.loggedIn && s.username && s.emailVerified && s.phone); }  function requireVerifiedUser(redirectTo = "profil.html") { if (!isUserLoggedIn()) { showToast("İlki şahsy hasaba girip telefon we e-poçtaňyzy tassyklap beriň!"); location.href = redirectTo; return false; } return true; }  function enforceSellerOnlyPage() { if (!requireVerifiedUser("profil.html")) return false; const u = getUser(); if (u.role !== "seller") { showToast("Satyn alyjy hasaby diňe satyn alyp biler; haryt goşmak üçin satyjy hasaby gerek!"); location.href = "index.html"; return false; } return true; }  function syncUserFields() { const u = getUser(); const pSeller = document.getElementById("p-seller"); if (pSeller && !pSeller.dataset.edited && u.loggedIn) pSeller.value = u.username; const wSeller = document.getElementById("w-seller"); if (wSeller && !wSeller.dataset.edited && u.loggedIn) wSeller.value = u.username; const mSender = document.getElementById("m-sender"); if (mSender && !mSender.dataset.edited && u.loggedIn) mSender.value = u.username; }  function setDbPill(ok, text) { const el = document.getElementById("db-status-pill"); if (!el) return; el.textContent = text; el.style.background = ok ? "rgba(16, 185, 129, 0.16)" : "rgba(245, 158, 11, 0.16)"; el.style.color = ok ? "#34d399" : "#fbbf24"; }  async function sbGet(table) { const res = await fetch(`${TKM_API.url}/rest/v1/${table}?select=*&order=id.desc`, { headers: { apikey: TKM_API.key, Authorization: `Bearer ${TKM_API.key}` }
+    flake.style.fontSize = `${10 + (i % 4) * 4}px`;
+    flake.style.animationDuration = `${7 + (i % 6) * 2}s`;
+    flake.style.animationDelay = `${-(i % 5) * 1.4}s`;
+    layer.appendChild(flake);
+  }
+  document.body.appendChild(layer);
+}
+
+function showToast(msg) {
+  let el = document.getElementById("tkm-toast");
+  if (!el) {
+    el = document.createElement("div");
+    el.id = "tkm-toast";
+    el.className = "toast";
+    document.body.appendChild(el);
+  }
+  el.textContent = msg;
+  el.style.display = "block";
+  clearTimeout(window.__toastT);
+  window.__toastT = setTimeout(() => { el.style.display = "none"; }, 3200);
+}
+
+function applySavedTheme() {
+  const saved = localStorage.getItem("tkm_theme");
+  const isDark = saved === null ? true : saved === "dark";
+  document.body.classList.toggle("dark", isDark);
+}
+
+function toggleTheme() {
+  const next = !document.body.classList.contains("dark");
+  document.body.classList.toggle("dark", next);
+  localStorage.setItem("tkm_theme", next ? "dark" : "light");
+}
+
+function getUserSession() {
+  try {
+    return JSON.parse(localStorage.getItem("tkm_auth_session") || "null");
+  } catch (_) {
+    return null;
+  }
+}
+
+function getUser() {
+  const s = getUserSession();
+  if (s && s.username) return s;
+  return {
+    username: "Myhman",
+    role: "buyer",
+    loggedIn: false,
+    emailVerified: false,
+    phone: "",
+    email: "",
+    address: ""
+  };
+}
+
+function isUserLoggedIn() {
+  const s = getUserSession();
+  return Boolean(s && s.loggedIn && s.username && s.emailVerified && s.phone);
+}
+
+function requireVerifiedUser(redirectTo = "profil.html") {
+  if (!isUserLoggedIn()) {
+    showToast("İlki şahsy hasaba girip telefon we e-poçtaňyzy tassyklap beriň!");
+    location.href = redirectTo;
+    return false;
+  }
+  return true;
+}
+
+function enforceSellerOnlyPage() {
+  if (!requireVerifiedUser("profil.html")) return false;
+  const u = getUser();
+  if (u.role !== "seller") {
+    showToast("Satyn alyjy hasaby diňe satyn alyp biler; haryt goşmak üçin satyjy hasaby gerek!");
+    location.href = "index.html";
+    return false;
+  }
+  return true;
+}
+
+function syncUserFields() {
+  const u = getUser();
+  const pSeller = document.getElementById("p-seller");
+  if (pSeller && !pSeller.dataset.edited && u.loggedIn) pSeller.value = u.username;
+  const wSeller = document.getElementById("w-seller");
+  if (wSeller && !wSeller.dataset.edited && u.loggedIn) wSeller.value = u.username;
+  const mSender = document.getElementById("m-sender");
+  if (mSender && !mSender.dataset.edited && u.loggedIn) mSender.value = u.username;
+}
+
+function setDbPill(ok, text) {
+  const el = document.getElementById("db-status-pill");
+  if (!el) return;
+  el.textContent = text;
+  el.style.background = ok ? "rgba(16, 185, 129, 0.16)" : "rgba(245, 158, 11, 0.16)";
+  el.style.color = ok ? "#34d399" : "#fbbf24";
+}
+
+async function sbGet(table) {
+  const res = await fetch(`${TKM_API.url}/rest/v1/${table}?select=*&order=id.desc`, {
+    headers: { apikey: TKM_API.key, Authorization: `Bearer ${TKM_API.key}` }
   });
-  if (!res.ok) throw new Error(`${table}:${res.status} ${await res.text()}`); return await res.json(); }  async function sbInsert(table, payload) { const res = await fetch(`${TKM_API.url}/rest/v1/${table}`, { method: "POST", headers: { apikey: TKM_API.key, Authorization: `Bearer ${TKM_API.key}`,
+  if (!res.ok) throw new Error(`${table}: ${res.status} ${await res.text()}`);
+  return await res.json();
+}
+
+async function sbInsert(table, payload) {
+  const res = await fetch(`${TKM_API.url}/rest/v1/${table}`, {
+    method: "POST",
+    headers: {
+      apikey: TKM_API.key,
+      Authorization: `Bearer ${TKM_API.key}`,
       "Content-Type": "application/json",
       Prefer: "return=representation"
     },
     body: JSON.stringify(payload)
   });
-  if (!res.ok) throw new Error(`${table} insert:${res.status} ${await res.text()}`); const rows = await res.json(); return Array.isArray(rows) ? rows[0] : rows; }  async function sbPatch(table, id, payload) { const res = await fetch(`${TKM_API.url}/rest/v1/${table}?id=eq.${encodeURIComponent(id)}`, {
+  if (!res.ok) throw new Error(`${table} insert: ${res.status} ${await res.text()}`);
+  const rows = await res.json();
+  return Array.isArray(rows) ? rows[0] : rows;
+}
+
+async function sbPatch(table, id, payload) {
+  const res = await fetch(`${TKM_API.url}/rest/v1/${table}?id=eq.${encodeURIComponent(id)}`, {
     method: "PATCH",
     headers: {
       apikey: TKM_API.key,
-      Authorization: `Bearer ${TKM_API.key}`, "Content-Type": "application/json", Prefer: "return=representation" }, body: JSON.stringify(payload) }); if (!res.ok) throw new Error(`${table} update: ${res.status}${await res.text()}`);
+      Authorization: `Bearer ${TKM_API.key}`,
+      "Content-Type": "application/json",
+      Prefer: "return=representation"
+    },
+    body: JSON.stringify(payload)
+  });
+  if (!res.ok) throw new Error(`${table} update: ${res.status} ${await res.text()}`);
   const rows = await res.json();
   return Array.isArray(rows) && rows[0] ? rows[0] : payload;
 }
 
 async function sbDelete(table, id) {
-  const res = await fetch(`${TKM_API.url}/rest/v1/${table}?id=eq.${encodeURIComponent(id)}`, { method: "DELETE", headers: { apikey: TKM_API.key, Authorization: `Bearer ${TKM_API.key}` }
+  const res = await fetch(`${TKM_API.url}/rest/v1/${table}?id=eq.${encodeURIComponent(id)}`, {
+    method: "DELETE",
+    headers: { apikey: TKM_API.key, Authorization: `Bearer ${TKM_API.key}` }
   });
-  if (!res.ok) throw new Error(`${table} delete:${res.status} ${await res.text()}`); }  async function sbUpload(files) { const urls = []; for (const f of files) { const ext = (f.name.split(".").pop() \vert{}\vert{} "jpg").toLowerCase().replace(/[^a-z0-9]/g, "") \vert{}\vert{} "jpg"; const path = `products/${Date.now()}-${Math.random().toString(36).slice(2, 8)}.${ext}`;
-    const res = await fetch(`${TKM_API.url}/storage/v1/object/${TKM_API.bucket}/${path}`, { method: "POST", headers: { apikey: TKM_API.key, Authorization: `Bearer ${TKM_API.key}`,
+  if (!res.ok) throw new Error(`${table} delete: ${res.status} ${await res.text()}`);
+}
+
+async function sbUpload(files) {
+  const urls = [];
+  for (const f of files) {
+    const ext = (f.name.split(".").pop() || "jpg").toLowerCase().replace(/[^a-z0-9]/g, "") || "jpg";
+    const path = `products/${Date.now()}-${Math.random().toString(36).slice(2, 8)}.${ext}`;
+    const res = await fetch(`${TKM_API.url}/storage/v1/object/${TKM_API.bucket}/${path}`, {
+      method: "POST",
+      headers: {
+        apikey: TKM_API.key,
+        Authorization: `Bearer ${TKM_API.key}`,
         "Content-Type": f.type || "image/jpeg",
         "x-upsert": "true"
       },
       body: f
     });
-    if (!res.ok) throw new Error(`Storage: ${res.status}${await res.text()}`);
-    urls.push(`${TKM_API.url}/storage/v1/object/public/${TKM_API.bucket}/${path}`); } return urls; }  function getImages(item) { const out = []; if (Array.isArray(item.image_urls)) { for (const u of item.image_urls) { if (typeof u === "string" && /^https?:\/\//i.test(u.trim())) out.push(u.trim()); } } if (!out.length && typeof item.image_url === "string" && /^https?:\/\//i.test(item.image_url.trim())) { out.push(item.image_url.trim()); } return out; }  async function refreshTopBalancePill() { const pill = document.getElementById("top-balance-pill"); if (!pill) return; const session = getUser(); if (!session.loggedIn \vert{}\vert{} !session.username) { pill.textContent = "🔐 Giriş Et"; pill.href = "profil.html"; return; } pill.href = "profil.html"; const u = session.username.toLowerCase();  let orders = []; let deposits = []; let withdrawals = [];  try { orders = await sbGet("orders"); } catch (_) {} try { deposits = await sbGet("deposits"); localStorage.setItem("tkm_deposits_cache", JSON.stringify(deposits)); } catch (_) { try { deposits = JSON.parse(localStorage.getItem("tkm_deposits_cache") \vert{}\vert{} "[]"); } catch (__) {} } try { withdrawals = await sbGet("withdrawals"); localStorage.setItem("tkm_withdrawals_cache", JSON.stringify(withdrawals)); } catch (_) { try { withdrawals = JSON.parse(localStorage.getItem("tkm_withdrawals_cache") \vert{}\vert{} "[]"); } catch (__) {} }  let released = 0, dep = 0, wd = 0; for (const o of orders) { if (String(o.seller \vert{}\vert{} "").toLowerCase() === u && o.seller_confirmed && o.buyer_confirmed) { released += Number(o.price_tmt \vert{}\vert{} 0); } } for (const d of deposits) { if (String(d.username \vert{}\vert{} "").toLowerCase() === u && d.status !== "rejected") { dep += Number(d.amount_tmt \vert{}\vert{} 0); } } for (const w of withdrawals) { if (String(w.seller \vert{}\vert{} "").toLowerCase() === u && w.status !== "rejected") { wd += Number(w.amount_tmt \vert{}\vert{} 0); } }  const bal = Math.max(0, released + dep - wd); pill.textContent = `💰 ${bal.toLocaleString()} TMT`;
+    if (!res.ok) throw new Error(`Storage: ${res.status} ${await res.text()}`);
+    urls.push(`${TKM_API.url}/storage/v1/object/public/${TKM_API.bucket}/${path}`);
+  }
+  return urls;
+}
+
+function getImages(item) {
+  const out = [];
+  if (Array.isArray(item.image_urls)) {
+    for (const u of item.image_urls) {
+      if (typeof u === "string" && /^https?:\/\//i.test(u.trim())) out.push(u.trim());
+    }
+  }
+  if (!out.length && typeof item.image_url === "string" && /^https?:\/\//i.test(item.image_url.trim())) {
+    out.push(item.image_url.trim());
+  }
+  return out;
+}
+
+async function refreshTopBalancePill() {
+  const pill = document.getElementById("top-balance-pill");
+  if (!pill) return;
+  const session = getUser();
+  if (!session.loggedIn || !session.username) {
+    pill.textContent = "🔐 Giriş Et";
+    pill.href = "profil.html";
+    return;
+  }
+  pill.href = "profil.html";
+  const u = session.username.toLowerCase();
+
+  let orders = [];
+  let deposits = [];
+  let withdrawals = [];
+
+  try { orders = await sbGet("orders"); } catch (_) {}
+  try {
+    deposits = await sbGet("deposits");
+    localStorage.setItem("tkm_deposits_cache", JSON.stringify(deposits));
+  } catch (_) {
+    try { deposits = JSON.parse(localStorage.getItem("tkm_deposits_cache") || "[]"); } catch (__) {}
+  }
+  try {
+    withdrawals = await sbGet("withdrawals");
+    localStorage.setItem("tkm_withdrawals_cache", JSON.stringify(withdrawals));
+  } catch (_) {
+    try { withdrawals = JSON.parse(localStorage.getItem("tkm_withdrawals_cache") || "[]"); } catch (__) {}
+  }
+
+  let released = 0, dep = 0, wd = 0;
+  for (const o of orders) {
+    if (String(o.seller || "").toLowerCase() === u && o.seller_confirmed && o.buyer_confirmed) {
+      released += Number(o.price_tmt || 0);
+    }
+  }
+  for (const d of deposits) {
+    if (String(d.username || "").toLowerCase() === u && d.status !== "rejected") {
+      dep += Number(d.amount_tmt || 0);
+    }
+  }
+  for (const w of withdrawals) {
+    if (String(w.seller || "").toLowerCase() === u && w.status !== "rejected") {
+      wd += Number(w.amount_tmt || 0);
+    }
+  }
+
+  const bal = Math.max(0, released + dep - wd);
+  pill.textContent = `💰 ${bal.toLocaleString()} TMT`;
 }
 
 function mountPlayerokShell(activeTab, searchPlaceholder, showBackArrow = false) {
-  applySavedTheme();
-  mountSnowEffect();
-  const host = document.getElementById("playerok-shell");
-  if (!host) return;
+  try {
+    applySavedTheme();
+    mountSnowEffect();
+    const host = document.getElementById("playerok-shell");
+    if (!host) return;
 
-  const user = getUser();
-  const isSeller = Boolean(user.loggedIn && user.role === "seller");
+    const user = getUser();
+    const isSeller = Boolean(user && user.loggedIn && user.role === "seller");
 
-  const backHtml = showBackArrow
-    ? `<button class="back-btn" type="button" aria-label="Yza" onclick="history.length > 1 ? history.back() : (location.href='kategoriler.html')">←</button>`
-    : "";
+    const backHtml = showBackArrow
+      ? `<button class="back-btn" type="button" aria-label="Yza" onclick="history.length > 1 ? history.back() : (location.href='kategoriler.html')">←</button>`
+      : "";
 
-  const exnessPlat = findPlatform("exness-account");
-  const exnessNavLogo = exnessPlat
-    ? renderLogoWithAsset(exnessPlat)
-    : artLogo("#facc15", "#0f172a", "MT5", "MT5", "chart");
+    const exnessPlat = findPlatform("exness-account");
+    const exnessNavLogo = exnessPlat
+      ? renderLogoWithAsset(exnessPlat)
+      : artLogo("#facc15", "#0f172a", "MT5", "MT5", "chart");
 
-  const searchNavLogo = renderMediaAsset({
-    fallbackHtml: artLogo("#38bdf8", "#1d4ed8", "NAV1", "GÖZLEG", "ring"),
-    videos: [
-      "assets/logos/assets:logos:anamenu.mp4.mov",
-      "assets/logos/anamenu.mp4.mov",
-      "assets/logos/anamenu.mp4",
-      "assets/logos/anamenu.mov",
-      "assets/logos/assets:logos:anamenu.mp4"
-    ],
-    images: [
-      "assets/logos/assets:logos:anamenu.jpg.JPG",
-      "assets/logos/anamenu.jpg"
-    ],
-    alt: "Gözleg"
-  });
-
-  const catalogNavLogo = renderMediaAsset({
-    fallbackHtml: artLogo("#a855f7", "#4c1d95", "NAV2", "KAT", "diamond"),
-    images: [
-      "assets/logos/assets:logos:catalog.jpg.JPG",
-      "assets/logos/catalog.jpg.JPG",
-      "assets/logos/catalog.jpg",
-      "assets/logos/catalog.png",
-      "assets/logos/assets:logos:catalog.jpg"
-    ],
-    alt: "Kategorýa"
-  });
-
-  const profileNavLogo = renderMediaAsset({
-    fallbackHtml: artLogo("#f472b6", "#831843", "NAV6", "PROF", "shield"),
-    images: [
-      "assets/logos/assets:logos:withdrawl.jpg.JPG",
-      "assets/logos/withdrawl.jpg.JPG",
-      "assets/logos/withdrawl.jpg",
-      "assets/logos/withdrawl.png"
-    ],
-    alt: "Profil"
-  });
-
-  // Satın alıcı profilindeyken "Satmak" sekmesi çıkmaz; sadece Satıcı rolünde görünür
-  const navItems = [
-    { key: "search", href: "index.html", label: "Gözleg", logo: searchNavLogo },
-    { key: "catalog", href: "kategoriler.html", label: "Kategorýa", logo: catalogNavLogo },
-    { key: "exness", href: "uygulama.html?slug=exness-account", label: "Exness", logo: exnessNavLogo },
-    { key: "messages", href: "mesajlar.html", label: "Hatlar", logo: artLogo("#22d3ee", "#0e7490", "NAV4", "HAT", "play") }
-  ];
-
-  if (isSeller) {
-    navItems.push({
-      key: "sell",
-      href: "satyjy.html",
-      label: "Satmak",
-      logo: artLogo("#34d399", "#065f46", "NAV5", "SAT", "shield")
+    const searchNavLogo = renderMediaAsset({
+      fallbackHtml: artLogo("#38bdf8", "#1d4ed8", "NAV1", "GÖZLEG", "ring"),
+      videos: [
+        "assets/logos/assets:logos:anamenu.mp4.mov",
+        "assets/logos/anamenu.mp4.mov",
+        "assets/logos/anamenu.mp4",
+        "assets/logos/anamenu.mov"
+      ],
+      images: [
+        "assets/logos/assets:logos:anamenu.jpg.JPG",
+        "assets/logos/anamenu.jpg"
+      ],
+      alt: "Gözleg"
     });
-  }
 
-  navItems.push({
-    key: "profile",
-    href: "profil.html",
-    label: user.loggedIn ? "Profil" : "Giriş",
-    logo: profileNavLogo
-  });
+    const catalogNavLogo = renderMediaAsset({
+      fallbackHtml: artLogo("#a855f7", "#4c1d95", "NAV2", "KAT", "diamond"),
+      images: [
+        "assets/logos/assets:logos:catalog.jpg.JPG",
+        "assets/logos/catalog.jpg.JPG",
+        "assets/logos/catalog.jpg",
+        "assets/logos/catalog.png"
+      ],
+      alt: "Kategorýa"
+    });
 
-  const navStyle = navItems.length === 5 ? "grid-template-columns: repeat(5, 1fr);" : "grid-template-columns: repeat(6, 1fr);";
+    const profileNavLogo = renderMediaAsset({
+      fallbackHtml: artLogo("#f472b6", "#831843", "NAV6", "PROF", "shield"),
+      images: [
+        "assets/logos/assets:logos:withdrawl.jpg.JPG",
+        "assets/logos/withdrawl.jpg.JPG",
+        "assets/logos/withdrawl.jpg",
+        "assets/logos/withdrawl.png"
+      ],
+      alt: "Profil"
+    });
 
-  const navHtml = navItems.map(item => `
-    <a class="bnav-item ${activeTab === item.key ? "active" : ""}" href="${item.href}">
-      <span class="bnav-logo-box">${item.logo}</span>
-      <span>${esc(item.label)}</span>
-    </a>
-  `).join("");
+    const navItems = [
+      { key: "search", href: "index.html", label: "Gözleg", logo: searchNavLogo },
+      { key: "catalog", href: "kategoriler.html", label: "Kategorýa", logo: catalogNavLogo },
+      { key: "exness", href: "uygulama.html?slug=exness-account", label: "Exness", logo: exnessNavLogo },
+      { key: "messages", href: "mesajlar.html", label: "Hatlar", logo: artLogo("#22d3ee", "#0e7490", "NAV4", "HAT", "play") }
+    ];
 
-  host.innerHTML = `
-    <header class="top-head">
-      <div class="top-inner">
-        <div class="top-row">
-          <div style="display:flex; align-items:center; gap:8px;">
-            ${backHtml}
-            <a class="brand-link" href="index.html">TKM Market</a>
+    if (isSeller) {
+      navItems.push({
+        key: "sell",
+        href: "satyjy.html",
+        label: "Satmak",
+        logo: artLogo("#34d399", "#065f46", "NAV5", "SAT", "shield")
+      });
+    }
+
+    navItems.push({
+      key: "profile",
+      href: "profil.html",
+      label: user && user.loggedIn ? "Profil" : "Giriş",
+      logo: profileNavLogo
+    });
+
+    const navStyle = navItems.length === 5
+      ? "grid-template-columns: repeat(5, 1fr);"
+      : "grid-template-columns: repeat(6, 1fr);";
+
+    const navHtml = navItems.map(item => `
+      <a class="bnav-item ${activeTab === item.key ? "active" : ""}" href="${item.href}">
+        <span class="bnav-logo-box">${item.logo}</span>
+        <span>${esc(item.label)}</span>
+      </a>
+    `).join("");
+
+    host.innerHTML = `
+      <header class="top-head">
+        <div class="top-inner">
+          <div class="top-row">
+            <div style="display:flex; align-items:center; gap:8px;">
+              ${backHtml}
+              <a class="brand-link" href="index.html">TKM Market</a>
+            </div>
+            <div class="top-right">
+              <a class="bal-pill" id="top-balance-pill" href="profil.html" title="Bakiýe we Profil">🔐 Giriş Et</a>
+              <span class="db-mini" id="db-status-pill">Supabase</span>
+              <button class="theme-switch" type="button" title="Tema" onclick="toggleTheme()">☀/☾</button>
+            </div>
           </div>
-          <div class="top-right">
-            <a class="bal-pill" id="top-balance-pill" href="profil.html" title="Bakiýe we Profil">🔐 Giriş Et</a>
-            <span class="db-mini" id="db-status-pill">Supabase</span>
-            <button class="theme-switch" type="button" title="Tema" onclick="toggleTheme()">☀/☾</button>
-          </div>
+          ${searchPlaceholder ? `
+            <div class="search-box">
+              <span>⌕</span>
+              <input id="global-search" type="text" placeholder="${esc(searchPlaceholder)}" />
+            </div>
+          ` : ""}
         </div>
-        ${searchPlaceholder ? `
-          <div class="search-box">
-            <span>⌕</span>
-            <input id="global-search" type="text" placeholder="${esc(searchPlaceholder)}" />
-          </div>
-        ` : ""}
-      </div>
-    </header>
+      </header>
 
-    <nav class="bottom-nav" style="${navStyle}">
-      ${navHtml}
-    </nav>
-  `;
+      <nav class="bottom-nav" style="${navStyle}">
+        ${navHtml}
+      </nav>
+    `;
 
-  syncUserFields();
-  refreshTopBalancePill();
+    syncUserFields();
+    refreshTopBalancePill();
+  } catch (err) {
+    console.error("Shell mount error:", err);
+  }
 }
