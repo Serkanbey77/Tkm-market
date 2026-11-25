@@ -1,218 +1,101 @@
 <!DOCTYPE html>
-<html lang="tk">
+<html lang="tr">
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Bakiýe — TKM Market</title>
-  <link rel="stylesheet" href="assets/tkm.css" />
+  <title>TKM Market — Bakiye Yatır</title>
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
   <style>
-    .top-tabs { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin-bottom: 14px; }
-    .top-tab {
-      padding: 12px; border-radius: 14px; border: 1.5px solid var(--border);
-      background: var(--surface-2); color: var(--text); font-weight: 900;
-      text-align: center; text-decoration: none; cursor: pointer;
+    * { box-sizing: border-box; }
+    body { margin: 0; font-family: system-ui, sans-serif; background: #070b14; color: #f8fafc; padding: 16px; }
+    .wrap { max-width: 480px; margin: 0 auto; }
+    .card { background: #111827; border: 1px solid #1e293b; border-radius: 16px; padding: 18px; margin-bottom: 14px; }
+    h1 { font-size: 19px; color: #38bdf8; margin: 0 0 12px; }
+    label { display: block; font-size: 12px; color: #94a3b8; margin-bottom: 5px; }
+    input, select {
+      width: 100%; background: #0b1120; border: 1px solid #283548; color: #fff;
+      padding: 11px; border-radius: 10px; margin-bottom: 12px; font-size: 14px;
     }
-    .top-tab.active {
-      background: linear-gradient(135deg, #2563eb, #4f46e5);
-      border-color: transparent; color: #fff;
+    .info-box {
+      background: #0b1324; border: 1px dashed #2563eb; border-radius: 12px;
+      padding: 12px; font-size: 12px; color: #cbd5e1; margin-bottom: 14px; line-height: 1.5;
     }
-    .box-card {
-      padding: 16px; border-radius: 16px;
-      background: var(--surface-2); border: 1px solid var(--border); margin-bottom: 12px;
+    button {
+      width: 100%; padding: 12px; border: none; border-radius: 10px;
+      background: #16a34a; color: #fff; font-weight: 700; font-size: 14px; cursor: pointer;
     }
-    .box-lbl { font-size: 13px; color: var(--muted); font-weight: 700; }
-    .box-val { font-size: 24px; font-weight: 900; color: #34d399; margin-top: 4px; }
-    .preset-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 8px; margin-top: 8px; }
-    .preset-btn {
-      padding: 10px; border-radius: 12px; border: 1.5px solid var(--border);
-      background: var(--surface); color: var(--text); font-weight: 800; cursor: pointer;
-    }
-    .preset-btn.active { border-color: #3b82f6; background: rgba(59, 130, 246, 0.18); color: #93c5fd; }
-    .net-3 { display: grid; grid-template-columns: repeat(3, 1fr); gap: 8px; margin-top: 10px; }
-    @media (max-width: 600px) { .net-3 { grid-template-columns: 1fr; } }
-    .net-btn {
-      padding: 12px 8px; border-radius: 12px; border: 1.5px solid var(--border);
-      background: var(--surface); color: var(--text); font-weight: 800; cursor: pointer; text-align: center;
-    }
-    .net-btn.active { border-color: #7c3aed; background: rgba(124, 58, 237, 0.22); color: #ede9fe; }
+    .msg { font-size: 13px; margin-top: 10px; }
+    a { color: #38bdf8; text-decoration: none; font-size: 13px; }
   </style>
 </head>
 <body>
-  <div id="playerok-shell"></div>
-
-  <main class="page-wrap">
-    <div class="panel">
-      <div class="top-tabs">
-        <button type="button" class="top-tab active">Bakiýe Ýatyr</button>
-        <a class="top-tab" href="pul-cek.html">Çykarmak</a>
+  <div class="wrap">
+    <div style="margin-bottom:10px;"><a href="profil.html">← Profile Dön</a></div>
+    <div class="card">
+      <h1>Güvenli Bakiye Yatırma</h1>
+      <div class="info-box">
+        <strong>Ödeme Bilgisi:</strong><br>
+        • <strong>USDT (BEP20):</strong> <code>0xCüzdanAdresiniBurayaYaz</code><br>
+        • <strong>Kart / Havale:</strong> Talebi oluşturduktan sonra referans kodunu kaydet; onaylandığında bakiyen cüzdanına yansır.
       </div>
 
-      <div class="box-card">
-        <div class="box-lbl">Aktiw Bakiýe</div>
-        <div class="box-val" id="cur-bal-txt">0 TMT</div>
-      </div>
+      <label>Ödeme Yöntemi</label>
+      <select id="method">
+        <option value="USDT_BEP20">USDT (BEP20)</option>
+        <option value="VISA_MASTERCARD">Visa / Mastercard</option>
+        <option value="HAVALE_EFT">Banka / Kart Transferi</option>
+      </select>
 
-      <div class="box-card">
-        <div class="box-lbl">Ýatyrmak Möçberi (TMT)</div>
-        <input id="dep-amt" type="number" min="20" step="1" value="100"
-          style="margin-top:6px; width:100%; font-size:20px; font-weight:900; padding:10px; border-radius:12px; border:1px solid var(--border); background:var(--surface); color:var(--text);" />
-        <div class="muted" id="usd-preview" style="margin-top:6px; font-weight:800; color:#93c5fd;">≈ 5.00 USD (1 USDT = 20 TMT)</div>
+      <label>Yatırılacak Tutar ($ USD)</label>
+      <input type="number" id="amount" min="1" step="0.01" placeholder="Örn: 25.00" />
 
-        <div class="preset-grid">
-          <button type="button" class="preset-btn" onclick="setAmt(50, this)">50 TMT</button>
-          <button type="button" class="preset-btn active" onclick="setAmt(100, this)">100 TMT</button>
-          <button type="button" class="preset-btn" onclick="setAmt(250, this)">250 TMT</button>
-          <button type="button" class="preset-btn" onclick="setAmt(500, this)">500 TMT</button>
-          <button type="button" class="preset-btn" onclick="setAmt(1000, this)">1.000 TMT</button>
-          <button type="button" class="preset-btn" onclick="setAmt(2500, this)">2.500 TMT</button>
-        </div>
-      </div>
+      <label>İşlem ID / Dekont Referansı</label>
+      <input type="text" id="txRef" placeholder="TxHash veya işlem referansı" />
 
-      <div class="box-card">
-        <div style="font-weight:900; font-size:15px;">Kripto Ulgamyny Saýlaň</div>
-        <div class="net-3">
-          <button type="button" class="net-btn active" data-coin="usdtbsc" onclick="pickCoin('usdtbsc')">🪙 USDT BEP20</button>
-          <button type="button" class="net-btn" data-coin="usdttrc20" onclick="pickCoin('usdttrc20')">🪙 USDT TRC20</button>
-          <button type="button" class="net-btn" data-coin="btc" onclick="pickCoin('btc')">₿ Bitcoin (BTC)</button>
-        </div>
-
-        <div class="btn-row">
-          <button type="button" id="go-nowpay-btn" class="btn btn-main" style="width:100%; padding:14px; font-size:15px;" onclick="createNowPaymentsInvoice()">
-            Tölege Geç (NOWPayments) →
-          </button>
-        </div>
-      </div>
+      <button onclick="submitDeposit()">Yatırım Talebi Gönder</button>
+      <div class="msg" id="msg"></div>
     </div>
+  </div>
 
-    <div class="panel">
-      <h3>Bakiýe Ýatyryş Taryhy</h3>
-      <div id="dep-history-list"></div>
-    </div>
-  </main>
-
-  <script src="assets/tkm.js"></script>
   <script>
-    mountPlayerokShell("profile", "", true);
+    const SUPABASE_URL = "https://piajbopfeqlyupkrsnik.supabase.co";
+    const SUPABASE_ANON_KEY = "sb_publishable_gQFoj3SUxW-TUMjYmTGrIg_5_6hwBAH";
+    const sb = supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
 
-    const NOWPAYMENTS_API_KEY = "A4QS1HT-X1J4XQA-PRCFY29-FBJZ0AA";
-    const NOWPAYMENTS_WEBHOOK_URL = "https://piajbopfeqlyupkrsnik.supabase.co/functions/v1/nowpayments-webhook";
-    const TMT_PER_USD = 20;
-
-    let selectedPayCurrency = "usdtbsc";
-
-    function updateUsdPreview() {
-      const amt = Math.max(0, Number(document.getElementById("dep-amt").value || 0));
-      const usd = (amt / TMT_PER_USD).toFixed(2);
-      document.getElementById("usd-preview").textContent = `≈ ${usd} USD (1 USDT = ${TMT_PER_USD} TMT)`;
-    }
-
-    function setAmt(v, btn) {
-      document.getElementById("dep-amt").value = v;
-      document.querySelectorAll(".preset-btn").forEach(b => b.classList.remove("active"));
-      if (btn) btn.classList.add("active");
-      updateUsdPreview();
-    }
-
-    function pickCoin(coin) {
-      selectedPayCurrency = coin;
-      document.querySelectorAll(".net-btn").forEach(b => b.classList.toggle("active", b.dataset.coin === coin));
-    }
-
-    document.getElementById("dep-amt").addEventListener("input", updateUsdPreview);
-
-    async function createNowPaymentsInvoice() {
-      if (!requireVerifiedUser("profil.html")) return;
-      const user = getUser();
-      const amtTmt = Number(document.getElementById("dep-amt").value || 0);
-      if (!amtTmt || amtTmt < 20) {
-        showToast("İň az ýatyrmak möçberi 20 TMT!");
+    async function submitDeposit() {
+      const msg = document.getElementById("msg");
+      const { data: { user } } = await sb.auth.getUser();
+      if (!user) {
+        msg.innerHTML = `<span style="color:#f87171;">Önce <a href="profil.html">giriş yapmalısın</a>.</span>`;
         return;
       }
 
-      const usdAmount = Number((amtTmt / TMT_PER_USD).toFixed(2));
-      const orderId = `TKM|${user.username}|${amtTmt}|${Date.now()}`;
-      const returnBase = window.location.origin + window.location.pathname;
+      const amount = Number(document.getElementById("amount").value);
+      const method = document.getElementById("method").value;
+      const tx_ref = document.getElementById("txRef").value.trim();
 
-      const btn = document.getElementById("go-nowpay-btn");
-      btn.disabled = true;
-      btn.textContent = "⏳ Töleg sahypasy taýýarlanýar...";
-
-      try {
-        const bodyData = {
-          price_amount: usdAmount,
-          price_currency: "usd",
-          pay_currency: selectedPayCurrency,
-          order_id: orderId,
-          order_description: `TKM Market Bakiye (${amtTmt} TMT) - ${user.username}`,
-          success_url: `${returnBase}?paid=1`,
-          cancel_url: `${returnBase}?paid=0`,
-          ipn_callback_url: NOWPAYMENTS_WEBHOOK_URL
-        };
-
-        const res = await fetch("https://api.nowpayments.io/v1/invoice", {
-          method: "POST",
-          headers: {
-            "x-api-key": NOWPAYMENTS_API_KEY,
-            "Content-Type": "application/json"
-          },
-          body: JSON.stringify(bodyData)
-        });
-
-        const data = await res.json();
-        if (!res.ok || !data.invoice_url) {
-          throw new Error(data.message || "Fatura döredilip bilinmedi");
-        }
-
-        window.location.href = data.invoice_url;
-      } catch (err) {
-        showToast("Ýalňyşlyk: " + err.message);
-        btn.disabled = false;
-        btn.textContent = "Tölege Geç (NOWPayments) →";
-      }
-    }
-
-    async function refreshDepositsAndBalance() {
-      const p = new URLSearchParams(window.location.search);
-      if (p.get("paid") === "1") {
-        showToast("Töleg kabul edildi! Blockchain tassygyndan soň bakiýäňiz täzelener.");
-      }
-
-      await refreshTopBalancePill();
-      const pill = document.getElementById("top-balance-pill")?.textContent || "💰 0 TMT";
-      document.getElementById("cur-bal-txt").textContent = pill.replace("💰 ", "");
-
-      const user = getUser();
-      let list = [];
-      try {
-        list = await sbGet("deposits");
-        localStorage.setItem("tkm_deposits_cache", JSON.stringify(list));
-      } catch (_) {
-        try { list = JSON.parse(localStorage.getItem("tkm_deposits_cache") || "[]"); } catch (__) {}
-      }
-
-      const mine = user.loggedIn
-        ? list.filter(x => String(x.username || "").toLowerCase() === String(user.username || "").toLowerCase())
-        : list.slice(0, 10);
-
-      const wrap = document.getElementById("dep-history-list");
-      if (!mine.length) {
-        wrap.innerHTML = `<p class="muted">Heniz bakiýe ýatyryş ýok.</p>`;
+      if (!amount || amount <= 0) {
+        msg.innerHTML = `<span style="color:#f87171;">Geçerli bir tutar gir.</span>`;
         return;
       }
 
-      wrap.innerHTML = mine.map(d => `
-        <div class="list-row">
-          <div>
-            <strong>+${Number(d.amount_tmt || 0).toLocaleString()} TMT</strong> — <span class="chip-cat">${esc(d.method)}</span>
-            <div class="muted" style="word-break:break-all;">${esc(d.reference_info || "")}</div>
-          </div>
-          <span class="badge-status ok">${d.status === "rejected" ? "Ret Edildi ❌" : "Tassyklanyldy ✅"}</span>
-        </div>
-      `).join("");
-    }
+      const { error } = await sb.from("deposits").insert({
+        user_id: user.id,
+        email: user.email,
+        amount,
+        method,
+        tx_ref,
+        status: "pending"
+      });
 
-    updateUsdPreview();
-    refreshDepositsAndBalance();
+      if (error) {
+        msg.innerHTML = `<span style="color:#f87171;">Hata: ${error.message}</span>`;
+      } else {
+        msg.innerHTML = `<span style="color:#4ade80;">Talep alındı! Onaylandığında bakiyene eklenecek.</span>`;
+        document.getElementById("amount").value = "";
+        document.getElementById("txRef").value = "";
+      }
+    }
   </script>
 </body>
 </html>
