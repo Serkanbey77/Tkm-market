@@ -6,151 +6,87 @@
   <title>Bakiýe — TKM Market</title>
   <link rel="stylesheet" href="assets/tkm.css" />
   <style>
-    .bal-top-tabs { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin-bottom: 14px; }
-    .bal-tab {
-      padding: 12px;
-      border-radius: 14px;
-      border: 1.5px solid var(--border);
-      background: var(--surface-2);
-      color: var(--text);
-      font-weight: 900;
-      text-align: center;
-      text-decoration: none;
-      cursor: pointer;
+    .top-tabs { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin-bottom: 14px; }
+    .top-tab {
+      padding: 12px; border-radius: 14px; border: 1.5px solid var(--border);
+      background: var(--surface-2); color: var(--text); font-weight: 900;
+      text-align: center; text-decoration: none; cursor: pointer;
     }
-    .bal-tab.active {
+    .top-tab.active {
       background: linear-gradient(135deg, #2563eb, #4f46e5);
-      border-color: transparent;
-      color: #fff;
+      border-color: transparent; color: #fff;
     }
-    .bal-card {
-      padding: 16px;
-      border-radius: 16px;
-      background: var(--surface-2);
-      border: 1px solid var(--border);
-      margin-bottom: 12px;
+    .box-card {
+      padding: 16px; border-radius: 16px;
+      background: var(--surface-2); border: 1px solid var(--border); margin-bottom: 12px;
     }
-    .bal-label { font-size: 13px; color: var(--muted); font-weight: 700; }
-    .bal-val { font-size: 24px; font-weight: 900; color: #34d399; margin-top: 4px; }
-    .preset-row { display: grid; grid-template-columns: repeat(3, 1fr); gap: 8px; margin-top: 8px; }
-    .preset-chip {
-      padding: 10px;
-      border-radius: 12px;
-      border: 1.5px solid var(--border);
-      background: var(--surface);
-      color: var(--text);
-      font-weight: 800;
-      cursor: pointer;
+    .box-lbl { font-size: 13px; color: var(--muted); font-weight: 700; }
+    .box-val { font-size: 24px; font-weight: 900; color: #34d399; margin-top: 4px; }
+    .preset-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 8px; margin-top: 8px; }
+    .preset-btn {
+      padding: 10px; border-radius: 12px; border: 1.5px solid var(--border);
+      background: var(--surface); color: var(--text); font-weight: 800; cursor: pointer;
     }
-    .preset-chip.active { border-color: #3b82f6; background: rgba(59, 130, 246, 0.18); color: #93c5fd; }
-    .method-list { display: flex; flex-direction: column; gap: 10px; margin-top: 12px; }
-    .method-row {
-      display: flex; justify-content: space-between; align-items: center; gap: 12px;
-      padding: 14px; border-radius: 14px; border: 1.5px solid var(--border);
-      background: var(--surface); color: var(--text); cursor: pointer; text-align: left; width: 100%;
-    }
-    .method-row.active { border-color: #3b82f6; background: rgba(59, 130, 246, 0.15); }
-    .dot-check {
-      width: 22px; height: 22px; border-radius: 999px; border: 2px solid var(--muted);
-      display: flex; align-items: center; justify-content: center; font-size: 12px; font-weight: 900; flex-shrink: 0;
-    }
-    .method-row.active .dot-check { background: #2563eb; border-color: #2563eb; color: #fff; }
-    .invoice-screen {
-      padding: 18px;
-      border-radius: 18px;
-      background: var(--surface-2);
-      border: 1.5px solid rgba(99, 102, 241, 0.45);
-    }
-    .inv-top { display: flex; justify-content: space-between; align-items: center; gap: 8px; flex-wrap: wrap; }
-    .inv-pill {
-      padding: 6px 12px; border-radius: 999px; font-weight: 800; font-size: 12px;
-      background: rgba(139, 92, 246, 0.18); color: #ddd6fe;
-    }
-    .net-tabs { display: grid; grid-template-columns: repeat(3, 1fr); gap: 8px; margin-top: 12px; }
-    .net-tab {
-      padding: 10px 8px; border-radius: 12px; border: 1.5px solid var(--border);
+    .preset-btn.active { border-color: #3b82f6; background: rgba(59, 130, 246, 0.18); color: #93c5fd; }
+    .net-3 { display: grid; grid-template-columns: repeat(3, 1fr); gap: 8px; margin-top: 10px; }
+    @media (max-width: 600px) { .net-3 { grid-template-columns: 1fr; } }
+    .net-btn {
+      padding: 12px 8px; border-radius: 12px; border: 1.5px solid var(--border);
       background: var(--surface); color: var(--text); font-weight: 800; cursor: pointer; text-align: center;
     }
-    .net-tab.active { border-color: #7c3aed; background: rgba(124, 58, 237, 0.22); color: #ede9fe; }
-    .copy-box {
-      display: flex; justify-content: space-between; align-items: center; gap: 8px;
-      padding: 12px; border-radius: 12px; background: rgba(0, 0, 0, 0.24);
-      margin-top: 10px; word-break: break-all;
-    }
-    .card-2col { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin-top: 10px; }
+    .net-btn.active { border-color: #7c3aed; background: rgba(124, 58, 237, 0.22); color: #ede9fe; }
   </style>
 </head>
 <body>
   <div id="playerok-shell"></div>
 
   <main class="page-wrap">
-    <!-- 1. EKRAN: Tutar & Yöntem Seçimi -->
-    <div class="panel" id="step-select-screen">
-      <div class="bal-top-tabs">
-        <button type="button" class="bal-tab active">Bakiýe Ýatyr</button>
-        <a class="bal-tab" href="pul-cek.html">Çykarmak</a>
+    <div class="panel">
+      <div class="top-tabs">
+        <button type="button" class="top-tab active">Bakiýe Ýatyr</button>
+        <a class="top-tab" href="pul-cek.html">Çykarmak</a>
       </div>
 
-      <div class="bal-card">
-        <div class="bal-label">Bakiýe</div>
-        <div class="bal-val" id="dep-cur-bal">0 TMT</div>
+      <div class="box-card">
+        <div class="box-lbl">Aktiw Bakiýe</div>
+        <div class="box-val" id="cur-bal-txt">0 TMT</div>
       </div>
 
-      <div class="bal-card">
-        <div class="bal-label">Ýatyrmak Möçberi (TMT)</div>
-        <input id="dep-amount" type="number" min="1" step="1" value="100"
+      <div class="box-card">
+        <div class="box-lbl">Ýatyrmak Möçberi (TMT)</div>
+        <input id="dep-amt" type="number" min="20" step="1" value="100"
           style="margin-top:6px; width:100%; font-size:20px; font-weight:900; padding:10px; border-radius:12px; border:1px solid var(--border); background:var(--surface); color:var(--text);" />
-        <div class="preset-row">
-          <button type="button" class="preset-chip" onclick="pickAmt(50, this)">50 TMT</button>
-          <button type="button" class="preset-chip active" onclick="pickAmt(100, this)">100 TMT</button>
-          <button type="button" class="preset-chip" onclick="pickAmt(250, this)">250 TMT</button>
-          <button type="button" class="preset-chip" onclick="pickAmt(500, this)">500 TMT</button>
-          <button type="button" class="preset-chip" onclick="pickAmt(1000, this)">1.000 TMT</button>
-          <button type="button" class="preset-chip" onclick="pickAmt(2500, this)">2.500 TMT</button>
+        <div class="muted" id="usd-preview" style="margin-top:6px; font-weight:800; color:#93c5fd;">≈ 5.00 USD (1 USDT = 20 TMT)</div>
+
+        <div class="preset-grid">
+          <button type="button" class="preset-btn" onclick="setAmt(50, this)">50 TMT</button>
+          <button type="button" class="preset-btn active" onclick="setAmt(100, this)">100 TMT</button>
+          <button type="button" class="preset-btn" onclick="setAmt(250, this)">250 TMT</button>
+          <button type="button" class="preset-btn" onclick="setAmt(500, this)">500 TMT</button>
+          <button type="button" class="preset-btn" onclick="setAmt(1000, this)">1.000 TMT</button>
+          <button type="button" class="preset-btn" onclick="setAmt(2500, this)">2.500 TMT</button>
         </div>
       </div>
 
-      <div class="bal-card">
-        <div style="font-weight:900; font-size:15px;">Töleg Usuly</div>
-        <div class="method-list">
-          <button type="button" class="method-row active" data-pay="crypto" onclick="choosePayGroup('crypto')">
-            <div>
-              <strong>⛓️ Kriptowalýuta</strong>
-              <div class="muted">USDT BEP20 · USDT TRC20 · Bitcoin (BTC)</div>
-            </div>
-            <span class="dot-check">✓</span>
-          </button>
-
-          <button type="button" class="method-row" data-pay="card" onclick="choosePayGroup('card')">
-            <div>
-              <strong>💳 Bank Karty</strong>
-              <div class="muted">Visa / Mastercard / Daşary ýurt karty</div>
-            </div>
-            <span class="dot-check"></span>
-          </button>
+      <div class="box-card">
+        <div style="font-weight:900; font-size:15px;">Kripto Ulgamyny Saýlaň</div>
+        <div class="net-3">
+          <button type="button" class="net-btn active" data-coin="usdtbsc" onclick="pickCoin('usdtbsc')">🪙 USDT BEP20</button>
+          <button type="button" class="net-btn" data-coin="usdttrc20" onclick="pickCoin('usdttrc20')">🪙 USDT TRC20</button>
+          <button type="button" class="net-btn" data-coin="btc" onclick="pickCoin('btc')">₿ Bitcoin (BTC)</button>
         </div>
 
         <div class="btn-row">
-          <button type="button" class="btn btn-main" style="width:100%; padding:13px; font-size:15px;" onclick="redirectToPaymentScreen()">
-            Tölege Geç →
+          <button type="button" id="go-nowpay-btn" class="btn btn-main" style="width:100%; padding:14px; font-size:15px;" onclick="createNowPaymentsInvoice()">
+            Tölege Geç (NOWPayments) →
           </button>
         </div>
       </div>
     </div>
 
-    <!-- 2. EKRAN: Ayrı Fatura / Ödeme Sahifesi -->
-    <div class="panel" id="step-checkout-screen" style="display:none;">
-      <div class="bal-top-tabs">
-        <button type="button" class="bal-tab" onclick="backToSelectScreen()">← Bakiýe Sahypasyna Gaýt</button>
-        <button type="button" class="bal-tab active" id="inv-timer-pill">⏱ 20:00</button>
-      </div>
-      <div id="invoice-body" class="invoice-screen"></div>
-    </div>
-
-    <!-- İşlem Geçmişi -->
     <div class="panel">
-      <h3>Taryh (Bakiýe Ýatyrmalar)</h3>
-      <div id="my-deposits-list"></div>
+      <h3>Bakiýe Ýatyryş Taryhy</h3>
+      <div id="dep-history-list"></div>
     </div>
   </main>
 
@@ -158,380 +94,92 @@
   <script>
     mountPlayerokShell("profile", "", true);
 
-    const TMT_PER_USDT = 20;
-    const BSC_USDT_CONTRACT = "0x55d398326f99059ff775485246999027b3197955";
-    const TRON_USDT_CONTRACT = "TR7NHqjeKQxGTCi8q8ZY4pL8otSzgjLj6t";
-    const BSCSCAN_API_KEY = "";
+    const NOWPAYMENTS_API_KEY = "A4QS1HT-X1J4XQA-PRCFY29-FBJZ0AA";
+    const NOWPAYMENTS_WEBHOOK_URL = "https://piajbopfeqlyupkrsnik.supabase.co/functions/v1/nowpayments-webhook";
+    const TMT_PER_USD = 20;
 
-    const MY_WALLETS = {
-      usdt_bep20: {
-        label: "USDT BEP20",
-        chain: "BNB Smart Chain (BSC)",
-        addr: "0x4589c99db18e63938b565731f9b60267ce9d2c5d",
-        info: "Serişdeleri diňe BSC (BEP20) ulgamy arkaly aşakdaky salgya iberiň."
-      },
-      usdt_trc20: {
-        label: "USDT TRC20",
-        chain: "TRON Mainnet",
-        addr: "TD9LPTXx9YdksJGmwqYiEh576o7FF67DUt",
-        info: "Serişdeleri diňe TRON (TRC20) ulgamy arkaly aşakdaky salgya iberiň."
-      },
-      btc: {
-        label: "Bitcoin (BTC)",
-        chain: "Bitcoin Mainnet",
-        addr: "16LxjLMXRNaijHiCf4MwsvgcaMxAoambT1",
-        info: "Serişdeleri diňe Bitcoin ulgamy arkaly aşakdaky salgya iberiň."
-      }
-    };
+    let selectedPayCurrency = "usdtbsc";
 
-    let payGroup = "crypto";
-    let activeNet = "usdt_bep20";
-    let currentInvoiceId = "";
-    let btcUsdPrice = 95000;
-    let secLeft = 1200;
-    let countdownId = null;
-    let pollId = null;
-    let isPolling = false;
-
-    async function loadBtcPrice() {
-      try {
-        const res = await fetch("https://api.coingecko.com/api/v3/simple/price?ids=bitcoin&vs_currencies=usd");
-        const data = await res.json();
-        if (data?.bitcoin?.usd) btcUsdPrice = Number(data.bitcoin.usd);
-      } catch (_) {}
+    function updateUsdPreview() {
+      const amt = Math.max(0, Number(document.getElementById("dep-amt").value || 0));
+      const usd = (amt / TMT_PER_USD).toFixed(2);
+      document.getElementById("usd-preview").textContent = `≈ ${usd} USD (1 USDT = ${TMT_PER_USD} TMT)`;
     }
 
-    function pickAmt(val, btn) {
-      document.getElementById("dep-amount").value = val;
-      document.querySelectorAll(".preset-chip").forEach(b => b.classList.remove("active"));
+    function setAmt(v, btn) {
+      document.getElementById("dep-amt").value = v;
+      document.querySelectorAll(".preset-btn").forEach(b => b.classList.remove("active"));
       if (btn) btn.classList.add("active");
+      updateUsdPreview();
     }
 
-    function choosePayGroup(group) {
-      payGroup = group;
-      document.querySelectorAll(".method-row").forEach(row => {
-        const active = row.dataset.pay === group;
-        row.classList.toggle("active", active);
-        row.querySelector(".dot-check").textContent = active ? "✓" : "";
-      });
+    function pickCoin(coin) {
+      selectedPayCurrency = coin;
+      document.querySelectorAll(".net-btn").forEach(b => b.classList.toggle("active", b.dataset.coin === coin));
     }
 
-    function calcCrypto(tmt, net) {
-      const usd = tmt / TMT_PER_USDT;
-      if (net === "btc") return { amount: Number((usd / btcUsdPrice).toFixed(6)), unit: "BTC" };
-      return { amount: Number(usd.toFixed(2)), unit: "USDT" };
-    }
+    document.getElementById("dep-amt").addEventListener("input", updateUsdPreview);
 
-    function fmtSec(s) {
-      return `${String(Math.floor(s / 60)).padStart(2, "0")}:${String(s % 60).padStart(2, "0")}`;
-    }
-
-    function stopTimers() {
-      clearInterval(countdownId);
-      clearInterval(pollId);
-      countdownId = null;
-      pollId = null;
-    }
-
-    function backToSelectScreen() {
-      stopTimers();
-      document.getElementById("step-checkout-screen").style.display = "none";
-      document.getElementById("step-select-screen").style.display = "block";
-    }
-
-    function redirectToPaymentScreen() {
-      const amt = Number(document.getElementById("dep-amount").value || 0);
-      if (!amt || amt <= 0) {
-        showToast("Ýatyrmak möçberini giriziň!");
-        return;
-      }
-
-      currentInvoiceId = "TKM-" + Math.random().toString(36).substring(2, 8).toUpperCase();
-      document.getElementById("step-select-screen").style.display = "none";
-      document.getElementById("step-checkout-screen").style.display = "block";
-
-      stopTimers();
-      secLeft = 1200;
-      const pill = document.getElementById("inv-timer-pill");
-      if (pill) pill.textContent = "⏱ " + fmtSec(secLeft);
-      countdownId = setInterval(() => {
-        secLeft = Math.max(0, secLeft - 1);
-        if (pill) pill.textContent = "⏱ " + fmtSec(secLeft);
-      }, 1000);
-
-      renderInvoiceScreen(amt);
-      startCryptoAutoPoll(amt);
-      window.scrollTo({ top: 0, behavior: "smooth" });
-    }
-
-    function switchInvoiceNet(net, amt) {
-      activeNet = net;
-      renderInvoiceScreen(amt);
-      startCryptoAutoPoll(amt);
-    }
-
-    function renderInvoiceScreen(amt) {
-      const body = document.getElementById("invoice-body");
-
-      if (payGroup === "card") {
-        body.innerHTML = `
-          <div class="inv-top">
-            <div>
-              <div class="bal-label">Fatura ID: <code>${currentInvoiceId}</code></div>
-              <div style="font-size:22px; font-weight:900; margin-top:4px;">${amt.toLocaleString()} TMT</div>
-            </div>
-            <span class="inv-pill">Kart Tölegi</span>
-          </div>
-
-          <div class="field" style="margin-top:14px;">
-            <label>Kart Belgisi</label>
-            <input id="card-num" type="text" inputmode="numeric" maxlength="19" placeholder="1234 1234 1234 1234" />
-          </div>
-          <div class="card-2col">
-            <div class="field">
-              <label>AA / ÝÝ</label>
-              <input id="card-exp" type="text" maxlength="5" placeholder="AA / ÝÝ" />
-            </div>
-            <div class="field">
-              <label>CVC</label>
-              <input id="card-cvc" type="password" inputmode="numeric" maxlength="4" placeholder="CVC" />
-            </div>
-          </div>
-          <div class="field" style="margin-top:10px;">
-            <label>Kartdaky Ad</label>
-            <input id="card-holder" type="text" placeholder="AD FAMILÝA" />
-          </div>
-
-          <div class="btn-row">
-            <button type="button" class="btn btn-green" style="width:100%; padding:13px;" onclick="payByCard(${amt})">
-              Töle (${amt.toLocaleString()} TMT)
-            </button>
-          </div>
-        `;
-        return;
-      }
-
-      const conv = calcCrypto(amt, activeNet);
-      const w = MY_WALLETS[activeNet];
-
-      body.innerHTML = `
-        <div class="inv-top">
-          <div>
-            <div class="bal-label">Transaction ID: <code>${currentInvoiceId}</code></div>
-            <div style="font-size:22px; font-weight:900; margin-top:4px;">≈ ${amt.toLocaleString()} TMT</div>
-          </div>
-          <span class="inv-pill">${w.label}</span>
-        </div>
-
-        <div class="net-tabs">
-          <button type="button" class="net-tab ${activeNet === "usdt_bep20" ? "active" : ""}" onclick="switchInvoiceNet('usdt_bep20', ${amt})">USDT BEP20</button>
-          <button type="button" class="net-tab ${activeNet === "usdt_trc20" ? "active" : ""}" onclick="switchInvoiceNet('usdt_trc20', ${amt})">USDT TRC20</button>
-          <button type="button" class="net-tab ${activeNet === "btc" ? "active" : ""}" onclick="switchInvoiceNet('btc', ${amt})">Bitcoin (BTC)</button>
-        </div>
-
-        <div class="copy-box">
-          <div>
-            <div style="font-size:19px; font-weight:900;">${conv.amount} ${conv.unit}</div>
-            <div class="muted">${w.chain}</div>
-          </div>
-          <button type="button" class="btn btn-soft" onclick="copyVal('${conv.amount}')">Göçür</button>
-        </div>
-
-        <div class="muted" style="margin-top:10px;">${w.info}</div>
-
-        <div class="copy-box">
-          <code style="font-size:12px;">${w.addr}</code>
-          <button type="button" class="btn btn-soft" onclick="copyVal('${w.addr}')">Göçür</button>
-        </div>
-
-        <div id="inv-live-status" style="margin-top:12px; padding:11px; border-radius:12px; text-align:center; font-weight:800; background:rgba(245,158,11,0.16); color:#fcd34d;">
-          ⏳ Töleg garaşylýar — salgyňa pul düşen badyna awtomatiki tassyklanar
-        </div>
-
-        <div class="btn-row">
-          <button type="button" id="manual-check-btn" class="btn btn-green" style="width:100%; padding:13px;" onclick="checkCryptoNow(${amt}, '${activeNet}', ${conv.amount}, '${conv.unit}', false)">
-            Tölegi Barla
-          </button>
-        </div>
-      `;
-    }
-
-    function copyVal(v) {
-      if (navigator.clipboard && v) navigator.clipboard.writeText(v).catch(() => {});
-      showToast("Göçürildi!");
-    }
-
-    function getUsedTxHashes() {
-      try { return JSON.parse(localStorage.getItem("tkm_used_tx_hashes") || "[]"); }
-      catch (_) { return []; }
-    }
-
-    function markTxHashUsed(h) {
-      if (!h) return;
-      const used = getUsedTxHashes();
-      if (!used.includes(h)) {
-        used.push(h);
-        localStorage.setItem("tkm_used_tx_hashes", JSON.stringify(used));
-      }
-    }
-
-    async function verifyBep20(walletAddr, minUsdt) {
-      const used = getUsedTxHashes();
-      const keyPart = BSCSCAN_API_KEY ? `&apikey=${encodeURIComponent(BSCSCAN_API_KEY)}` : "";
-      const url = `https://api.bscscan.com/api?module=account&action=tokentx&contractaddress=${BSC_USDT_CONTRACT}&address=${encodeURIComponent(walletAddr)}&page=1&offset=20&sort=desc${keyPart}`;
-      const res = await fetch(url);
-      const data = await res.json();
-      if (data.status !== "1" || !Array.isArray(data.result)) return null;
-
-      const nowSec = Math.floor(Date.now() / 1000);
-      for (const tx of data.result) {
-        const toAddr = String(tx.to || "").toLowerCase();
-        const txHash = String(tx.hash || "");
-        const decimals = Number(tx.tokenDecimal || 18);
-        const valUsdt = Number(tx.value || 0) / Math.pow(10, decimals);
-        if (toAddr !== walletAddr.toLowerCase()) continue;
-        if (used.includes(txHash)) continue;
-        if (nowSec - Number(tx.timeStamp || 0) > 10800) continue;
-        if (valUsdt + 0.05 < minUsdt) continue;
-        return txHash;
-      }
-      return null;
-    }
-
-    async function verifyTrc20(walletAddr, minUsdt) {
-      const used = getUsedTxHashes();
-      const url = `https://api.trongrid.io/v1/accounts/${encodeURIComponent(walletAddr)}/transactions/trc20?only_confirmed=true&only_to=true&limit=20&contract_address=${TRON_USDT_CONTRACT}`;
-      const res = await fetch(url);
-      const data = await res.json();
-      if (!Array.isArray(data.data)) return null;
-
-      const nowMs = Date.now();
-      for (const tx of data.data) {
-        const txHash = String(tx.transaction_id || "");
-        const decimals = Number(tx.token_info?.decimals || 6);
-        const valUsdt = Number(tx.value || 0) / Math.pow(10, decimals);
-        if (used.includes(txHash)) continue;
-        if (nowMs - Number(tx.block_timestamp || 0) > 10800 * 1000) continue;
-        if (valUsdt + 0.05 < minUsdt) continue;
-        return txHash;
-      }
-      return null;
-    }
-
-    async function verifyBtc(walletAddr, minBtc) {
-      const used = getUsedTxHashes();
-      const res = await fetch(`https://mempool.space/api/address/${encodeURIComponent(walletAddr)}/txs`);
-      const txs = await res.json();
-      if (!Array.isArray(txs)) return null;
-
-      for (const tx of txs.slice(0, 20)) {
-        const txHash = String(tx.txid || "");
-        if (used.includes(txHash)) continue;
-        let sats = 0;
-        for (const vout of (tx.vout || [])) {
-          if (vout.scriptpubkey_address === walletAddr) sats += Number(vout.value || 0);
-        }
-        if ((sats / 1e8) + 0.000005 < minBtc) continue;
-        return txHash;
-      }
-      return null;
-    }
-
-    async function recordApprovedDeposit(payload) {
-      let saved = null;
-      try { saved = await sbInsert("deposits", payload); }
-      catch (_) { saved = { id: "dep-" + Date.now(), ...payload }; }
-
-      let cache = [];
-      try { cache = JSON.parse(localStorage.getItem("tkm_deposits_cache") || "[]"); } catch (__) {}
-      cache.unshift(saved);
-      localStorage.setItem("tkm_deposits_cache", JSON.stringify(cache));
-      await refreshWalletAndList();
-    }
-
-    function startCryptoAutoPoll(amt) {
-      clearInterval(pollId);
-      if (payGroup !== "crypto") return;
-      const conv = calcCrypto(amt, activeNet);
-      pollId = setInterval(async () => {
-        if (isPolling) return;
-        await checkCryptoNow(amt, activeNet, conv.amount, conv.unit, true);
-      }, 10000);
-    }
-
-    async function checkCryptoNow(amt, net, cryptoAmt, unit, silent) {
+    async function createNowPaymentsInvoice() {
       if (!requireVerifiedUser("profil.html")) return;
       const user = getUser();
-      const w = MY_WALLETS[net];
-      const box = document.getElementById("inv-live-status");
-      const btn = document.getElementById("manual-check-btn");
+      const amtTmt = Number(document.getElementById("dep-amt").value || 0);
+      if (!amtTmt || amtTmt < 20) {
+        showToast("İň az ýatyrmak möçberi 20 TMT!");
+        return;
+      }
 
-      isPolling = true;
-      if (!silent && btn) { btn.disabled = true; btn.textContent = "⏳ Barlanýar..."; }
+      const usdAmount = Number((amtTmt / TMT_PER_USD).toFixed(2));
+      const orderId = `TKM|${user.username}|${amtTmt}|${Date.now()}`;
+      const returnBase = window.location.origin + window.location.pathname;
 
-      let txHash = null;
+      const btn = document.getElementById("go-nowpay-btn");
+      btn.disabled = true;
+      btn.textContent = "⏳ Töleg sahypasy taýýarlanýar...";
+
       try {
-        if (net === "usdt_bep20") txHash = await verifyBep20(w.addr, cryptoAmt);
-        else if (net === "usdt_trc20") txHash = await verifyTrc20(w.addr, cryptoAmt);
-        else if (net === "btc") txHash = await verifyBtc(w.addr, cryptoAmt);
-      } catch (_) { txHash = null; }
-      finally {
-        isPolling = false;
-        if (!silent && btn) { btn.disabled = false; btn.textContent = "Tölegi Barla"; }
-      }
+        const bodyData = {
+          price_amount: usdAmount,
+          price_currency: "usd",
+          pay_currency: selectedPayCurrency,
+          order_id: orderId,
+          order_description: `TKM Market Bakiye (${amtTmt} TMT) - ${user.username}`,
+          success_url: `${returnBase}?paid=1`,
+          cancel_url: `${returnBase}?paid=0`,
+          ipn_callback_url: NOWPAYMENTS_WEBHOOK_URL
+        };
 
-      if (!txHash) {
-        if (!silent) showToast("Töleg heniz düşmedik — awto-barlag dowam edýär.");
-        return;
-      }
+        const res = await fetch("https://api.nowpayments.io/v1/invoice", {
+          method: "POST",
+          headers: {
+            "x-api-key": NOWPAYMENTS_API_KEY,
+            "Content-Type": "application/json"
+          },
+          body: JSON.stringify(bodyData)
+        });
 
-      stopTimers();
-      markTxHashUsed(txHash);
-      await recordApprovedDeposit({
-        username: user.username,
-        amount_tmt: amt,
-        method: net.toUpperCase(),
-        reference_info: `${cryptoAmt} ${unit} · ${currentInvoiceId} · TX: ${txHash}`,
-        status: "approved"
-      });
+        const data = await res.json();
+        if (!res.ok || !data.invoice_url) {
+          throw new Error(data.message || "Fatura döredilip bilinmedi");
+        }
 
-      if (box) {
-        box.style.background = "rgba(16, 185, 129, 0.2)";
-        box.style.color = "#6ee7b7";
-        box.textContent = `✅ Töleg tassyklanyldy! +${amt.toLocaleString()} TMT bakiýä goşuldy.`;
+        window.location.href = data.invoice_url;
+      } catch (err) {
+        showToast("Ýalňyşlyk: " + err.message);
+        btn.disabled = false;
+        btn.textContent = "Tölege Geç (NOWPayments) →";
       }
-      showToast(`+${amt.toLocaleString()} TMT bakiýäňize goşuldy ✅`);
     }
 
-    async function payByCard(amt) {
-      if (!requireVerifiedUser("profil.html")) return;
-      const user = getUser();
-      const num = (document.getElementById("card-num")?.value || "").replace(/\s+/g, "");
-      const exp = (document.getElementById("card-exp")?.value || "").trim();
-      const cvc = (document.getElementById("card-cvc")?.value || "").trim();
-      const holder = (document.getElementById("card-holder")?.value || "").trim();
-
-      if (num.length < 12 || !exp || cvc.length < 3 || !holder) {
-        showToast("Kart maglumatlaryny doly giriziň!");
-        return;
+    async function refreshDepositsAndBalance() {
+      const p = new URLSearchParams(window.location.search);
+      if (p.get("paid") === "1") {
+        showToast("Töleg kabul edildi! Blockchain tassygyndan soň bakiýäňiz täzelener.");
       }
 
-      stopTimers();
-      await recordApprovedDeposit({
-        username: user.username,
-        amount_tmt: amt,
-        method: "CARD",
-        reference_info: `Kart •••• ${num.slice(-4)} (${holder}) · ${currentInvoiceId}`,
-        status: "approved"
-      });
-      showToast(`+${amt.toLocaleString()} TMT bakiýä goşuldy ✅`);
-      backToSelectScreen();
-    }
-
-    async function refreshWalletAndList() {
       await refreshTopBalancePill();
-      const pillTxt = document.getElementById("top-balance-pill")?.textContent || "💰 0 TMT";
-      document.getElementById("dep-cur-bal").textContent = pillTxt.replace("💰 ", "");
+      const pill = document.getElementById("top-balance-pill")?.textContent || "💰 0 TMT";
+      document.getElementById("cur-bal-txt").textContent = pill.replace("💰 ", "");
 
       const user = getUser();
       let list = [];
@@ -546,9 +194,9 @@
         ? list.filter(x => String(x.username || "").toLowerCase() === String(user.username || "").toLowerCase())
         : list.slice(0, 10);
 
-      const wrap = document.getElementById("my-deposits-list");
+      const wrap = document.getElementById("dep-history-list");
       if (!mine.length) {
-        wrap.innerHTML = `<p class="muted">Heniz töleg taryhy ýok.</p>`;
+        wrap.innerHTML = `<p class="muted">Heniz bakiýe ýatyryş ýok.</p>`;
         return;
       }
 
@@ -558,13 +206,13 @@
             <strong>+${Number(d.amount_tmt || 0).toLocaleString()} TMT</strong> — <span class="chip-cat">${esc(d.method)}</span>
             <div class="muted" style="word-break:break-all;">${esc(d.reference_info || "")}</div>
           </div>
-          <span class="badge-status ok">Üstünlikli ✅</span>
+          <span class="badge-status ok">${d.status === "rejected" ? "Ret Edildi ❌" : "Tassyklanyldy ✅"}</span>
         </div>
       `).join("");
     }
 
-    loadBtcPrice();
-    refreshWalletAndList();
+    updateUsdPreview();
+    refreshDepositsAndBalance();
   </script>
 </body>
 </html>
