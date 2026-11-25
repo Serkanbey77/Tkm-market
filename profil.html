@@ -3,263 +3,149 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>TKM Market — Giriş, Hesap ve Cüzdan</title>
+  <title>TKM Market — Profil & Cüzdan</title>
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
   <style>
     * { box-sizing: border-box; }
     body {
-      margin: 0;
-      font-family: system-ui, -apple-system, sans-serif;
-      background: radial-gradient(circle at top, #111c33 0%, #070b14 65%);
-      color: #f8fafc;
-      min-height: 100vh;
-      padding: 16px;
+      margin: 0; font-family: system-ui, -apple-system, sans-serif;
+      background: radial-gradient(circle at top, #132240 0%, #070b14 70%);
+      color: #f8fafc; min-height: 100vh; padding: 16px;
     }
     .wrap { max-width: 520px; margin: 0 auto; }
-    .topbar {
+    .top {
       display: flex; justify-content: space-between; align-items: center;
-      margin-bottom: 16px; padding-bottom: 12px; border-bottom: 1px solid #1e293b;
+      padding-bottom: 12px; margin-bottom: 16px; border-bottom: 1px solid #1e293b;
     }
-    .brand { font-weight: 800; font-size: 18px; letter-spacing: .5px; color: #38bdf8; text-decoration: none; }
-    .nav-links { display: flex; gap: 8px; }
-    .nav-links a {
-      color: #cbd5e1; text-decoration: none; font-size: 13px;
-      padding: 6px 10px; border-radius: 8px; background: #111827; border: 1px solid #1e293b;
+    .logo { font-weight: 900; font-size: 18px; color: #38bdf8; text-decoration: none; }
+    .nav { display: flex; gap: 8px; }
+    .nav a {
+      color: #e2e8f0; text-decoration: none; font-size: 13px;
+      padding: 6px 10px; border-radius: 8px; background: #111827; border: 1px solid #243247;
     }
     .card {
-      background: rgba(17, 24, 39, 0.94);
-      border: 1px solid #1e293b;
-      border-radius: 16px;
-      padding: 18px;
-      margin-bottom: 14px;
-      box-shadow: 0 12px 30px rgba(0,0,0,.35);
+      background: #101827; border: 1px solid #1f2d42; border-radius: 16px;
+      padding: 18px; margin-bottom: 14px;
     }
     .tabs { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; margin-bottom: 14px; }
     .tab {
-      padding: 10px; border-radius: 10px; border: 1px solid #263248;
-      background: #0d1424; color: #94a3b8; font-weight: 700; cursor: pointer;
+      padding: 10px; border-radius: 10px; border: 1px solid #243247;
+      background: #0b111e; color: #94a3b8; font-weight: 700; cursor: pointer;
     }
-    .tab.active { background: #2563eb; color: #fff; border-color: #3b82f6; }
+    .tab.active { background: #0284c7; color: #fff; border-color: #38bdf8; }
     label { display: block; font-size: 12px; color: #94a3b8; margin-bottom: 5px; }
     input {
-      width: 100%; background: #0b1120; border: 1px solid #283548; color: #fff;
-      padding: 11px 12px; border-radius: 10px; margin-bottom: 12px; font-size: 14px;
+      width: 100%; padding: 11px 12px; border-radius: 10px;
+      border: 1px solid #26354d; background: #090e1a; color: #fff;
+      font-size: 14px; margin-bottom: 12px;
     }
-    .row-end {
-      display: flex; justify-content: flex-end; margin-top: -6px; margin-bottom: 12px;
-    }
-    .link-btn {
-      background: none; border: none; color: #38bdf8; font-size: 12px;
-      font-weight: 600; cursor: pointer; padding: 0;
-    }
-    .captcha-box {
-      background: #0b1222; border: 1px solid #243247; border-radius: 12px;
-      padding: 12px; margin-bottom: 12px;
-    }
-    .captcha-top {
-      display: flex; justify-content: space-between; align-items: center;
-      margin-bottom: 8px; font-size: 12px; color: #94a3b8;
-    }
-    .captcha-code {
-      font-family: monospace; font-size: 18px; font-weight: 800; letter-spacing: 4px;
-      color: #38bdf8; background: #111c33; padding: 6px 10px; border-radius: 8px;
-      border: 1px dashed #3b82f6; user-select: none;
-    }
-    .refresh-btn {
-      background: #1e293b; color: #e2e8f0; border: 1px solid #334155;
-      padding: 5px 9px; border-radius: 7px; font-size: 11px; cursor: pointer; font-weight: 600;
-    }
-    button.primary {
+    .btn {
       width: 100%; padding: 12px; border: none; border-radius: 10px;
-      background: linear-gradient(135deg, #2563eb, #0284c7);
-      color: #fff; font-weight: 700; font-size: 14px; cursor: pointer;
+      background: #0284c7; color: #fff; font-weight: 700; font-size: 14px; cursor: pointer;
     }
-    button.secondary {
-      width: 100%; padding: 10px; border: 1px solid #334155; border-radius: 10px;
-      background: #0f172a; color: #cbd5e1; font-weight: 600; font-size: 13px; cursor: pointer;
-      margin-top: 8px;
-    }
-    .divider {
-      display: flex; align-items: center; gap: 10px; margin: 14px 0;
-      color: #64748b; font-size: 12px;
-    }
-    .divider::before, .divider::after {
-      content: ""; flex: 1; height: 1px; background: #1e293b;
-    }
-    .google-btn {
-      width: 100%; display: flex; align-items: center; justify-content: center; gap: 8px;
-      padding: 11px; border-radius: 10px; font-weight: 700; font-size: 13px; cursor: pointer;
-      border: 1px solid #cbd5e1; background: #ffffff; color: #0f172a;
-    }
-    .profile-head { display: flex; align-items: center; gap: 14px; }
-    .avatar {
-      width: 56px; height: 56px; border-radius: 14px;
-      background: linear-gradient(135deg, #0ea5e9, #6366f1);
-      display: flex; align-items: center; justify-content: center;
-      font-size: 22px; font-weight: 800; color: #fff; flex-shrink: 0;
-    }
-    .badge-row { display: flex; flex-wrap: wrap; gap: 6px; margin-top: 6px; }
-    .pill {
-      font-size: 11px; padding: 3px 8px; border-radius: 999px;
-      background: rgba(34, 197, 94, 0.14); color: #4ade80; border: 1px solid rgba(34, 197, 94, 0.3);
-      font-weight: 600;
-    }
-    .pill.blue {
-      background: rgba(56, 189, 248, 0.14); color: #38bdf8; border-color: rgba(56, 189, 248, 0.3);
-    }
-    .wallet-box {
+    .wallet {
       display: flex; justify-content: space-between; align-items: center;
-      background: #0b1222; border: 1px solid #1e293b; border-radius: 14px; padding: 14px;
-      margin-top: 14px;
+      background: #090e1a; border: 1px solid #1f2d42; border-radius: 12px;
+      padding: 14px; margin: 14px 0;
     }
-    .bal { font-size: 26px; font-weight: 800; color: #22c55e; }
-    .actions { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin-top: 12px; }
-    .btn-link {
+    .bal { font-size: 26px; font-weight: 900; color: #22c55e; }
+    .grid2 { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
+    .link-btn {
       display: block; text-align: center; text-decoration: none;
       padding: 11px; border-radius: 10px; font-weight: 700; font-size: 13px;
     }
-    .btn-deposit { background: #16a34a; color: #fff; }
-    .btn-withdraw { background: #1e293b; color: #f8fafc; border: 1px solid #334155; }
-    .msg { font-size: 12px; margin-top: 8px; min-height: 18px; line-height: 1.4; }
-    .err { color: #f87171; } .ok { color: #4ade80; }
-    .tx-item {
-      display: flex; justify-content: space-between; align-items: center;
-      padding: 10px 0; border-bottom: 1px solid #1a2436; font-size: 13px;
+    .dep { background: #16a34a; color: #fff; }
+    .with { background: #1e293b; color: #f8fafc; border: 1px solid #334155; }
+    .out {
+      background: rgba(239, 68, 68, 0.14); color: #f87171;
+      border: 1px solid rgba(239, 68, 68, 0.35); border-radius: 8px;
+      padding: 6px 10px; font-size: 12px; font-weight: 700; cursor: pointer;
     }
-    .tx-item:last-child { border-bottom: none; }
     .muted { color: #94a3b8; font-size: 12px; }
-    .logout-btn {
-      background: rgba(239, 68, 68, 0.15); color: #f87171; border: 1px solid rgba(239, 68, 68, 0.35);
-      padding: 7px 11px; border-radius: 8px; font-weight: 700; font-size: 12px; cursor: pointer;
+    .msg { font-size: 12px; margin-top: 8px; min-height: 18px; }
+    .err { color: #f87171; } .ok { color: #4ade80; }
+    .row {
+      display: flex; justify-content: space-between; align-items: center;
+      padding: 9px 0; border-bottom: 1px solid #1a2538; font-size: 13px;
     }
+    .row:last-child { border-bottom: none; }
   </style>
 </head>
 <body>
   <div class="wrap">
-    <div class="topbar">
-      <a class="brand" href="index.html">TKM MARKET</a>
-      <div class="nav-links">
+    <div class="top">
+      <a class="logo" href="index.html">TKM MARKET</a>
+      <div class="nav">
         <a href="index.html">Vitrin</a>
-        <a href="bakiye-yatir.html" id="navDeposit" style="display:none;">Yatır</a>
-        <a href="pul-cek.html" id="navWithdraw" style="display:none;">Çek</a>
+        <a href="bakiye-yatir.html" id="navDep" style="display:none;">Yatır</a>
+        <a href="pul-cek.html" id="navWith" style="display:none;">Çek</a>
       </div>
     </div>
 
-    <div class="card" id="authCard" style="display:none;">
-      <div class="tabs" id="authTabs">
-        <button class="tab active" id="tabLogin" onclick="switchTab('login')">Giriş Yap</button>
-        <button class="tab" id="tabRegister" onclick="switchTab('register')">Kayıt Ol</button>
+    <div class="card" id="authBox" style="display:none;">
+      <div class="tabs">
+        <button class="tab active" id="tLogin" onclick="setMode('login')">Giriş Yap</button>
+        <button class="tab" id="tReg" onclick="setMode('reg')">Kayıt Ol</button>
       </div>
 
-      <!-- Giriş Yap -->
-      <div id="loginForm">
-        <label>E-posta Adresi veya Kullanıcı Adı</label>
-        <input type="text" id="loginIdentifier" placeholder="ornek@mail.com veya kullanıcı adı" autocomplete="username" />
+      <div id="fLogin">
+        <label>E-posta</label>
+        <input type="email" id="lEmail" placeholder="ornek@mail.com" />
         <label>Şifre</label>
-        <input type="password" id="loginPass" placeholder="••••••••" autocomplete="current-password" />
-        <div class="row-end">
-          <button type="button" class="link-btn" onclick="openForgotBox()">Şifremi Unuttum</button>
-        </div>
-        <button class="primary" onclick="doLogin()">Hesaba Giriş Yap</button>
+        <input type="password" id="lPass" placeholder="••••••••" />
+        <button class="btn" onclick="login()">Giriş Yap</button>
       </div>
 
-      <!-- Şifremi Unuttum -->
-      <div id="forgotBox" style="display:none;">
-        <div style="font-weight:700; font-size:15px; margin-bottom:8px;">Şifre Sıfırlama</div>
-        <div class="muted" style="margin-bottom:10px;">Kayıtlı e-posta adresini yaz, şifre sıfırlama bağlantısı gönderelim.</div>
-        <label>E-posta Adresi</label>
-        <input type="email" id="resetEmail" placeholder="ornek@mail.com" />
-        <button class="primary" onclick="sendPasswordReset()">Sıfırlama Bağlantısı Gönder</button>
-        <button type="button" class="secondary" onclick="switchTab('login')">Giriş Ekranına Dön</button>
-      </div>
-
-      <!-- Yeni Şifre Belirleme -->
-      <div id="newPassBox" style="display:none;">
-        <div style="font-weight:700; font-size:15px; margin-bottom:8px;">Yeni Şifre Belirle</div>
-        <label>Yeni Şifre (en az 6 karakter)</label>
-        <input type="password" id="newPasswordInput" placeholder="Yeni şifreni yaz" />
-        <button class="primary" onclick="updateForgottenPassword()">Şifreyi Güncelle</button>
-      </div>
-
-      <!-- Kayıt Ol + CAPTCHA -->
-      <div id="registerForm" style="display:none;">
-        <label>Kullanıcı Adı (Benzersiz)</label>
-        <input type="text" id="regUsername" placeholder="Başka kimsenin kullanmadığı ad" />
-        <label>E-posta Adresi (Benzersiz)</label>
-        <input type="email" id="regEmail" placeholder="ornek@mail.com" />
+      <div id="fReg" style="display:none;">
+        <label>Kullanıcı Adı</label>
+        <input type="text" id="rUser" placeholder="Kullanıcı adın" />
+        <label>E-posta</label>
+        <input type="email" id="rEmail" placeholder="ornek@mail.com" />
         <label>Şifre (en az 6 karakter)</label>
-        <input type="password" id="regPass" placeholder="En az 6 karakter şifre" />
-
-        <div class="captcha-box">
-          <div class="captcha-top">
-            <span>İnsan Doğrulaması (CAPTCHA)</span>
-            <button type="button" class="refresh-btn" onclick="generateCaptcha()">Yeni Kod</button>
-          </div>
-          <div style="display:flex; gap:10px; align-items:center;">
-            <div class="captcha-code" id="captchaDisplay">A7K9M</div>
-            <input type="text" id="captchaInput" placeholder="Kodu yaz" style="margin-bottom:0; text-transform:uppercase;" />
-          </div>
-        </div>
-
-        <button class="primary" onclick="doRegister()">Ücretsiz Hesap Oluştur</button>
+        <input type="password" id="rPass" placeholder="••••••••" />
+        <button class="btn" onclick="register()">Kayıt Ol</button>
       </div>
 
-      <!-- Google Giriş -->
-      <div id="oauthArea">
-        <div class="divider">veya</div>
-        <button type="button" class="google-btn" onclick="signInWithGoogle()">
-          <span>G</span> Google ile Gir
-        </button>
-      </div>
-
-      <div class="msg" id="authMsg"></div>
+      <div class="msg" id="aMsg"></div>
     </div>
 
-    <div id="profileArea" style="display:none;">
+    <div id="profBox" style="display:none;">
       <div class="card">
-        <div style="display:flex; justify-content:space-between; align-items:flex-start; gap:10px;">
-          <div class="profile-head">
-            <div class="avatar" id="avatarLetter">T</div>
-            <div>
-              <div style="font-size:18px; font-weight:800;" id="dispUsername">Kullanıcı</div>
-              <div class="muted" id="dispMeta">ID: -</div>
-              <div class="badge-row">
-                <span class="pill">Güvenli Cüzdan Aktif</span>
-                <span class="pill blue">Escrow Korumalı</span>
-              </div>
-            </div>
+        <div style="display:flex; justify-content:space-between; align-items:center;">
+          <div>
+            <div style="font-size:18px; font-weight:800;" id="pName">-</div>
+            <div class="muted" id="pEmail">-</div>
           </div>
-          <button class="logout-btn" onclick="doLogout()">Çıkış</button>
+          <button class="out" onclick="logout()">Çıkış</button>
         </div>
 
-        <div class="wallet-box">
+        <div class="wallet">
           <div>
-            <div class="muted">Mevcut Cüzdan Bakiyesi</div>
-            <div class="bal" id="dispBalance">$0.00</div>
+            <div class="muted">Cüzdan Bakiyesi</div>
+            <div class="bal" id="pBal">$0.00</div>
           </div>
           <div style="text-align:right;">
-            <div class="muted">Hesap Durumu</div>
-            <div style="font-weight:700; color:#38bdf8; font-size:13px;" id="dispRole">Üye</div>
+            <div class="muted">Rol</div>
+            <div style="font-weight:700; color:#38bdf8; font-size:13px;" id="pRole">Üye</div>
           </div>
         </div>
 
-        <div class="actions">
-          <a class="btn-link btn-deposit" href="bakiye-yatir.html">+ Bakiye Yatır</a>
-          <a class="btn-link btn-withdraw" href="pul-cek.html">↗ Bakiye Çek</a>
+        <div class="grid2">
+          <a class="link-btn dep" href="bakiye-yatir.html">+ Bakiye Yatır</a>
+          <a class="link-btn with" href="pul-cek.html">↗ Bakiye Çek</a>
         </div>
       </div>
 
       <div class="card">
-        <div style="font-weight:700; font-size:15px; margin-bottom:10px;">Profil Bilgilerini Düzenle</div>
-        <label>Kullanıcı Adı</label>
-        <input type="text" id="editUsername" placeholder="Yeni kullanıcı adı" />
-        <button class="primary" onclick="saveUsername()">Bilgileri Kaydet</button>
-        <div class="msg" id="profMsg"></div>
+        <div style="font-weight:700; margin-bottom:10px;">Kullanıcı Adını Güncelle</div>
+        <input type="text" id="eName" placeholder="Yeni kullanıcı adı" />
+        <button class="btn" onclick="updateName()">Kaydet</button>
+        <div class="msg" id="pMsg"></div>
       </div>
 
       <div class="card">
-        <div style="font-weight:700; font-size:15px; margin-bottom:8px;">Son Finansal Hareketler</div>
-        <div id="txList"><div class="muted">Yükleniyor...</div></div>
+        <div style="font-weight:700; margin-bottom:8px;">Son İşlemler</div>
+        <div id="txBox"><div class="muted">Yükleniyor...</div></div>
       </div>
     </div>
   </div>
@@ -269,325 +155,113 @@
     const SUPABASE_ANON_KEY = "sb_publishable_gQFoj3SUxW-TUMjYmTGrIg_5_6hwBAH";
     const sb = supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
 
-    let currentCaptcha = "";
-
-    function generateCaptcha() {
-      const chars = "ABCDEFGHJKLMNPQRSTUVWXYZ23456789";
-      let code = "";
-      for (let i = 0; i < 5; i++) {
-        code += chars.charAt(Math.floor(Math.random() * chars.length));
-      }
-      currentCaptcha = code;
-      document.getElementById("captchaDisplay").innerText = code;
-      document.getElementById("captchaInput").value = "";
+    function setMode(m) {
+      document.getElementById("tLogin").classList.toggle("active", m === "login");
+      document.getElementById("tReg").classList.toggle("active", m === "reg");
+      document.getElementById("fLogin").style.display = m === "login" ? "block" : "none";
+      document.getElementById("fReg").style.display = m === "reg" ? "block" : "none";
+      document.getElementById("aMsg").innerText = "";
     }
 
-    function setLoggedInNav(loggedIn) {
-      document.getElementById("navDeposit").style.display = loggedIn ? "inline-block" : "none";
-      document.getElementById("navWithdraw").style.display = loggedIn ? "inline-block" : "none";
+    async function login() {
+      const email = document.getElementById("lEmail").value.trim().toLowerCase();
+      const password = document.getElementById("lPass").value;
+      const msg = document.getElementById("aMsg");
+      msg.className = "msg"; msg.innerText = "Giriş yapılıyor...";
+
+      const { error } = await sb.auth.signInWithPassword({ email, password });
+      if (error) { msg.className = "msg err"; msg.innerText = error.message; return; }
+      load();
     }
 
-    function switchTab(mode) {
-      document.getElementById("authTabs").style.display = "grid";
-      document.getElementById("forgotBox").style.display = "none";
-      document.getElementById("newPassBox").style.display = "none";
-      document.getElementById("oauthArea").style.display = "block";
-      document.getElementById("tabLogin").classList.toggle("active", mode === "login");
-      document.getElementById("tabRegister").classList.toggle("active", mode === "register");
-      document.getElementById("loginForm").style.display = mode === "login" ? "block" : "none";
-      document.getElementById("registerForm").style.display = mode === "register" ? "block" : "none";
-      document.getElementById("authMsg").innerText = "";
-      if (mode === "register") generateCaptcha();
-    }
-
-    function openForgotBox() {
-      document.getElementById("authTabs").style.display = "none";
-      document.getElementById("loginForm").style.display = "none";
-      document.getElementById("registerForm").style.display = "none";
-      document.getElementById("newPassBox").style.display = "none";
-      document.getElementById("oauthArea").style.display = "none";
-      document.getElementById("forgotBox").style.display = "block";
-      document.getElementById("authMsg").innerText = "";
-    }
-
-    async function sendPasswordReset() {
-      const email = document.getElementById("resetEmail").value.trim().toLowerCase();
-      const msg = document.getElementById("authMsg");
-      msg.className = "msg";
-      if (!email) {
-        msg.className = "msg err";
-        msg.innerText = "Lütfen e-posta adresini gir.";
-        return;
-      }
-      msg.innerText = "Sıfırlama bağlantısı gönderiliyor...";
-      const redirectTo = window.location.origin + window.location.pathname;
-      const { error } = await sb.auth.resetPasswordForEmail(email, { redirectTo });
-      msg.className = error ? "msg err" : "msg ok";
-      msg.innerText = error
-        ? "Gönderilemedi: " + error.message
-        : "Şifre sıfırlama bağlantısı e-postana gönderildi.";
-    }
-
-    async function updateForgottenPassword() {
-      const password = document.getElementById("newPasswordInput").value;
-      const msg = document.getElementById("authMsg");
-      msg.className = "msg";
-      if (!password || password.length < 6) {
-        msg.className = "msg err";
-        msg.innerText = "Yeni şifre en az 6 karakter olmalı.";
-        return;
-      }
-      msg.innerText = "Şifre güncelleniyor...";
-      const { error } = await sb.auth.updateUser({ password });
-      if (error) {
-        msg.className = "msg err";
-        msg.innerText = "Hata: " + error.message;
-        return;
-      }
-      msg.className = "msg ok";
-      msg.innerText = "Şifren güncellendi!";
-      initPage();
-    }
-
-    async function signInWithGoogle() {
-      const msg = document.getElementById("authMsg");
-      msg.className = "msg";
-      msg.innerText = "Google girişine yönlendiriliyor...";
-      const redirectTo = window.location.origin + window.location.pathname;
-      const { error } = await sb.auth.signInWithOAuth({
-        provider: "google",
-        options: { redirectTo }
-      });
-      if (error) {
-        msg.className = "msg err";
-        msg.innerText = "Google girişi hatası: " + error.message;
-      }
-    }
-
-    async function doLogin() {
-      let identifier = document.getElementById("loginIdentifier").value.trim();
-      const password = document.getElementById("loginPass").value;
-      const msg = document.getElementById("authMsg");
+    async function register() {
+      const username = document.getElementById("rUser").value.trim();
+      const email = document.getElementById("rEmail").value.trim().toLowerCase();
+      const password = document.getElementById("rPass").value;
+      const msg = document.getElementById("aMsg");
       msg.className = "msg";
 
-      if (!identifier || !password) {
-        msg.className = "msg err";
-        msg.innerText = "E-posta/kullanıcı adı ve şifre gir.";
+      if (!username || !email || password.length < 6) {
+        msg.className = "msg err"; msg.innerText = "Kullanıcı adı, e-posta ve en az 6 karakter şifre gir.";
         return;
       }
 
-      msg.innerText = "Giriş yapılıyor...";
-
-      if (!identifier.includes("@")) {
-        const { data: prof } = await sb
-          .from("profiles")
-          .select("email")
-          .ilike("username", identifier)
-          .maybeSingle();
-        if (prof?.email) {
-          identifier = prof.email;
-        }
-      }
-
-      const { error } = await sb.auth.signInWithPassword({ email: identifier.toLowerCase(), password });
-      if (error) {
-        msg.className = "msg err";
-        msg.innerText = "Giriş başarısız: " + error.message;
-        return;
-      }
-      initPage();
-    }
-
-    async function doRegister() {
-      const username = document.getElementById("regUsername").value.trim();
-      const email = document.getElementById("regEmail").value.trim().toLowerCase();
-      const password = document.getElementById("regPass").value;
-      const capTyped = document.getElementById("captchaInput").value.trim().toUpperCase();
-      const msg = document.getElementById("authMsg");
-      msg.className = "msg";
-
-      if (!username || username.length < 3) {
-        msg.className = "msg err";
-        msg.innerText = "En az 3 karakterlik benzersiz bir kullanıcı adı gir.";
-        return;
-      }
-
-      if (!email || password.length < 6) {
-        msg.className = "msg err";
-        msg.innerText = "Geçerli bir e-posta ve en az 6 karakter şifre gir.";
-        return;
-      }
-
-      if (capTyped !== currentCaptcha) {
-        msg.className = "msg err";
-        msg.innerText = "İnsan doğrulaması (CAPTCHA) kodu hatalı.";
-        generateCaptcha();
-        return;
-      }
-
-      msg.innerText = "Kullanıcı adı ve e-posta kontrol ediliyor...";
-
-      const [{ data: existingUser }, { data: existingEmail }] = await Promise.all([
-        sb.from("profiles").select("id").ilike("username", username).maybeSingle(),
-        sb.from("profiles").select("id").ilike("email", email).maybeSingle()
-      ]);
-
-      if (existingUser) {
-        msg.className = "msg err";
-        msg.innerText = "Bu kullanıcı adı zaten alınmış!";
-        generateCaptcha();
-        return;
-      }
-
-      if (existingEmail) {
-        msg.className = "msg err";
-        msg.innerText = "Bu e-posta adresi zaten kayıtlı!";
-        generateCaptcha();
-        return;
-      }
-
+      msg.innerText = "Hesap açılıyor...";
       const { data, error } = await sb.auth.signUp({
-        email,
-        password,
-        options: { data: { username } }
+        email, password, options: { data: { username } }
       });
+      if (error) { msg.className = "msg err"; msg.innerText = error.message; return; }
 
-      if (error) {
-        msg.className = "msg err";
-        msg.innerText = "Kayıt hatası: " + error.message;
-        generateCaptcha();
-        return;
+      if (!data.session) {
+        await sb.auth.signInWithPassword({ email, password });
       }
-
-      if (data.session) {
-        initPage();
-      } else {
-        const loginRes = await sb.auth.signInWithPassword({ email, password });
-        if (!loginRes.error) {
-          initPage();
-        } else {
-          msg.className = "msg ok";
-          msg.innerText = "Hesap oluşturuldu! Giriş Yap sekmesinden girebilirsin.";
-          switchTab("login");
-        }
-      }
+      load();
     }
 
-    async function doLogout() {
+    async function logout() {
       await sb.auth.signOut();
       location.reload();
     }
 
-    async function saveUsername() {
+    async function updateName() {
       const { data: { user } } = await sb.auth.getUser();
-      const username = document.getElementById("editUsername").value.trim();
-      const msg = document.getElementById("profMsg");
+      const username = document.getElementById("eName").value.trim();
+      const msg = document.getElementById("pMsg");
       if (!user || !username) return;
-
-      const { data: taken } = await sb
-        .from("profiles")
-        .select("id")
-        .ilike("username", username)
-        .neq("id", user.id)
-        .maybeSingle();
-
-      if (taken) {
-        msg.className = "msg err";
-        msg.innerText = "Bu kullanıcı adı başka bir üye tarafından kullanılıyor.";
-        return;
-      }
 
       const { error } = await sb.from("profiles").update({ username }).eq("id", user.id);
       msg.className = error ? "msg err" : "msg ok";
-      msg.innerText = error ? "Kaydedilemedi: " + error.message : "Kullanıcı adı güncellendi!";
-      if (!error) initPage();
+      msg.innerText = error ? error.message : "Güncellendi!";
+      if (!error) load();
     }
 
-    async function initPage() {
+    async function load() {
       const { data: { user } } = await sb.auth.getUser();
-      const authCard = document.getElementById("authCard");
-      const profileArea = document.getElementById("profileArea");
-
-      if (!user) {
-        setLoggedInNav(false);
-        authCard.style.display = "block";
-        profileArea.style.display = "none";
-        generateCaptcha();
-        return;
-      }
-
-      setLoggedInNav(true);
-      authCard.style.display = "none";
-      profileArea.style.display = "block";
+      const logged = !!user;
+      document.getElementById("navDep").style.display = logged ? "inline-block" : "none";
+      document.getElementById("navWith").style.display = logged ? "inline-block" : "none";
+      document.getElementById("authBox").style.display = logged ? "none" : "block";
+      document.getElementById("profBox").style.display = logged ? "block" : "none";
+      if (!logged) return;
 
       let { data: prof } = await sb.from("profiles").select("*").eq("id", user.id).maybeSingle();
       if (!prof) {
-        const fallbackName =
-          user.user_metadata?.username ||
-          user.user_metadata?.full_name ||
-          user.user_metadata?.name ||
-          (user.email ? user.email.split("@")[0] : "Oyuncu");
-        await sb.from("profiles").upsert({
-          id: user.id, email: user.email, username: fallbackName, role: "user", balance: 0
-        });
-        const res = await sb.from("profiles").select("*").eq("id", user.id).single();
-        prof = res.data;
+        const uname = user.user_metadata?.username || user.email.split("@")[0];
+        const role = user.email.toLowerCase() === "sahip@tkm-market.store" ? "admin" : "user";
+        await sb.from("profiles").upsert({ id: user.id, email: user.email, username: uname, role, balance: 0 });
+        prof = (await sb.from("profiles").select("*").eq("id", user.id).single()).data;
       }
 
-      const name = prof?.username || user.email?.split("@")[0] || "Kullanıcı";
-      document.getElementById("avatarLetter").innerText = name.charAt(0).toUpperCase();
-      document.getElementById("dispUsername").innerText = name;
-      document.getElementById("editUsername").value = name;
-      document.getElementById("dispMeta").innerText = `ID: ${user.id.slice(0, 8)}... • ${user.email || ""}`;
-      document.getElementById("dispBalance").innerText = `$${Number(prof?.balance || 0).toFixed(2)}`;
-      document.getElementById("dispRole").innerText = prof?.role === "admin" ? "Platform Sahibi" : "Onaylı Üye";
+      document.getElementById("pName").innerText = prof.username;
+      document.getElementById("eName").value = prof.username;
+      document.getElementById("pEmail").innerText = prof.email;
+      document.getElementById("pBal").innerText = `$${Number(prof.balance || 0).toFixed(2)}`;
+      document.getElementById("pRole").innerText = prof.role === "admin" ? "Platform Sahibi" : "Üye";
 
       const [{ data: deps }, { data: withs }] = await Promise.all([
         sb.from("deposits").select("amount, method, status, created_at").eq("user_id", user.id).order("created_at", { ascending: false }).limit(5),
         sb.from("withdrawals").select("amount, method, status, created_at").eq("user_id", user.id).order("created_at", { ascending: false }).limit(5)
       ]);
 
-      const combined = [
-        ...(deps || []).map(d => ({ ...d, type: "Yatırım" })),
-        ...(withs || []).map(w => ({ ...w, type: "Çekim" }))
+      const list = [
+        ...(deps || []).map(x => ({ ...x, label: "Yatırım" })),
+        ...(withs || []).map(x => ({ ...x, label: "Çekim" }))
       ].sort((a, b) => new Date(b.created_at) - new Date(a.created_at)).slice(0, 6);
 
-      const txList = document.getElementById("txList");
-      if (!combined.length) {
-        txList.innerHTML = `<div class="muted">Henüz yatırım veya çekim işlemin bulunmuyor.</div>`;
+      const box = document.getElementById("txBox");
+      if (!list.length) {
+        box.innerHTML = `<div class="muted">Henüz işlem yok.</div>`;
       } else {
-        txList.innerHTML = combined.map(item => {
-          const stText = item.status === "approved" ? "Onaylandı" : item.status === "rejected" ? "Reddedildi" : "Beklemede";
-          const stColor = item.status === "approved" ? "#4ade80" : item.status === "rejected" ? "#f87171" : "#facc15";
-          return `<div class="tx-item">
-            <div>
-              <strong>${item.type}</strong> <span class="muted">(${item.method || "-"})</span><br>
-              <span class="muted">${new Date(item.created_at).toLocaleDateString("tr-TR")}</span>
-            </div>
-            <div style="text-align:right;">
-              <strong>$${Number(item.amount).toFixed(2)}</strong><br>
-              <span style="font-size:11px; color:${stColor}; font-weight:700;">${stText}</span>
-            </div>
-          </div>`;
-        }).join("");
+        box.innerHTML = list.map(i => `
+          <div class="row">
+            <div><strong>${i.label}</strong> <span class="muted">(${i.method})</span></div>
+            <div><strong>$${Number(i.amount).toFixed(2)}</strong> <span class="muted">• ${i.status}</span></div>
+          </div>
+        `).join("");
       }
     }
 
-    sb.auth.onAuthStateChange((event) => {
-      if (event === "PASSWORD_RECOVERY") {
-        document.getElementById("authCard").style.display = "block";
-        document.getElementById("profileArea").style.display = "none";
-        document.getElementById("authTabs").style.display = "none";
-        document.getElementById("loginForm").style.display = "none";
-        document.getElementById("registerForm").style.display = "none";
-        document.getElementById("forgotBox").style.display = "none";
-        document.getElementById("oauthArea").style.display = "none";
-        document.getElementById("newPassBox").style.display = "block";
-      }
-    });
-
-    generateCaptcha();
-    initPage();
+    load();
   </script>
 </body>
 </html>
