@@ -1,0 +1,226 @@
+<!DOCTYPE html>
+<html lang="tk">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Para Çek — TKM Market</title>
+  <link rel="stylesheet" href="assets/tkm.css" />
+</head>
+<body>
+  <div id="playerok-shell"></div>
+
+  <main class="page-wrap">
+    <div class="panel">
+      <div style="display:flex; justify-content:space-between; align-items:center; gap:8px; flex-wrap:wrap;">
+        <div>
+          <h2>💸 Para Çek</h2>
+          <p class="muted">Çekip bolýan bakiýe: <strong id="avail-bal-txt" style="color:#34d399;">0 TMT</strong></p>
+        </div>
+        <a class="btn btn-soft" href="profil.html">← Profile Dolan</a>
+      </div>
+
+      <form id="withdraw-form" style="margin-top:12px;">
+        <div class="form-grid">
+          <div class="field">
+            <label>Çekjek Möçberiňiz (TMT)</label>
+            <input id="w-amount" type="number" min="1" step="0.01" placeholder="100" required />
+          </div>
+          <div class="field">
+            <label>Çekiş Usuly</label>
+            <select id="w-method" onchange="renderWithdrawFields()">
+              <option value="Visa">Visa Kart</option>
+              <option value="Mastercard">Mastercard Kart</option>
+              <option value="Crypto">Kripto (USDT BEP20 / TRC20 / BTC / TON / LTC)</option>
+              <option value="Phone">Telefon Belgä (Dolandyryjy Tassygy Bilen)</option>
+            </select>
+          </div>
+        </div>
+
+        <div id="w-dynamic-fields" class="escrow-box"></div>
+
+        <div class="btn-row">
+          <button class="btn btn-main" type="submit" style="width:100%;">Pul Çekmek İsledigini Iber</button>
+        </div>
+      </form>
+
+      <div id="withdrawals-list" style="margin-top:14px;"></div>
+    </div>
+  </main>
+
+  <script src="assets/tkm.js"></script>
+  <script>
+    if (requireVerifiedUser("profil.html")) {
+      mountPlayerokShell("profile", "", true);
+
+      let withdrawals = [];
+      let availableBalance = 0;
+
+      function renderWithdrawFields() {
+        const method = document.getElementById("w-method").value;
+        const box = document.getElementById("w-dynamic-fields");
+        const u = getUser();
+
+        if (method === "Visa" || method === "Mastercard") {
+          box.innerHTML = `
+            <strong>${esc(method)} Kart Maglumatlary</strong>
+            <div class="form-grid" style="margin-top:8px;">
+              <div class="field">
+                <label>${esc(method)} Kart Belgisi</label>
+                <input id="w-card-number" type="text" placeholder="${method === "Visa" ? "4532 •••• •••• ••••" : "5412 •••• •••• ••••"}" required />
+              </div>
+              <div class="field">
+                <label>Kart Eýesiniň Ady Familiýasy</label>
+                <input id="w-card-holder" type="text" placeholder="MYRAT MYRADOW" required />
+              </div>
+              <div class="field">
+                <label>Möhleti (AA/ÝÝ)</label>
+                <input id="w-card-exp" type="text" placeholder="08/29" required />
+              </div>
+            </div>
+          `;
+        } else if (method === "Crypto") {
+          box.innerHTML = `
+            <strong>Kripto Pul Çekiş Maglumatlary</strong>
+            <div class="form-grid" style="margin-top:8px;">
+              <div class="field">
+                <label>Kripto Walýuta we Ulgam</label>
+                <select id="w-crypto-coin">
+                  <option value="USDT (BEP20)">USDT (BEP20)</option>
+                  <option value="USDT (TRC20)">USDT (TRC20)</option>
+                  <option value="BTC (Bitcoin)">BTC (Bitcoin)</option>
+                  <option value="TON (Toncoin)">TON (Toncoin)</option>
+                  <option value="LTC (Litecoin)">LTC (Litecoin)</option>
+                </select>
+              </div>
+              <div class="field">
+                <label>Kripto Gapjyk Salgysy</label>
+                <input id="w-crypto-addr" type="text" placeholder="0x... / T... / bc1... / EQ..." required />
+              </div>
+            </div>
+          `;
+        } else {
+          box.innerHTML = `
+            <strong>Telefon Belgä Çekmek (Dolandyryjy Tassygy Bilen)</strong>
+            <p class="muted" style="margin-top:4px;">Pul göni geçirilmeýär: dolandyryjy tassyklap hasabyňyzdaky bakiýeden ugradýar.</p>
+            <div class="form-grid" style="margin-top:8px;">
+              <div class="field">
+                <label>Telefon Belgiňiz</label>
+                <input id="w-phone-num" type="text" value="${esc(u.phone || "")}" placeholder="+993 6X XX XX XX" required />
+              </div>
+            </div>
+          `;
+        }
+      }
+
+      async function loadWithdrawData() {
+        const u = getUser().username.toLowerCase();
+        await refreshTopBalancePill();
+        const pillText = document.getElementById("top-balance-pill")?.textContent || "💰 0 TMT";
+        availableBalance = Number(String(pillText).replace(/[^\d.]/g, "")) || 0;
+        document.getElementById("avail-bal-txt").textContent = `${availableBalance.toLocaleString()} TMT`;
+
+        try {
+          const allW = await sbGet("withdrawals");
+          withdrawals = allW.filter(w => String(w.seller || "").toLowerCase() === u);
+          localStorage.setItem("tkm_withdrawals_cache", JSON.stringify(allW));
+          setDbPill(true, "Onlaýn");
+        } catch (_) {
+          try {
+            const cache = JSON.parse(localStorage.getItem("tkm_withdrawals_cache") || "[]");
+            withdrawals = cache.filter(w => String(w.seller || "").toLowerCase() === u);
+          } catch (__) { withdrawals = []; }
+          setDbPill(false, "Ýerli");
+        }
+        renderWithdrawals();
+      }
+
+      function renderWithdrawals() {
+        const wrap = document.getElementById("withdrawals-list");
+        if (!withdrawals.length) {
+          wrap.innerHTML = `<p class="muted">Heniz pul çekiş islegi ýok.</p>`;
+          return;
+        }
+        wrap.innerHTML = withdrawals.map(w => `
+          <div class="list-row">
+            <div>
+              <strong>${Number(w.amount_tmt || 0).toLocaleString()} TMT</strong> — <span class="chip-cat">${esc(w.network_or_coin || w.method)}</span>
+              <div class="muted">Maglumat: ${esc(w.wallet_or_card || "")}${w.card_holder ? " · Eýesi: " + esc(w.card_holder) : ""}</div>
+            </div>
+            <span class="badge-status ${w.status === "approved" ? "ok" : ""}">${esc(w.status === "approved" ? "Tassyklanyldy ✅" : (w.status === "rejected" ? "Ret Edildi ❌" : "Dolandyryjy Garaşylýar ⏳"))}</span>
+          </div>
+        `).join("");
+      }
+
+      document.getElementById("withdraw-form").addEventListener("submit", async (e) => {
+        e.preventDefault();
+        const u = getUser();
+        const amount = Number(document.getElementById("w-amount").value || 0);
+        const method = document.getElementById("w-method").value;
+
+        if (amount <= 0 || amount > availableBalance) {
+          showToast(`Çekip bolýan bakiýe ýeterlik däl (${availableBalance.toLocaleString()} TMT).`);
+          return;
+        }
+
+        let walletOrCard = "", cardHolder = "", cardExpiry = "", networkOrCoin = "", phoneNumber = "";
+
+        if (method === "Visa" || method === "Mastercard") {
+          walletOrCard = (document.getElementById("w-card-number")?.value || "").trim();
+          cardHolder = (document.getElementById("w-card-holder")?.value || "").trim();
+          cardExpiry = (document.getElementById("w-card-exp")?.value || "").trim();
+          networkOrCoin = method;
+          if (!walletOrCard || !cardHolder || !cardExpiry) {
+            showToast("Kart maglumatlaryny doly giriziň!");
+            return;
+          }
+        } else if (method === "Crypto") {
+          networkOrCoin = document.getElementById("w-crypto-coin")?.value || "USDT (BEP20)";
+          walletOrCard = (document.getElementById("w-crypto-addr")?.value || "").trim();
+          if (!walletOrCard) {
+            showToast("Kripto salgysyny giriziň!");
+            return;
+          }
+        } else {
+          phoneNumber = (document.getElementById("w-phone-num")?.value || "").trim();
+          walletOrCard = phoneNumber;
+          networkOrCoin = "Phone Approval";
+          if (!phoneNumber) {
+            showToast("Telefon belgiňizi giriziň!");
+            return;
+          }
+        }
+
+        const payload = {
+          seller: u.username,
+          amount_tmt: amount,
+          method,
+          wallet_or_card: walletOrCard,
+          card_holder: cardHolder,
+          card_expiry: cardExpiry,
+          network_or_coin: networkOrCoin,
+          phone_number: phoneNumber,
+          status: "pending"
+        };
+
+        try {
+          await sbInsert("withdrawals", payload);
+          showToast("Pul çekiş islegi iberildi!");
+        } catch (_) {
+          let cache = [];
+          try { cache = JSON.parse(localStorage.getItem("tkm_withdrawals_cache") || "[]"); } catch (__) {}
+          cache.unshift({ id: Date.now(), ...payload });
+          localStorage.setItem("tkm_withdrawals_cache", JSON.stringify(cache));
+          showToast("İsleg ýerli ýatda ýazdyryldy.");
+        }
+
+        e.target.reset();
+        renderWithdrawFields();
+        loadWithdrawData();
+      });
+
+      renderWithdrawFields();
+      loadWithdrawData();
+    }
+  </script>
+</body>
+</html>
