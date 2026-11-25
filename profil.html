@@ -3,129 +3,291 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Giriş / Hasap Aç — TKM Market</title>
+  <title>Profil & Giriş — TKM Market</title>
   <link rel="stylesheet" href="assets/tkm.css" />
+  <style>
+    .role-picker {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 10px;
+      margin-top: 8px;
+    }
+    .role-opt {
+      background: var(--surface-2);
+      border: 1.5px solid var(--border);
+      border-radius: 14px;
+      padding: 12px;
+      cursor: pointer;
+      color: var(--text);
+      text-align: left;
+    }
+    .role-opt.active {
+      border-color: #a855f7;
+      background: rgba(168, 85, 247, 0.16);
+      box-shadow: 0 0 16px rgba(168, 85, 247, 0.3);
+    }
+    .wallet-actions-2 {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 12px;
+      margin-top: 14px;
+    }
+    .big-action-btn {
+      text-decoration: none;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      gap: 4px;
+      padding: 16px 12px;
+      border-radius: 16px;
+      font-weight: 900;
+      font-size: 14px;
+      border: 1px solid rgba(255, 255, 255, 0.25);
+    }
+    .verify-row {
+      display: flex;
+      gap: 8px;
+      align-items: center;
+      flex-wrap: wrap;
+      margin-top: 8px;
+    }
+  </style>
 </head>
 <body>
   <div id="playerok-shell"></div>
 
   <main class="page-wrap">
-    <div class="panel">
-      <div class="subcat-bar" style="margin-top:0;">
-        <button class="subcat-btn active" id="mode-login" type="button" onclick="switchAuthMode('login')">Girmek (Giriş)</button>
-        <button class="subcat-btn" id="mode-register" type="button" onclick="switchAuthMode('register')">Hasap Açmak (Kayıt)</button>
-      </div>
-
-      <h2 id="auth-heading">Hasaba Girmek</h2>
-      <p class="muted" id="auth-status-text">Ulanyjy adyňyz, parolyňyz we ynsan barlag kody bilen giriň.</p>
-
-      <div class="form-grid">
-        <div class="field">
-          <label>Ulanyjy ady</label>
-          <input id="u-name" type="text" placeholder="Serkanbey77" />
-        </div>
-        <div class="field">
-          <label>Parol</label>
-          <input id="u-pass" type="password" placeholder="••••••••" />
-        </div>
-        <div class="field" id="role-field" style="display:none;">
-          <label>Hasap görnüşi</label>
-          <select id="u-role">
-            <option value="Satıcı & Alyjy">Satıcı &amp; Alyjy</option>
-            <option value="Diňe Alyjy">Diňe Alyjy</option>
-            <option value="Diňe Satyjy">Diňe Satyjy</option>
-          </select>
-        </div>
-      </div>
-
-      <div class="captcha-box">
+    <!-- Giriş Yapılmış Aktif Profil Ekranı -->
+    <div class="panel" id="logged-in-profile" style="display:none;">
+      <div style="display:flex; justify-content:space-between; align-items:flex-start; gap:10px; flex-wrap:wrap;">
         <div>
-          <div class="muted">Ynsan barlagy (Captcha):</div>
-          <div class="captcha-code" id="captcha-display">-----</div>
+          <span class="chip-escrow" id="prof-role-badge">SATYJY ✅</span>
+          <h2 id="prof-username" style="margin-top:6px;">Ulanyjy</h2>
+          <p class="muted" id="prof-verified-line">Telefon & E-poçta Tassyklanan</p>
         </div>
-        <div style="flex:1; min-width:140px;">
-          <label class="muted">Kody ýazyň</label>
-          <input id="u-captcha-input" type="text" placeholder="Kody giriziň" />
-        </div>
-        <button class="btn btn-soft" type="button" onclick="refreshCaptcha()">Täze Kod</button>
+        <button class="btn btn-del" type="button" onclick="logoutAccount()">Hasapdan Çyk</button>
       </div>
 
-      <div class="btn-row">
-        <button class="btn btn-main" id="auth-submit-btn" type="button" style="flex:1;" onclick="submitAuth()">Tassykla we Gir</button>
-        <button class="btn btn-soft" type="button" onclick="toggleTheme()">☀ / ☾ Tema</button>
+      <div class="cred-card">
+        <div><strong>Telefon Belgi:</strong> <span id="prof-phone">-</span></div>
+        <div><strong>E-poçta:</strong> <span id="prof-email">-</span> <span class="chip-escrow">Tassyklanyldy ✅</span></div>
+        <div><strong>Salgy (Adres):</strong> <span id="prof-address">-</span></div>
+        <div><strong>Aktiw Bakiýe:</strong> <strong id="prof-balance" style="color:#34d399;">0 TMT</strong></div>
       </div>
+
+      <!-- Profile Basıldığında Çıkan 2 Ana Buton: Para Yatır & Para Çek -->
+      <div class="wallet-actions-2">
+        <a class="big-action-btn" href="bakiye-yatir.html" style="background:linear-gradient(135deg,#10b981,#22d3ee); color:#042f2e;">
+          <span>💳 Para Yatır</span>
+          <small style="font-weight:700; opacity:0.85;">Bakiýe Goş</small>
+        </a>
+        <a class="big-action-btn" href="pul-cek.html" style="background:linear-gradient(135deg,#6366f1,#a855f7); color:#fff;">
+          <span>💸 Para Çek</span>
+          <small style="font-weight:700; opacity:0.9;">Kart / Kripto / Belge</small>
+        </a>
+      </div>
+
+      <div class="btn-row" id="seller-extra-links" style="display:none;">
+        <a class="btn btn-soft" href="satyjy.html">＋ Täze Haryt Goş (Satmak)</a>
+      </div>
+    </div>
+
+    <!-- Kayıt / Giriş ve Doğrulama Formu -->
+    <div class="panel" id="auth-register-panel">
+      <h2>Hasap Döret / Giriş Et & Tassyklama</h2>
+      <p class="muted">Üye bolmak ýa-da girmek üçin rolüňizi saýlaň, hökmany telefon belgiňizi, tassyklanan e-poçtaňyzy we salgyňyzy giriziň.</p>
+
+      <form id="register-verify-form">
+        <div class="field" style="margin-top:12px;">
+          <label>Hasap Görnüşini Saýlaň (Satyjy ýa-da Satyn Alyjy)</label>
+          <div class="role-picker">
+            <button type="button" class="role-opt active" data-role="seller" onclick="selectRole('seller')">
+              <strong>🛒 Satyjy (Satmak & Almak)</strong>
+              <div class="muted">Haryt goýup satyp we satyn alyp biler</div>
+            </button>
+            <button type="button" class="role-opt" data-role="buyer" onclick="selectRole('buyer')">
+              <strong>🛍️ Satyn Alyjy (Diňe Satyn Almak)</strong>
+              <div class="muted">Diňe satyn alýar; "Satmak" menüsi çykmaýar</div>
+            </button>
+          </div>
+        </div>
+
+        <div class="form-grid">
+          <div class="field">
+            <label>Ulanyjy Adyňyz *</label>
+            <input id="reg-username" type="text" placeholder="Mysal: Serkanbey77" required />
+          </div>
+          <div class="field">
+            <label>Parolyňyz (Azyndan 4 simwol) *</label>
+            <input id="reg-password" type="password" placeholder="••••••" required />
+          </div>
+          <div class="field">
+            <label>Telefon Belgiňiz (Hökmany *) </label>
+            <input id="reg-phone" type="tel" placeholder="+993 6X XX XX XX" required />
+          </div>
+          <div class="field">
+            <label>E-poçta Salgyňyz (Tassyklanmaly *) </label>
+            <input id="reg-email" type="email" placeholder="adyn@mail.com" required />
+          </div>
+        </div>
+
+        <!-- E-posta Doğrulama Kodu Kutusu -->
+        <div class="escrow-box">
+          <strong>E-poçta Salgysyny Tassyklamak</strong>
+          <p class="muted" style="margin-top:4px;">E-poçtaňyza 6 sanly tassyk kody ugradylýar. Ynamly satyjy/alyjy profili üçin tassyklamak hökmanydyr.</p>
+          <div class="verify-row">
+            <button type="button" class="btn btn-soft" onclick="sendEmailOtp()">Tassyk Kody Iber</button>
+            <span class="muted" id="otp-hint">Kod iberilmedi</span>
+          </div>
+          <div class="form-grid" style="margin-top:8px;">
+            <div class="field">
+              <label>E-poçta Tassyklama Kody *</label>
+              <input id="reg-otp-input" type="text" maxlength="6" placeholder="6 sanly kod" required />
+            </div>
+            <div class="field">
+              <label>Salgyňyz (Şäher / Welayat / Salgy) *</label>
+              <input id="reg-address" type="text" placeholder="Aşgabat, Parahat 7..." required />
+            </div>
+          </div>
+        </div>
+
+        <div class="btn-row">
+          <button type="submit" class="btn btn-main" style="width:100%;">Tassyklap Hasaba Gir</button>
+        </div>
+      </form>
     </div>
   </main>
 
   <script src="assets/tkm.js"></script>
   <script>
-    mountPlayerokShell("profile", "");
-    let authMode = "login";
-    let currentCaptcha = "";
+    mountPlayerokShell("profile", "", true);
 
-    function refreshCaptcha() {
-      currentCaptcha = generateCaptchaCode();
-      document.getElementById("captcha-display").textContent = currentCaptcha;
-      document.getElementById("u-captcha-input").value = "";
+    let chosenRole = "seller";
+    let generatedOtp = "";
+
+    function selectRole(role) {
+      chosenRole = role === "buyer" ? "buyer" : "seller";
+      document.querySelectorAll(".role-opt").forEach(btn => {
+        btn.classList.toggle("active", btn.dataset.role === chosenRole);
+      });
     }
 
-    function switchAuthMode(mode) {
-      authMode = mode;
-      document.getElementById("mode-login").classList.toggle("active", mode === "login");
-      document.getElementById("mode-register").classList.toggle("active", mode === "register");
-      document.getElementById("auth-heading").textContent = mode === "login" ? "Hasaba Girmek" : "Täze Hasap Açmak";
-      document.getElementById("role-field").style.display = mode === "register" ? "block" : "none";
-      document.getElementById("auth-submit-btn").textContent = mode === "login" ? "Giriş Et" : "Hasap Aç we Gir";
-      refreshCaptcha();
+    function sendEmailOtp() {
+      const email = document.getElementById("reg-email").value.trim();
+      if (!email || !email.includes("@")) {
+        showToast("İlki dogry e-poçta salgysyny giriziň!");
+        return;
+      }
+      generatedOtp = String(Math.floor(100000 + Math.random() * 900000));
+      document.getElementById("otp-hint").textContent = `Tassyk kody (${email}): ${generatedOtp}`;
+      showToast(`Tassyk kody döredildi: ${generatedOtp}`);
     }
 
-    function getAccountsMap() {
-      try { return JSON.parse(localStorage.getItem("tkm_accounts_db") || "{}"); } catch (_) { return {}; }
+    function getSavedUsersMap() {
+      try { return JSON.parse(localStorage.getItem("tkm_users_registry") || "{}"); }
+      catch (_) { return {}; }
     }
 
-    function submitAuth() {
-      const username = document.getElementById("u-name").value.trim();
-      const password = document.getElementById("u-pass").value;
-      const capInput = document.getElementById("u-captcha-input").value.trim().toUpperCase();
-      const role = document.getElementById("u-role").value;
+    function saveUsersMap(map) {
+      localStorage.setItem("tkm_users_registry", JSON.stringify(map));
+    }
+
+    document.getElementById("register-verify-form").addEventListener("submit", (e) => {
+      e.preventDefault();
+      const username = document.getElementById("reg-username").value.trim();
+      const password = document.getElementById("reg-password").value.trim();
+      const phone = document.getElementById("reg-phone").value.trim();
+      const email = document.getElementById("reg-email").value.trim();
+      const otpCode = document.getElementById("reg-otp-input").value.trim();
+      const address = document.getElementById("reg-address").value.trim();
 
       if (!username || password.length < 4) {
-        showToast("Ulanyjy adyny we azyndan 4 simwol paroly giriziň.");
+        showToast("Ulanyjy adyny we azyndan 4 simwolly paroly giriziň!");
         return;
       }
-      if (capInput !== currentCaptcha) {
-        showToast("Captcha kody nädogry! Täzeden synanyşyň.");
-        refreshCaptcha();
+      if (!phone || phone.length < 7) {
+        showToast("Telefon belgiňizi hökmany giriziň!");
+        return;
+      }
+      if (!email || !email.includes("@")) {
+        showToast("Dogry e-poçta salgysyny giriziň!");
+        return;
+      }
+      if (!generatedOtp) {
+        sendEmailOtp();
+        showToast("Tassyk kody döredildi — kody girizip täzeden basyň!");
+        return;
+      }
+      if (otpCode !== generatedOtp) {
+        showToast("E-poçta tassyklama kody nädogry!");
+        return;
+      }
+      if (!address) {
+        showToast("Salgy maglumatyňyzy giriziň!");
         return;
       }
 
-      const accounts = getAccountsMap();
-      if (authMode === "register") {
-        accounts[username.toLowerCase()] = { username, password, role };
-        localStorage.setItem("tkm_accounts_db", JSON.stringify(accounts));
+      const users = getSavedUsersMap();
+      if (users[username] && users[username].password && users[username].password !== password) {
+        showToast("Bu ulanyjy ady üçin parol nädogry!");
+        return;
+      }
+
+      const sessionObj = {
+        username,
+        password,
+        role: chosenRole,
+        phone,
+        email,
+        address,
+        emailVerified: true,
+        loggedIn: true
+      };
+
+      users[username] = sessionObj;
+      saveUsersMap(users);
+      localStorage.setItem("tkm_auth_session", JSON.stringify(sessionObj));
+      showToast("Hasabyňyz tassyklanyldy we açyldy!");
+      renderProfileView();
+    });
+
+    function logoutAccount() {
+      localStorage.removeItem("tkm_auth_session");
+      showToast("Hasapdan çykyldy.");
+      renderProfileView();
+    }
+
+    async function renderProfileView() {
+      mountPlayerokShell("profile", "", true);
+      const session = getUserSession();
+      const loggedBox = document.getElementById("logged-in-profile");
+      const formBox = document.getElementById("auth-register-panel");
+
+      if (session && session.loggedIn && session.username && session.emailVerified) {
+        loggedBox.style.display = "block";
+        formBox.style.display = "none";
+
+        const isSeller = session.role === "seller";
+        document.getElementById("prof-role-badge").textContent = isSeller ? "YNAMLY SATYJY ✅" : "SATYN ALYJY ✅";
+        document.getElementById("prof-username").textContent = session.username;
+        document.getElementById("prof-verified-line").textContent =
+          isSeller ? "Satyjy profili tassyklanan (Salgy we telefon ýazdyrylan)" : "Satyn alyjy profili (Diňe satyn almak açyk)";
+        document.getElementById("prof-phone").textContent = session.phone || "-";
+        document.getElementById("prof-email").textContent = session.email || "-";
+        document.getElementById("prof-address").textContent = session.address || "-";
+        document.getElementById("seller-extra-links").style.display = isSeller ? "flex" : "none";
+
+        await refreshTopBalancePill();
+        const topBalText = document.getElementById("top-balance-pill")?.textContent || "💰 0 TMT";
+        document.getElementById("prof-balance").textContent = topBalText.replace("💰 ", "");
       } else {
-        const found = accounts[username.toLowerCase()];
-        if (found && found.password !== password) {
-          showToast("Parol nädogry!");
-          refreshCaptcha();
-          return;
-        }
+        loggedBox.style.display = "none";
+        formBox.style.display = "block";
       }
-
-      const session = { username, role: accounts[username.toLowerCase()]?.role || role, loggedIn: true };
-      localStorage.setItem("tkm_auth_session", JSON.stringify(session));
-      syncUserFields();
-      document.getElementById("auth-status-text").textContent = `Işjeň hasap: ${username}`;
-      showToast(`Hoş geldiňiz, ${username}!`);
-      refreshCaptcha();
     }
 
-    const activeU = getUser();
-    document.getElementById("u-name").value = activeU.username;
-    if (activeU.loggedIn) {
-      document.getElementById("auth-status-text").textContent = `Işjeň hasap: ${activeU.username}`;
-    }
-    refreshCaptcha();
+    renderProfileView();
   </script>
 </body>
 </html>
