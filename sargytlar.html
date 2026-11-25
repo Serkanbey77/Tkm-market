@@ -77,6 +77,24 @@
       box-shadow: 0 0 16px rgba(168, 85, 247, 0.35);
       background: rgba(168, 85, 247, 0.14);
     }
+    .addr-box {
+      margin-top: 12px;
+      padding: 12px;
+      border-radius: 14px;
+      background: rgba(56, 189, 248, 0.1);
+      border: 1px solid rgba(56, 189, 248, 0.35);
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      gap: 10px;
+      flex-wrap: wrap;
+    }
+    .addr-code {
+      font-family: monospace;
+      font-size: 12px;
+      word-break: break-all;
+      color: #e0f2fe;
+    }
     .summary-box {
       background: var(--surface-2);
       border: 1px dashed var(--border);
@@ -131,7 +149,7 @@
       <div style="display:flex; justify-content:space-between; align-items:center; gap:8px; flex-wrap:wrap;">
         <div>
           <h2 style="font-size:18px;">Şahsy Bakiýe Gapjygy</h2>
-          <p class="muted">Ýatyran puluňyz çekilmedikçe bakyýeňizde galýar we sargytlarda ulanylyp bilner.</p>
+          <p class="muted">Ýatyran puluňyz çekilmedikçe bakyýeňizde galýar. Kart/kripto tölegler tassyklanandan soň hasaba düşýär.</p>
         </div>
         <span class="chip-escrow" id="active-user-badge">Serkanbey77</span>
       </div>
@@ -155,7 +173,7 @@
     <!-- Modern Bakiye Yatırma Paneli -->
     <div class="panel">
       <h2>Bakiýe Ýatyrmak (Pul Goşmak)</h2>
-      <p class="muted">Çalt möçber saýlaň ýa-da özüňiz ýazyň; töleg kanalyny saýlap bakiýäňize goşuň.</p>
+      <p class="muted">Çalt möçber saýlaň ýa-da özüňiz ýazyň; kanaly saýlap töleg salgysyna iberiň we TXID / tassyk koduny giriziň.</p>
 
       <div class="quick-amts" id="quick-deposit-amts">
         <button type="button" class="amt-chip" data-amt="50">50 TMT</button>
@@ -173,8 +191,8 @@
             <input id="d-amount" type="number" min="1" step="0.01" value="500" required />
           </div>
           <div class="field">
-            <label>Töleg Kody / TXID / Kart Belligi</label>
-            <input id="d-ref" type="text" placeholder="TXID ýa-da töleg belligi" required />
+            <label>TXID / Töleg Kody / Bellik</label>
+            <input id="d-ref" type="text" placeholder="0x... TXID ýa-da töleg belligi" required />
           </div>
         </div>
 
@@ -191,7 +209,7 @@
             </button>
             <button type="button" class="channel-card" data-method="USDT (BEP20)" data-fee="0">
               <strong>🪙 USDT BEP20</strong>
-              <div class="muted">Kripto ulgam</div>
+              <div class="muted">BSC ulgam</div>
             </button>
             <button type="button" class="channel-card" data-method="USDT (TRC20)" data-fee="1">
               <strong>🪙 USDT TRC20</strong>
@@ -203,6 +221,9 @@
             </button>
           </div>
         </div>
+
+        <!-- Seçilen Kanala Göre Cüzdan / Ödeme Bilgisi Kutusu -->
+        <div id="deposit-target-box" class="addr-box"></div>
 
         <div class="summary-box">
           <div class="summary-row">
@@ -275,6 +296,15 @@
   <script>
     mountPlayerokShell("orders", "", true);
 
+    // Kendi yatırma adreslerinizi bu alana yazın
+    const ADMIN_DEPOSIT_ADDRESSES = {
+      "Visa": "Dolandyryjy bilen habarlaşyp Visa töleg belligini alyň (Kart maglumaty saklanmaýar)",
+      "Mastercard": "Dolandyryjy bilen habarlaşyp Mastercard töleg belligini alyň (Kart maglumaty saklanmaýar)",
+      "USDT (BEP20)": "0xYOUR_BEP20_WALLET_ADDRESS",
+      "USDT (TRC20)": "TYOUR_TRC20_WALLET_ADDRESS",
+      "BTC / TON": "bc1qYOUR_BTC_OR_TON_WALLET_ADDRESS"
+    };
+
     let orders = [];
     let withdrawals = [];
     let deposits = [];
@@ -332,6 +362,7 @@
       syncPersonalAuthUI();
       computeBalances();
       renderWithdrawFields();
+      refreshTopBalancePill();
       showToast(`Hasaba girildi: ${username}`);
     });
 
@@ -341,7 +372,30 @@
       syncPersonalAuthUI();
       computeBalances();
       renderWithdrawFields();
+      refreshTopBalancePill();
       showToast("Şahsy hasapdan çykyldy.");
+    }
+
+    function renderDepositTargetBox() {
+      const targetAddr = ADMIN_DEPOSIT_ADDRESSES[selectedDepositMethod] || "";
+      const box = document.getElementById("deposit-target-box");
+      box.innerHTML = `
+        <div style="flex:1; min-width:200px;">
+          <div class="muted">${esc(selectedDepositMethod)} Töleg / Gapjyk Salgysy</div>
+          <div class="addr-code" id="current-dep-addr">${esc(targetAddr)}</div>
+        </div>
+        <button type="button" class="btn btn-soft" onclick="copyDepositAddr()">Kopyala</button>
+      `;
+    }
+
+    function copyDepositAddr() {
+      const txt = document.getElementById("current-dep-addr")?.textContent || "";
+      if (!txt) return;
+      if (navigator.clipboard && navigator.clipboard.writeText) {
+        navigator.clipboard.writeText(txt).then(() => showToast("Salgy göçürildi!")).catch(() => showToast("Salgy: " + txt));
+      } else {
+        showToast("Salgy: " + txt);
+      }
     }
 
     function updateDepositSummary() {
@@ -376,6 +430,7 @@
         card.classList.add("active");
         selectedDepositMethod = card.dataset.method;
         selectedDepositFeePct = Number(card.dataset.fee || 0);
+        renderDepositTargetBox();
         updateDepositSummary();
       });
     });
@@ -453,7 +508,6 @@
         else holdSum += amt;
       }
 
-      // Yatırılan tutar reddedilmedikçe bakiyede kalır; çekim talepleri çekilen bakiye üzerinden düşülür
       for (const d of deposits) {
         const dUser = String(d.username || "Serkanbey77").toLowerCase();
         if (dUser !== activeUser) continue;
@@ -473,6 +527,7 @@
       document.getElementById("available-balance").textContent = `${avail.toLocaleString()} TMT`;
       document.getElementById("deposited-balance").textContent = `${remainingDeposits.toLocaleString()} TMT`;
       document.getElementById("escrow-balance").textContent = `${holdSum.toLocaleString()} TMT`;
+      refreshTopBalancePill();
       return avail;
     }
 
@@ -534,7 +589,7 @@
         <div class="list-row">
           <div>
             <strong>+${Number(d.amount_tmt || 0).toLocaleString()} TMT</strong> — <span class="chip-cat">${esc(d.method)}</span>
-            <div class="muted">Ulanyjy: ${esc(d.username)} · Salgy/Kod: ${esc(d.reference_info)}</div>
+            <div class="muted">Ulanyjy: ${esc(d.username)} · Salgy/TXID: ${esc(d.reference_info)}</div>
           </div>
           <span class="badge-status ${d.status !== "rejected" ? "ok" : ""}">${esc(d.status === "rejected" ? "Ret Edildi ❌" : "Bakiýede Saklanýar ✅")}</span>
         </div>
@@ -691,7 +746,7 @@
       const referenceInfo = document.getElementById("d-ref").value.trim();
 
       if (amount <= 0 || !referenceInfo) {
-        showToast("Möçberi we töleg belligini giriziň!");
+        showToast("Möçberi we TXID / töleg belligini giriziň!");
         return;
       }
 
@@ -718,6 +773,7 @@
     });
 
     syncPersonalAuthUI();
+    renderDepositTargetBox();
     updateDepositSummary();
     renderWithdrawFields();
     loadAll();
