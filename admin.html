@@ -36,11 +36,10 @@
   </div>
   <p id="status" style="font-size:13px; color:#94a3b8;">Yetki kontrol ediliyor...</p>
 
-  <!-- Doğrudan Admin Giriş Kutusu -->
   <div class="box" id="loginBox" style="display:none; max-width:400px;">
     <h2>Sahip Girişi</h2>
-    <input type="email" id="adminEmail" placeholder="Admin E-posta adresin" />
-    <input type="password" id="adminPass" placeholder="Şifren" />
+    <input type="email" id="adminEmail" placeholder="Özel Admin E-posta (örn: sahip@tkm-market.store)" />
+    <input type="password" id="adminPass" placeholder="Parola (admin1234)" />
     <button style="width:100%;" onclick="adminLogin()">Giriş Yap</button>
     <p id="loginErr" style="color:#f87171; font-size:12px; margin:8px 0 0;"></p>
   </div>
@@ -96,7 +95,7 @@
       const { data: { user } } = await sb.auth.getUser();
 
       if (!user) {
-        statusEl.innerText = "Devam etmek için sahip hesabınla giriş yap:";
+        statusEl.innerText = "Devam etmek için seçtiğin sahip e-postası ve şifreyle giriş yap:";
         loginBox.style.display = "block";
         logoutBtn.style.display = "none";
         document.getElementById("stats").style.display = "none";
@@ -104,7 +103,7 @@
         return;
       }
 
-      const { data: profile } = await sb.from("profiles").select("role").eq("id", user.id).single();
+      const { data: profile } = await sb.from("profiles").select("role, username").eq("id", user.id).single();
       if (!profile || profile.role !== "admin") {
         statusEl.innerText = "Yetkisiz hesap (" + user.email + "): Bu panel sadece site sahibine açıktır.";
         loginBox.style.display = "none";
@@ -114,7 +113,7 @@
 
       loginBox.style.display = "none";
       logoutBtn.style.display = "inline-block";
-      statusEl.innerText = "Canlı veriler aktif (" + new Date().toLocaleTimeString("tr-TR") + ")";
+      statusEl.innerText = "Hoş geldin " + (profile.username || "Serkanbey") + " • Canlı veriler aktif (" + new Date().toLocaleTimeString("tr-TR") + ")";
       document.getElementById("stats").style.display = "grid";
       document.getElementById("eventsBox").style.display = "block";
 
