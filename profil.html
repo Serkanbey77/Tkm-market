@@ -67,16 +67,6 @@
       background: linear-gradient(135deg, #2563eb, #0284c7);
       color: #fff; font-weight: 700; font-size: 14px; cursor: pointer;
     }
-    button.secondary {
-      width: 100%; padding: 10px; border: 1px solid #334155; border-radius: 10px;
-      background: #0f172a; color: #cbd5e1; font-weight: 600; font-size: 13px; cursor: pointer;
-      margin-top: 8px;
-    }
-    .otp-banner {
-      background: rgba(56, 189, 248, 0.12); border: 1px solid rgba(56, 189, 248, 0.35);
-      color: #bae6fd; padding: 12px; border-radius: 12px; font-size: 12px; line-height: 1.5;
-      margin-bottom: 12px;
-    }
     .profile-head { display: flex; align-items: center; gap: 14px; }
     .avatar {
       width: 56px; height: 56px; border-radius: 14px;
@@ -131,9 +121,9 @@
       </div>
     </div>
 
-    <!-- Giriş / Kayıt / Kod Doğrulama Kartı -->
+    <!-- Giriş / Kayıt Kartı -->
     <div class="card" id="authCard" style="display:none;">
-      <div class="tabs" id="authTabs">
+      <div class="tabs">
         <button class="tab active" id="tabLogin" onclick="switchTab('login')">Giriş Yap</button>
         <button class="tab" id="tabRegister" onclick="switchTab('register')">Kayıt Ol</button>
       </div>
@@ -168,18 +158,6 @@
         </div>
 
         <button class="primary" onclick="doRegister()">Ücretsiz Hesap Oluştur</button>
-      </div>
-
-      <!-- E-posta Doğrulama Kodu Sekmesi / Ekranı -->
-      <div id="verifyOtpBox" style="display:none;">
-        <div class="otp-banner" id="otpInfoText">
-          E-posta adresine doğrulama kodu gönderildi. Kutudaki kodu girerek hesabını aktif et.
-        </div>
-        <label>E-postaya Gelen Doğrulama Kodu</label>
-        <input type="text" id="otpCodeInput" placeholder="Örn: 123456" maxlength="8" />
-        <button class="primary" onclick="verifyEmailCode()">Kodu Onayla ve Giriş Yap</button>
-        <button type="button" class="secondary" onclick="resendEmailCode()">Kodu Tekrar Gönder</button>
-        <button type="button" class="secondary" onclick="backToRegister()">Kayıt Ekranına Dön</button>
       </div>
 
       <div class="msg" id="authMsg"></div>
@@ -241,7 +219,6 @@
     const sb = supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
 
     let currentCaptcha = "";
-    let pendingVerifyEmail = "";
 
     function generateCaptcha() {
       const chars = "ABCDEFGHJKLMNPQRSTUVWXYZ23456789";
@@ -260,29 +237,12 @@
     }
 
     function switchTab(mode) {
-      document.getElementById("authTabs").style.display = "grid";
-      document.getElementById("verifyOtpBox").style.display = "none";
       document.getElementById("tabLogin").classList.toggle("active", mode === "login");
       document.getElementById("tabRegister").classList.toggle("active", mode === "register");
       document.getElementById("loginForm").style.display = mode === "login" ? "block" : "none";
       document.getElementById("registerForm").style.display = mode === "register" ? "block" : "none";
       document.getElementById("authMsg").innerText = "";
       if (mode === "register") generateCaptcha();
-    }
-
-    function openOtpStep(email, customNote) {
-      pendingVerifyEmail = email;
-      document.getElementById("authTabs").style.display = "none";
-      document.getElementById("loginForm").style.display = "none";
-      document.getElementById("registerForm").style.display = "none";
-      document.getElementById("verifyOtpBox").style.display = "block";
-      document.getElementById("otpCodeInput").value = "";
-      document.getElementById("otpInfoText").innerText =
-        customNote || `${email} adresine doğrulama kodu gönderildi. Gelen kodu aşağıya yazıp onaylayabilirsin.`;
-    }
-
-    function backToRegister() {
-      switchTab("register");
     }
 
     async function doLogin() {
@@ -295,11 +255,6 @@
       const { error } = await sb.auth.signInWithPassword({ email, password });
       if (error) {
         msg.className = "msg err";
-        if (error.message.toLowerCase().includes("email not confirmed")) {
-          msg.innerText = "E-postan henüz doğrulanmamış. Doğrulama kodu ekranına geçiliyor...";
-          openOtpStep(email, `${email} adresinin doğrulanması gerekiyor. Gelen kodu gir:`);
-          return;
-        }
         msg.innerText = "Giriş başarısız: " + error.message;
         return;
       }
@@ -327,7 +282,7 @@
         return;
       }
 
-      msg.innerText = "Hesap oluşturuluyor ve doğrulama kodu gönderiliyor...";
+      msg.innerText = "Hesap oluşturuluyor...";
 
       const { data, error } = await sb.auth.signUp({
         email,
@@ -345,78 +300,14 @@
       if (data.session) {
         initPage();
       } else {
-        msg.className = "msg ok";
-        msg.innerText = "Doğrulama kodu e-postana gönderildi!";
-        openOtpStep(email, `${email} adresine doğrulama kodu gönderildi. (Gelen kutusu veya spam klasörünü kontrol et.)`);
-      }
-    }
-
-    async function verifyEmailCode() {
-      const token = document.getElementById("otpCodeInput").value.trim();
-      const msg = document.getElementById("authMsg");
-      msg.className = "msg";
-
-      if (!pendingVerifyEmail || !token) {
-        msg.className = "msg err";
-        msg.innerText = "Lütfen e-postana gelen kodu gir.";
-        return;
-      }
-
-      msg.innerText = "Kod doğrulanıyor...";
-
-      const { data, error } = await sb.auth.verifyOtp({
-        email: pendingVerifyEmail,
-        token,
-        type: "email"
-      });
-
-      if (error) {
-        const retry = await sb.auth.verifyOtp({
-          email: pendingVerifyEmail,
-          token,
-          type: "signup"
-        });
-        if (retry.error) {
-          msg.className = "msg err";
-          msg.innerText = "Kod doğrulanamadı: " + retry.error.message;
-          return;
-        }
-        if (retry.data?.session) {
-          msg.className = "msg ok";
-          msg.innerText = "E-posta doğrulandı! Profilin açılıyor...";
+        const loginRes = await sb.auth.signInWithPassword({ email, password });
+        if (!loginRes.error) {
           initPage();
-          return;
+        } else {
+          msg.className = "msg ok";
+          msg.innerText = "Hesap oluşturuldu! Şimdi Giriş Yap sekmesinden giriş yapabilirsin.";
+          switchTab("login");
         }
-      }
-
-      if (data?.session) {
-        msg.className = "msg ok";
-        msg.innerText = "E-posta doğrulandı! Profilin açılıyor...";
-        initPage();
-      } else {
-        msg.className = "msg ok";
-        msg.innerText = "E-posta doğrulandı! Şimdi Giriş Yap sekmesinden hesabına girebilirsin.";
-        switchTab("login");
-        document.getElementById("loginEmail").value = pendingVerifyEmail;
-      }
-    }
-
-    async function resendEmailCode() {
-      const msg = document.getElementById("authMsg");
-      msg.className = "msg";
-      if (!pendingVerifyEmail) return;
-
-      const { error } = await sb.auth.resend({
-        type: "signup",
-        email: pendingVerifyEmail
-      });
-
-      if (error) {
-        msg.className = "msg err";
-        msg.innerText = "Kod tekrar gönderilemedi: " + error.message;
-      } else {
-        msg.className = "msg ok";
-        msg.innerText = "Yeni doğrulama kodu e-postana gönderildi.";
       }
     }
 
