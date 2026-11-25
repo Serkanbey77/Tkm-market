@@ -21,15 +21,29 @@
     th { color: #94a3b8; }
     .badge { padding: 2px 6px; border-radius: 6px; font-size: 11px; background: #1e293b; }
     .in { color: #22c55e; } .out { color: #f87171; }
-    button { background: #2563eb; color: #fff; border: none; padding: 8px 14px; border-radius: 8px; font-weight: 600; cursor: pointer; }
+    button { background: #2563eb; color: #fff; border: none; padding: 10px 14px; border-radius: 8px; font-weight: 600; cursor: pointer; }
+    button.danger { background: #dc2626; }
+    input { width: 100%; box-sizing: border-box; background: #0f172a; border: 1px solid #334155; color: #fff; padding: 10px; border-radius: 8px; margin-bottom: 10px; font-size: 14px; }
   </style>
 </head>
 <body>
-  <div style="display:flex; justify-content:space-between; align-items:center;">
+  <div style="display:flex; justify-content:space-between; align-items:center; gap:8px;">
     <h1>TKM Market — Sahip Kontrol Merkezi</h1>
-    <button onclick="loadDashboard()">Yenile</button>
+    <div style="display:flex; gap:6px;">
+      <button onclick="loadDashboard()">Yenile</button>
+      <button id="logoutBtn" class="danger" style="display:none;" onclick="adminLogout()">Çıkış</button>
+    </div>
   </div>
   <p id="status" style="font-size:13px; color:#94a3b8;">Yetki kontrol ediliyor...</p>
+
+  <!-- Doğrudan Admin Giriş Kutusu -->
+  <div class="box" id="loginBox" style="display:none; max-width:400px;">
+    <h2>Sahip Girişi</h2>
+    <input type="email" id="adminEmail" placeholder="Admin E-posta adresin" />
+    <input type="password" id="adminPass" placeholder="Şifren" />
+    <button style="width:100%;" onclick="adminLogin()">Giriş Yap</button>
+    <p id="loginErr" style="color:#f87171; font-size:12px; margin:8px 0 0;"></p>
+  </div>
 
   <div class="grid" id="stats" style="display:none;">
     <div class="card blue"><span>Şu An Aktif (Son 5 Dk)</span><strong id="liveUsers">0</strong></div>
@@ -55,21 +69,51 @@
     const SUPABASE_ANON_KEY = "sb_publishable_gQFoj3SUxW-TUMjYmTGrIg_5_6hwBAH";
     const sb = supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
 
+    async function adminLogin() {
+      const email = document.getElementById("adminEmail").value.trim();
+      const password = document.getElementById("adminPass").value;
+      const errEl = document.getElementById("loginErr");
+      errEl.innerText = "Giriş yapılıyor...";
+
+      const { error } = await sb.auth.signInWithPassword({ email, password });
+      if (error) {
+        errEl.innerText = "Hata: " + error.message;
+        return;
+      }
+      errEl.innerText = "";
+      loadDashboard();
+    }
+
+    async function adminLogout() {
+      await sb.auth.signOut();
+      location.reload();
+    }
+
     async function loadDashboard() {
       const statusEl = document.getElementById("status");
+      const loginBox = document.getElementById("loginBox");
+      const logoutBtn = document.getElementById("logoutBtn");
       const { data: { user } } = await sb.auth.getUser();
 
       if (!user) {
-        statusEl.innerText = "Erişim reddedildi: Önce siteye admin hesabınla giriş yap.";
+        statusEl.innerText = "Devam etmek için sahip hesabınla giriş yap:";
+        loginBox.style.display = "block";
+        logoutBtn.style.display = "none";
+        document.getElementById("stats").style.display = "none";
+        document.getElementById("eventsBox").style.display = "none";
         return;
       }
 
       const { data: profile } = await sb.from("profiles").select("role").eq("id", user.id).single();
       if (!profile || profile.role !== "admin") {
-        statusEl.innerText = "Yetkisiz hesap: Bu panel sadece site sahibine açıktır.";
+        statusEl.innerText = "Yetkisiz hesap (" + user.email + "): Bu panel sadece site sahibine açıktır.";
+        loginBox.style.display = "none";
+        logoutBtn.style.display = "inline-block";
         return;
       }
 
+      loginBox.style.display = "none";
+      logoutBtn.style.display = "inline-block";
       statusEl.innerText = "Canlı veriler aktif (" + new Date().toLocaleTimeString("tr-TR") + ")";
       document.getElementById("stats").style.display = "grid";
       document.getElementById("eventsBox").style.display = "block";
