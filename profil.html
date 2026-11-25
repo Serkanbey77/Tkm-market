@@ -14,7 +14,7 @@
     .role-opt.active { border-color: #a855f7; background: rgba(168, 85, 247, 0.16); box-shadow: 0 0 16px rgba(168, 85, 247, 0.3); }
     .wallet-actions-2 { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; margin-top: 14px; }
     .big-action-btn { text-decoration: none; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 4px; padding: 16px 12px; border-radius: 16px; font-weight: 900; font-size: 14px; border: 1px solid rgba(255, 255, 255, 0.25); }
-    .verify-row { display: flex; gap: 8px; align-items: center; flex-wrap: wrap; margin-top: 8px; }
+    .step-badge { display: inline-block; padding: 4px 10px; border-radius: 999px; font-size: 12px; font-weight: 800; background: rgba(168, 85, 247, 0.16); color: #e9d5ff; margin-bottom: 10px; }
   </style>
 </head>
 <body>
@@ -33,20 +33,19 @@
       </div>
 
       <div class="cred-card">
-        <div><strong>Telefon Belgi:</strong> <span id="prof-phone">-</span></div>
         <div><strong>E-poçta:</strong> <span id="prof-email">-</span> <span class="chip-escrow">Tassyklanyldy ✅</span></div>
-        <div><strong>Salgy:</strong> <span id="prof-address">-</span></div>
+        <div><strong>Ýaşaýan Ýeri:</strong> <span id="prof-address">-</span></div>
         <div><strong>Aktiw Bakiýe:</strong> <strong id="prof-balance" style="color:#34d399;">0 TMT</strong></div>
       </div>
 
       <div class="wallet-actions-2">
         <a class="big-action-btn" href="bakiye-yatir.html" style="background:linear-gradient(135deg,#10b981,#22d3ee); color:#042f2e;">
-          <span>💳 Para Yatır</span>
-          <small style="font-weight:700; opacity:0.85;">Bakiýe Goş</small>
+          <span>⛓️ Para Yatır</span>
+          <small style="font-weight:700; opacity:0.85;">Blockchain Bakiýe</small>
         </a>
         <a class="big-action-btn" href="pul-cek.html" style="background:linear-gradient(135deg,#6366f1,#a855f7); color:#fff;">
           <span>💸 Para Çek</span>
-          <small style="font-weight:700; opacity:0.9;">Kart / Kripto / Belge</small>
+          <small style="font-weight:700; opacity:0.9;">Blockchain Çekiş</small>
         </a>
       </div>
 
@@ -58,21 +57,21 @@
     <!-- Giriş / Kayıt Kutusu -->
     <div class="panel" id="auth-container">
       <div class="mode-tabs">
-        <button type="button" class="mode-tab active" id="tab-login" onclick="switchAuthMode('login')">Giriş Yap (E-poçta + Parol)</button>
-        <button type="button" class="mode-tab" id="tab-register" onclick="switchAuthMode('register')">Üye Bol & E-poçta Tassyklama</button>
+        <button type="button" class="mode-tab active" id="tab-login" onclick="switchAuthMode('login')">Giriş Yap</button>
+        <button type="button" class="mode-tab" id="tab-register" onclick="switchAuthMode('register')">Üye Bol</button>
       </div>
 
-      <!-- 1. Kayıtlı Kullanıcı Giriş Formu -->
+      <!-- 1. Kayıtlı Kullanıcı Giriş Formu (Sadece E-posta + Parola) -->
       <form id="login-form">
         <h2>Hasaba Gir</h2>
-        <p class="muted">Öň agza bolan bolsaňyz, e-poçta salgysy we parolyňyz bilen giriň.</p>
+        <p class="muted">E-poçta we parolyňyz bilen tiz giriň.</p>
         <div class="form-grid">
           <div class="field">
-            <label>E-poçta Salgyňyz *</label>
+            <label>E-poçta *</label>
             <input id="login-email" type="email" placeholder="adyn@gmail.com" required />
           </div>
           <div class="field">
-            <label>Parolyňyz *</label>
+            <label>Parol *</label>
             <input id="login-password" type="password" placeholder="••••••" required />
           </div>
         </div>
@@ -81,65 +80,66 @@
         </div>
       </form>
 
-      <!-- 2. Yeni Üye Kayıt + EmailJS 6 Haneli Doğrulama Kodu Formu -->
-      <form id="register-verify-form" style="display:none;">
-        <h2>Täze Hasap Döret</h2>
-        <p class="muted">Rolüňizi saýlaň, telefon belgiňizi, salgyňyzy giriziň we e-poçtaňyza gelen 6 sanly tassyk kody bilen agza boluň.</p>
+      <!-- 2. Yeni Üye Formu: Adım 1 Bilgiler -> İleri (Otomatik 6 Haneli Kod) -> Adım 2 Kod Onay & Üye Ol -->
+      <form id="register-flow-form" style="display:none;">
+        <div id="reg-step-1">
+          <span class="step-badge">1 / 2 — Hasap Maglumatlary</span>
+          <h2>Täze Hasap Döret</h2>
 
-        <div class="field" style="margin-top:12px;">
-          <label>Hasap Görnüşini Saýlaň</label>
-          <div class="role-picker">
-            <button type="button" class="role-opt active" data-role="seller" onclick="selectRole('seller')">
-              <strong>🛒 Satyjy</strong>
-              <div class="muted">Haryt goýup satyp we satyn alyp biler</div>
-            </button>
-            <button type="button" class="role-opt" data-role="buyer" onclick="selectRole('buyer')">
-              <strong>🛍️ Satyn Alyjy</strong>
-              <div class="muted">Diňe satyn alýar; "Satmak" menüsi çykmaýar</div>
-            </button>
-          </div>
-        </div>
-
-        <div class="form-grid">
-          <div class="field">
-            <label>Ulanyjy Adyňyz *</label>
-            <input id="reg-username" type="text" placeholder="Mysal: Serkanbey77" required />
-          </div>
-          <div class="field">
-            <label>Parolyňyz (Azyndan 6 simwol) *</label>
-            <input id="reg-password" type="password" placeholder="••••••" required />
-          </div>
-          <div class="field">
-            <label>Telefon Belgiňiz (Hökmany *) </label>
-            <input id="reg-phone" type="tel" placeholder="+993 6X XX XX XX" required />
-          </div>
-          <div class="field">
-            <label>E-poçta Salgyňyz (Gmail / iCloud / Outlook) *</label>
-            <input id="reg-email" type="email" placeholder="adyn@gmail.com" required />
-          </div>
-        </div>
-
-        <div class="escrow-box">
-          <strong>E-poçta Salgysyna 6 Sanly Tassyk Kody Ibermek</strong>
-          <p class="muted" style="margin-top:4px;">E-poçta gutusyňa (Gelen gutusy ýa-da Spam) ugradylan 6 sanly kody aşak ýazyň.</p>
-          <div class="verify-row">
-            <button type="button" class="btn btn-soft" id="send-otp-btn" onclick="sendEmailJsOtp()">E-poçtama Kod Iber</button>
-            <span class="muted" id="otp-status-txt">Heniz kod ugradylmady</span>
-          </div>
-          <div class="form-grid" style="margin-top:8px;">
-            <div class="field">
-              <label>E-poçtaňyza Gelen 6 Sanly Kod *</label>
-              <input id="reg-otp-input" type="text" maxlength="6" placeholder="6 sanly kod" required />
-            </div>
-            <div class="field">
-              <label>Salgyňyz (Şäher / Welayat / Salgy) *</label>
-              <input id="reg-address" type="text" placeholder="Aşgabat, Parahat 7..." required />
+          <div class="field" style="margin-top:10px;">
+            <label>Hasap Görnüşi</label>
+            <div class="role-picker">
+              <button type="button" class="role-opt active" data-role="seller" onclick="selectRole('seller')">
+                <strong>🛒 Satyjy</strong>
+                <div class="muted">Satyp we satyn alyp biler</div>
+              </button>
+              <button type="button" class="role-opt" data-role="buyer" onclick="selectRole('buyer')">
+                <strong>🛍️ Satyn Alyjy</strong>
+                <div class="muted">Diňe satyn alyp biler</div>
+              </button>
             </div>
           </div>
+
+          <div class="form-grid">
+            <div class="field">
+              <label>Ulanyjy Ady *</label>
+              <input id="reg-username" type="text" placeholder="Ulanyjy adyňyz" required />
+            </div>
+            <div class="field">
+              <label>E-poçta *</label>
+              <input id="reg-email" type="email" placeholder="adyn@gmail.com" required />
+            </div>
+            <div class="field">
+              <label>Parol (Azyndan 6 simwol) *</label>
+              <input id="reg-password" type="password" placeholder="••••••" required />
+            </div>
+            <div class="field">
+              <label>Nirede Ýaşaýandygyňyz (Şäher / Welayat / Salgy) *</label>
+              <input id="reg-address" type="text" placeholder="Aşgabat, Lebap..." required />
+            </div>
+          </div>
+
+          <div class="btn-row">
+            <button type="button" id="reg-next-btn" class="btn btn-main" style="width:100%;" onclick="goToOtpStep()">
+              İleri →
+            </button>
+          </div>
         </div>
 
-        <div class="btn-row">
-          <button type="submit" class="btn btn-main" style="width:100%;">Tassyklap Hasap Döret</button>
+        <div id="reg-step-2" style="display:none;">
+          <span class="step-badge">2 / 2 — E-poçta Tassygy</span>
+          <h2>6 Sanly Kody Giriziň</h2>
+          <p class="muted" id="otp-sent-info">E-poçtaňyza 6 sanly kod ugradyldy.</p>
+
+          <div class="field" style="margin-top:12px;">
+            <label>E-poçtaňyza Gelen 6 Sanly Kod *</label>
+            <input id="reg-otp-input" type="text" inputmode="numeric" maxlength="6" placeholder="123456" required />
+          </div>
+
+          <div class="btn-row" style="display:flex; gap:10px;">
+            <button type="button" class="btn btn-soft" onclick="backToStep1()">← Yza</button>
+            <button type="submit" class="btn btn-green" style="flex:1;">Tassyklap Üye Bol</button>
+          </div>
         </div>
       </form>
     </div>
@@ -165,7 +165,7 @@
       document.getElementById("tab-login").classList.toggle("active", isLogin);
       document.getElementById("tab-register").classList.toggle("active", !isLogin);
       document.getElementById("login-form").style.display = isLogin ? "block" : "none";
-      document.getElementById("register-verify-form").style.display = isLogin ? "none" : "block";
+      document.getElementById("register-flow-form").style.display = isLogin ? "none" : "block";
     }
 
     function selectRole(role) {
@@ -173,6 +173,11 @@
       document.querySelectorAll(".role-opt").forEach(btn => {
         btn.classList.toggle("active", btn.dataset.role === chosenRole);
       });
+    }
+
+    function backToStep1() {
+      document.getElementById("reg-step-2").style.display = "none";
+      document.getElementById("reg-step-1").style.display = "block";
     }
 
     function getSavedUsersMap() {
@@ -189,18 +194,33 @@
       return d.toLocaleTimeString([], { hour: "2-digit", minute: "2-digit" });
     }
 
-    // EmailJS üzerinden kullanıcının e-postasına 6 haneli sayısal kod gönderir
-    async function sendEmailJsOtp() {
+    // İleri butonuna basıldığında bilgileri kontrol eder ve otomatik 6 haneli kodu e-postaya gönderir
+    async function goToOtpStep() {
+      const username = document.getElementById("reg-username").value.trim();
       const email = document.getElementById("reg-email").value.trim().toLowerCase();
+      const password = document.getElementById("reg-password").value.trim();
+      const address = document.getElementById("reg-address").value.trim();
+
+      if (!username) {
+        showToast("Ulanyjy adyny giriziň!");
+        return;
+      }
       if (!email || !email.includes("@")) {
-        showToast("İlki dogry e-poçta salgysyny giriziň!");
+        showToast("Dogry e-poçta giriziň!");
+        return;
+      }
+      if (password.length < 6) {
+        showToast("Parol azyndan 6 simwol bolmaly!");
+        return;
+      }
+      if (!address) {
+        showToast("Ýaşaýan ýeriňizi giriziň!");
         return;
       }
 
-      const btn = document.getElementById("send-otp-btn");
-      const statusEl = document.getElementById("otp-status-txt");
-      btn.disabled = true;
-      statusEl.textContent = `${email} salgysyna 6 sanly kod ugradylýar...`;
+      const nextBtn = document.getElementById("reg-next-btn");
+      nextBtn.disabled = true;
+      nextBtn.textContent = "Kod ugradylýar...";
 
       const code = String(Math.floor(100000 + Math.random() * 900000));
       const expireLabel = formatExpiryTime(15);
@@ -231,17 +251,22 @@
         sentOtpCode = code;
         sentOtpEmail = email;
         sentOtpExpiresAt = Date.now() + 15 * 60 * 1000;
-        statusEl.textContent = `6 sanly kod ${email} e-poçtaňyza ugradyldy (${expireLabel} çenli güýjünde).`;
-        showToast("E-poçtaňyza 6 sanly tassyk kody iberildi!");
+
+        document.getElementById("otp-sent-info").textContent =
+          `${email} e-poçtaňyza 6 sanly kod ugradyldy (${expireLabel} çenli güýjünde).`;
+        document.getElementById("reg-step-1").style.display = "none";
+        document.getElementById("reg-step-2").style.display = "block";
+        document.getElementById("reg-otp-input").focus();
+        showToast("6 sanly kod e-poçtaňyza ugradyldy!");
       } catch (err) {
-        statusEl.textContent = "Kod ugratmakda säwlik boldy: " + err.message;
-        showToast("E-poçta ugradylyp bilinmedi! EmailJS sazlamalaryny barlaň.");
+        showToast("Kod ugradylyp bilinmedi: " + err.message);
       } finally {
-        btn.disabled = false;
+        nextBtn.disabled = false;
+        nextBtn.textContent = "İleri →";
       }
     }
 
-    // Kayıtlı Kullanıcı E-posta + Parola Girişi
+    // Giriş Formu (E-posta + Parola)
     document.getElementById("login-form").addEventListener("submit", (e) => {
       e.preventDefault();
       const email = document.getElementById("login-email").value.trim().toLowerCase();
@@ -258,57 +283,41 @@
         showToast("Üstünlikli girildi!");
         renderProfileView();
       } else {
-        showToast("E-poçta ýa-da parol nädogry! Agza bolmadyk bolsaňyz 'Üye Bol' sekmesine geçiň.");
+        showToast("E-poçta ýa-da parol nädogry! Agza bolmak üçin 'Üye Bol' sekmesine geçiň.");
       }
     });
 
-    // Yeni Üye Kayıt + E-postaya Gelen 6 Haneli Kodu Doğrulama
-    document.getElementById("register-verify-form").addEventListener("submit", (e) => {
+    // 2. Adım: Kodu Doğrulayıp Üyeliği Tamamlama
+    document.getElementById("register-flow-form").addEventListener("submit", (e) => {
       e.preventDefault();
       const username = document.getElementById("reg-username").value.trim();
-      const password = document.getElementById("reg-password").value.trim();
-      const phone = document.getElementById("reg-phone").value.trim();
       const email = document.getElementById("reg-email").value.trim().toLowerCase();
-      const codeInput = document.getElementById("reg-otp-input").value.trim();
+      const password = document.getElementById("reg-password").value.trim();
       const address = document.getElementById("reg-address").value.trim();
+      const codeInput = document.getElementById("reg-otp-input").value.trim();
 
-      if (!username || password.length < 6) {
-        showToast("Ulanyjy adyny we azyndan 6 simwolly paroly giriziň!");
-        return;
-      }
-      if (!phone || phone.length < 7) {
-        showToast("Telefon belgiňizi hökmany giriziň!");
-        return;
-      }
-      if (!email || !email.includes("@")) {
-        showToast("Dogry e-poçta salgysyny giriziň!");
-        return;
-      }
       if (!sentOtpCode || sentOtpEmail !== email) {
-        showToast("İlki 'E-poçtama Kod Iber' basyp e-poçtaňyza 6 sanly kod ugradyň!");
+        showToast("İlki 'İleri' basyp 6 sanly kod ugradyň!");
+        backToStep1();
         return;
       }
       if (Date.now() > sentOtpExpiresAt) {
-        showToast("Tassyk kodynyň wagty gutardy — täze kod ugradyň!");
+        showToast("Kodyň wagty gutardy — täzeden 'İleri' basyň!");
+        backToStep1();
         return;
       }
       if (codeInput !== sentOtpCode) {
-        showToast("Girizen 6 sanly kod e-poçtaňyza iberilen kod bilen gabat gelmedi!");
-        return;
-      }
-      if (!address) {
-        showToast("Salgy maglumatyňyzy giriziň!");
+        showToast("Girizen 6 sanly kod nädogry!");
         return;
       }
 
       const users = getSavedUsersMap();
       const sessionObj = {
         username,
-        password,
-        role: chosenRole,
-        phone,
         email,
+        password,
         address,
+        role: chosenRole,
         emailVerified: true,
         loggedIn: true
       };
@@ -317,7 +326,8 @@
       saveUsersMap(users);
       localStorage.setItem("tkm_auth_session", JSON.stringify(sessionObj));
       sentOtpCode = "";
-      showToast("E-poçta tassyklanyldy we hasabyňyz döredildi!");
+
+      showToast("Hasabyňyz tassyklanyldy we döredildi!");
       renderProfileView();
     });
 
@@ -341,8 +351,7 @@
         document.getElementById("prof-role-badge").textContent = isSeller ? "YNAMLY SATYJY ✅" : "SATYN ALYJY ✅";
         document.getElementById("prof-username").textContent = session.username;
         document.getElementById("prof-verified-line").textContent =
-          isSeller ? "Satyjy profili tassyklanan (Telefon, e-poçta we salgy ýazdyrylan)" : "Satyn alyjy profili (Diňe satyn almak açyk)";
-        document.getElementById("prof-phone").textContent = session.phone || "-";
+          isSeller ? "Satyjy profili tassyklanan" : "Satyn alyjy profili";
         document.getElementById("prof-email").textContent = session.email || "-";
         document.getElementById("prof-address").textContent = session.address || "-";
         document.getElementById("seller-extra-links").style.display = isSeller ? "flex" : "none";
@@ -353,6 +362,7 @@
       } else {
         loggedBox.style.display = "none";
         authBox.style.display = "block";
+        backToStep1();
       }
     }
 
