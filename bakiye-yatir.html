@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Para Yatır — TKM Market</title>
+  <title>Blockchain Bakiýe Ýatyr — TKM Market</title>
   <link rel="stylesheet" href="assets/tkm.css" />
   <style>
     .preset-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 8px; margin-top: 8px; }
@@ -21,7 +21,8 @@
       background: rgba(16, 185, 129, 0.18);
       color: #6ee7b7;
     }
-    .method-grid { display: grid; grid-template-columns: repeat(2, 1fr); gap: 10px; margin-top: 10px; }
+    .method-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 10px; margin-top: 10px; }
+    @media (max-width: 600px) { .method-grid { grid-template-columns: 1fr; } }
     .method-card {
       padding: 12px;
       border-radius: 14px;
@@ -43,7 +44,17 @@
       border: 1px solid var(--border);
       background: var(--surface-2);
     }
-    .card-row-2 { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin-top: 10px; }
+    .rate-pill {
+      display: inline-block;
+      margin-top: 6px;
+      padding: 5px 10px;
+      border-radius: 10px;
+      background: rgba(56, 189, 248, 0.14);
+      border: 1px solid rgba(56, 189, 248, 0.35);
+      font-size: 12px;
+      font-weight: 800;
+      color: #7dd3fc;
+    }
   </style>
 </head>
 <body>
@@ -53,8 +64,8 @@
     <div class="panel">
       <div style="display:flex; justify-content:space-between; align-items:center; gap:8px; flex-wrap:wrap;">
         <div>
-          <h2>💳 Bakiýe Ýatyr (Para Yatır)</h2>
-          <p class="muted">Hasabyňyza tiz we aňsat bakiýe goşuň. Aktiw bakiýe: <strong id="dep-cur-bal" style="color:#34d399;">0 TMT</strong></p>
+          <h2>⛓️ Bakiýe Ýatyr (Blockchain)</h2>
+          <p class="muted">Aktiw bakiýe: <strong id="dep-cur-bal" style="color:#34d399;">0 TMT</strong></p>
         </div>
         <a class="btn btn-soft" href="profil.html">← Profile Dolan</a>
       </div>
@@ -75,51 +86,39 @@
         <div class="field" style="margin-top:12px;">
           <label>Ýatyrjak Möçberiňiz (TMT) *</label>
           <input id="dep-amount" type="number" min="1" step="1" value="50" required />
+          <div class="rate-pill" id="crypto-conv-preview">Ugratmaly möçber: ≈ 2.50 USDT</div>
         </div>
 
         <div class="field" style="margin-top:12px;">
-          <label>Töleg Usulyny Saýlaň</label>
+          <label>Blockchain Ulgamyny Saýlaň</label>
           <div class="method-grid">
-            <button type="button" class="method-card active" data-m="visa" onclick="selectDepMethod('visa')">
-              <strong>💳 Visa Card</strong>
-              <div class="muted">Kart maglumatlary bilen</div>
-            </button>
-            <button type="button" class="method-card" data-m="mastercard" onclick="selectDepMethod('mastercard')">
-              <strong>💳 Mastercard</strong>
-              <div class="muted">Kart maglumatlary bilen</div>
-            </button>
-            <button type="button" class="method-card" data-m="usdt_bep20" onclick="selectDepMethod('usdt_bep20')">
+            <button type="button" class="method-card active" data-m="usdt_bep20" onclick="selectDepMethod('usdt_bep20')">
               <strong>🪙 USDT BEP20</strong>
               <div class="muted">BNB Smart Chain (BSC)</div>
             </button>
             <button type="button" class="method-card" data-m="usdt_trc20" onclick="selectDepMethod('usdt_trc20')">
               <strong>🪙 USDT TRC20</strong>
-              <div class="muted">TRON ulgamy</div>
+              <div class="muted">TRON Mainnet</div>
             </button>
             <button type="button" class="method-card" data-m="btc" onclick="selectDepMethod('btc')">
               <strong>₿ Bitcoin (BTC)</strong>
-              <div class="muted">BTC ulgamy</div>
-            </button>
-            <button type="button" class="method-card" data-m="ton" onclick="selectDepMethod('ton')">
-              <strong>💎 Toncoin (TON)</strong>
-              <div class="muted">TON ulgamy</div>
+              <div class="muted">Bitcoin Mainnet</div>
             </button>
           </div>
         </div>
 
-        <!-- Seçilen Yönteme Göre Dinamik Alanlar -->
         <div class="pay-box" id="dep-dynamic-fields"></div>
 
         <div class="btn-row">
-          <button type="submit" class="btn btn-green" style="width:100%; padding:13px; font-size:15px;">
-            Tölegi Tassyklap Bakiýä Goş
+          <button type="submit" id="verify-chain-btn" class="btn btn-green" style="width:100%; padding:13px; font-size:15px;">
+            ⛓️ Blockchain-de Gelen Tölegi Barla we Tassyklap Bakiýä Goş
           </button>
         </div>
       </form>
     </div>
 
     <div class="panel">
-      <h3>Soňky Bakiýe Ýatyrmalaryňyz</h3>
+      <h3>Blockchain Bakiýe Ýatyrmalaryňyz</h3>
       <div id="my-deposits-list"></div>
     </div>
   </main>
@@ -128,19 +127,67 @@
   <script>
     mountPlayerokShell("profile", "", true);
 
-    const CRYPTO_ADDRS = {
-      usdt_bep20: { title: "USDT (BEP20 / BSC) Salgysy", addr: "0x8f4C92e1A73b50d6C9412e77B10a5F4c29E81034", note: "Diňe BEP20 (BSC) ulgamyndan ugradyň." },
-      usdt_trc20: { title: "USDT (TRC20 / TRON) Salgysy", addr: "TQn9Y2khEsLJW1ChVWFMSMeRDow5KcbLSE", note: "Diňe TRC20 (TRON) ulgamyndan ugradyň." },
-      btc:        { title: "Bitcoin (BTC) Salgysy", addr: "bc1qxy2kgdygjrsqtzq2n0yrf2493p83kkfjhx0wlh", note: "Diňe Bitcoin ulgamyndan ugradyň." },
-      ton:        { title: "Toncoin (TON) Salgysy", addr: "UQD7v4k9m2p8x1z6c3v5b7n9m1q2w3e4r5t6y7u8i9o0p", note: "TON ulgamyndan ugradyň." }
+    const TMT_PER_USDT = 20;
+
+    const MY_WALLETS = {
+      usdt_bep20: {
+        title: "USDT (BEP20 / BNB Smart Chain) Salgysy",
+        addr: "0x4589c99db18e63938b565731f9b60267ce9d2c5d",
+        note: "Diňe BEP20 (BSC) ulgamyndan USDT ugradyň. Salgyňa pul düşmese tassyklanmaýar."
+      },
+      usdt_trc20: {
+        title: "USDT (TRC20 / TRON) Salgysy",
+        addr: "TD9LPTXx9YdksJGmwqYiEh576o7FF67DUt",
+        note: "Diňe TRC20 (TRON) ulgamyndan USDT ugradyň. Salgyňa pul düşmese tassyklanmaýar."
+      },
+      btc: {
+        title: "Bitcoin (BTC) Salgysy",
+        addr: "16LxjLMXRNaijHiCf4MwsvgcaMxAoambT1",
+        note: "Diňe Bitcoin ulgamyndan BTC ugradyň. Salgyňa pul düşmese tassyklanmaýar."
+      }
     };
 
-    let selectedMethod = "visa";
+    const BSCSCAN_API_KEY = "";
+    const BSC_USDT_CONTRACT = "0x55d398326f99059ff775485246999027b3197955";
+    const TRON_USDT_CONTRACT = "TR7NHqjeKQxGTCi8q8ZY4pL8otSzgjLj6t";
+
+    let selectedMethod = "usdt_bep20";
+    let btcUsdPrice = 95000;
+
+    async function fetchBtcPrice() {
+      try {
+        const res = await fetch("https://api.coingecko.com/api/v3/simple/price?ids=bitcoin&vs_currencies=usd");
+        const data = await res.json();
+        if (data?.bitcoin?.usd) {
+          btcUsdPrice = Number(data.bitcoin.usd);
+          updateConversionPreview();
+          renderDynamicPaymentFields();
+        }
+      } catch (_) {}
+    }
+
+    function getExpectedCryptoAmount(tmtAmount, method) {
+      const usdVal = tmtAmount / TMT_PER_USDT;
+      if (method === "usdt_bep20" || method === "usdt_trc20") {
+        return { amount: Number(usdVal.toFixed(2)), symbol: "USDT" };
+      }
+      return { amount: Number((usdVal / btcUsdPrice).toFixed(6)), symbol: "BTC" };
+    }
+
+    function updateConversionPreview() {
+      const amt = Math.max(0, Number(document.getElementById("dep-amount").value || 0));
+      const conv = getExpectedCryptoAmount(amt, selectedMethod);
+      const pill = document.getElementById("crypto-conv-preview");
+      if (pill) {
+        pill.textContent = `Ugratmaly möçber: ≈ ${conv.amount} ${conv.symbol} (1 USDT = ${TMT_PER_USDT} TMT)`;
+      }
+    }
 
     function setDepAmount(val, btn) {
       document.getElementById("dep-amount").value = val;
       document.querySelectorAll(".preset-btn").forEach(b => b.classList.remove("active"));
       if (btn) btn.classList.add("active");
+      updateConversionPreview();
       renderDynamicPaymentFields();
     }
 
@@ -149,41 +196,16 @@
       document.querySelectorAll(".method-card").forEach(c => {
         c.classList.toggle("active", c.dataset.m === m);
       });
+      updateConversionPreview();
       renderDynamicPaymentFields();
     }
 
     function renderDynamicPaymentFields() {
       const box = document.getElementById("dep-dynamic-fields");
       const amt = Math.max(0, Number(document.getElementById("dep-amount").value || 0));
+      const conv = getExpectedCryptoAmount(amt, selectedMethod);
+      const info = MY_WALLETS[selectedMethod];
 
-      if (selectedMethod === "visa" || selectedMethod === "mastercard") {
-        const brandLabel = selectedMethod === "visa" ? "Visa Card" : "Mastercard";
-        box.innerHTML = `
-          <div style="font-weight:800; margin-bottom:8px;">${brandLabel} Maglumatlary</div>
-          <div class="field">
-            <label>Kart Belgisi (16 san) *</label>
-            <input id="card-number" type="text" inputmode="numeric" maxlength="19" placeholder="4532 •••• •••• ••••" required />
-          </div>
-          <div class="card-row-2">
-            <div class="field">
-              <label>Möhleti (AA/ÝÝ) *</label>
-              <input id="card-exp" type="text" maxlength="5" placeholder="08/29" required />
-            </div>
-            <div class="field">
-              <label>CVV / CVC *</label>
-              <input id="card-cvv" type="password" inputmode="numeric" maxlength="4" placeholder="123" required />
-            </div>
-          </div>
-          <div class="field" style="margin-top:10px;">
-            <label>Kartyň Eýesiniň Ady *</label>
-            <input id="card-holder" type="text" placeholder="AD FAMILÝA" required />
-          </div>
-          <div class="muted" style="margin-top:8px;">Tölenjek möçber: <strong>${amt.toLocaleString()} TMT</strong></div>
-        `;
-        return;
-      }
-
-      const info = CRYPTO_ADDRS[selectedMethod];
       box.innerHTML = `
         <div style="font-weight:800; margin-bottom:4px;">${info.title}</div>
         <div class="muted">${info.note}</div>
@@ -192,22 +214,122 @@
           <button type="button" class="btn btn-soft" onclick="copyCryptoAddr()">Kopyala</button>
         </div>
         <div class="field" style="margin-top:10px;">
-          <label>Gönderen Salgyňyz ýa-da Bellik (İsteğe bağlı)</label>
-          <input id="crypto-sender-note" type="text" placeholder="Mysal: Binance / TrustWallet" />
+          <label>Gönderen Salgyňyz ýa-da TX Hash (İsteğe bağlı)</label>
+          <input id="crypto-sender-note" type="text" placeholder="0x... ýa-da TX Hash" />
         </div>
-        <div class="muted" style="margin-top:8px;">Hasaba geçjek möçber: <strong>${amt.toLocaleString()} TMT</strong></div>
+        <div class="muted" style="margin-top:8px;">
+          Ugradylmaly: <strong>${conv.amount} ${conv.symbol}</strong> → Hasaba geçjek: <strong>${amt.toLocaleString()} TMT</strong>
+        </div>
       `;
     }
 
     function copyCryptoAddr() {
       const txt = document.getElementById("crypto-addr-text")?.textContent || "";
-      if (navigator.clipboard && txt) {
-        navigator.clipboard.writeText(txt).catch(() => {});
-      }
+      if (navigator.clipboard && txt) navigator.clipboard.writeText(txt).catch(() => {});
       showToast("Salgy göçürildi!");
     }
 
-    document.getElementById("dep-amount").addEventListener("input", renderDynamicPaymentFields);
+    function getUsedTxHashes() {
+      try { return JSON.parse(localStorage.getItem("tkm_used_tx_hashes") || "[]"); }
+      catch (_) { return []; }
+    }
+
+    function markTxHashUsed(hash) {
+      if (!hash) return;
+      const used = getUsedTxHashes();
+      if (!used.includes(hash)) {
+        used.push(hash);
+        localStorage.setItem("tkm_used_tx_hashes", JSON.stringify(used));
+      }
+    }
+
+    // 1. USDT BEP20 (0x4589c99db18e63938b565731f9b60267ce9d2c5d)
+    async function verifyIncomingBep20(walletAddr, minUsdt, senderOrHash) {
+      const used = getUsedTxHashes();
+      const keyPart = BSCSCAN_API_KEY ? `&apikey=${encodeURIComponent(BSCSCAN_API_KEY)}` : "";
+      const url = `https://api.bscscan.com/api?module=account&action=tokentx&contractaddress=${BSC_USDT_CONTRACT}&address=${encodeURIComponent(walletAddr)}&page=1&offset=20&sort=desc${keyPart}`;
+      const res = await fetch(url);
+      const data = await res.json();
+      if (data.status !== "1" || !Array.isArray(data.result)) return null;
+
+      const nowSec = Math.floor(Date.now() / 1000);
+      for (const tx of data.result) {
+        const toAddr = String(tx.to || "").toLowerCase();
+        const fromAddr = String(tx.from || "").toLowerCase();
+        const txHash = String(tx.hash || "");
+        const decimals = Number(tx.tokenDecimal || 18);
+        const valUsdt = Number(tx.value || 0) / Math.pow(10, decimals);
+        const ageSec = nowSec - Number(tx.timeStamp || 0);
+
+        if (toAddr !== walletAddr.toLowerCase()) continue;
+        if (used.includes(txHash)) continue;
+        if (ageSec > 10800) continue; // Son 3 saat
+        if (valUsdt + 0.05 < minUsdt) continue;
+        if (senderOrHash) {
+          const q = senderOrHash.toLowerCase();
+          if (!txHash.toLowerCase().includes(q) && !fromAddr.includes(q)) continue;
+        }
+        return txHash;
+      }
+      return null;
+    }
+
+    // 2. USDT TRC20 (TD9LPTXx9YdksJGmwqYiEh576o7FF67DUt)
+    async function verifyIncomingTrc20(walletAddr, minUsdt, senderOrHash) {
+      const used = getUsedTxHashes();
+      const url = `https://api.trongrid.io/v1/accounts/${encodeURIComponent(walletAddr)}/transactions/trc20?only_confirmed=true&only_to=true&limit=20&contract_address=${TRON_USDT_CONTRACT}`;
+      const res = await fetch(url);
+      const data = await res.json();
+      if (!Array.isArray(data.data)) return null;
+
+      const nowMs = Date.now();
+      for (const tx of data.data) {
+        const txHash = String(tx.transaction_id || "");
+        const fromAddr = String(tx.from || "").toLowerCase();
+        const decimals = Number(tx.token_info?.decimals || 6);
+        const valUsdt = Number(tx.value || 0) / Math.pow(10, decimals);
+        const ageMs = nowMs - Number(tx.block_timestamp || 0);
+
+        if (used.includes(txHash)) continue;
+        if (ageMs > 10800 * 1000) continue; // Son 3 saat
+        if (valUsdt + 0.05 < minUsdt) continue;
+        if (senderOrHash) {
+          const q = senderOrHash.toLowerCase();
+          if (!txHash.toLowerCase().includes(q) && !fromAddr.includes(q)) continue;
+        }
+        return txHash;
+      }
+      return null;
+    }
+
+    // 3. Bitcoin (16LxjLMXRNaijHiCf4MwsvgcaMxAoambT1)
+    async function verifyIncomingBtc(walletAddr, minBtc, senderOrHash) {
+      const used = getUsedTxHashes();
+      const res = await fetch(`https://mempool.space/api/address/${encodeURIComponent(walletAddr)}/txs`);
+      const txs = await res.json();
+      if (!Array.isArray(txs)) return null;
+
+      for (const tx of txs.slice(0, 20)) {
+        const txHash = String(tx.txid || "");
+        if (used.includes(txHash)) continue;
+        let receivedSats = 0;
+        for (const vout of (tx.vout || [])) {
+          if (vout.scriptpubkey_address === walletAddr) {
+            receivedSats += Number(vout.value || 0);
+          }
+        }
+        const receivedBtc = receivedSats / 1e8;
+        if (receivedBtc + 0.000005 < minBtc) continue;
+        if (senderOrHash && !txHash.toLowerCase().includes(senderOrHash.toLowerCase())) continue;
+        return txHash;
+      }
+      return null;
+    }
+
+    document.getElementById("dep-amount").addEventListener("input", () => {
+      updateConversionPreview();
+      renderDynamicPaymentFields();
+    });
 
     document.getElementById("deposit-form").addEventListener("submit", async (e) => {
       e.preventDefault();
@@ -220,27 +342,42 @@
         return;
       }
 
-      let refInfo = selectedMethod.toUpperCase();
-      if (selectedMethod === "visa" || selectedMethod === "mastercard") {
-        const num = (document.getElementById("card-number")?.value || "").replace(/\s+/g, "");
-        const exp = (document.getElementById("card-exp")?.value || "").trim();
-        const cvv = (document.getElementById("card-cvv")?.value || "").trim();
-        const holder = (document.getElementById("card-holder")?.value || "").trim();
-        if (num.length < 12 || !exp || cvv.length < 3 || !holder) {
-          showToast("Kart maglumatlaryny doly giriziň!");
-          return;
+      const info = MY_WALLETS[selectedMethod];
+      const conv = getExpectedCryptoAmount(amountTmt, selectedMethod);
+      const senderOrHash = (document.getElementById("crypto-sender-note")?.value || "").trim();
+
+      const btn = document.getElementById("verify-chain-btn");
+      btn.disabled = true;
+      btn.textContent = "⏳ Blockchain ulgamyndan gelen pul barlanýar...";
+
+      let matchedTxHash = null;
+      try {
+        if (selectedMethod === "usdt_bep20") {
+          matchedTxHash = await verifyIncomingBep20(info.addr, conv.amount, senderOrHash);
+        } else if (selectedMethod === "usdt_trc20") {
+          matchedTxHash = await verifyIncomingTrc20(info.addr, conv.amount, senderOrHash);
+        } else if (selectedMethod === "btc") {
+          matchedTxHash = await verifyIncomingBtc(info.addr, conv.amount, senderOrHash);
         }
-        refInfo = `${selectedMethod.toUpperCase()} •••• ${num.slice(-4)} (${holder})`;
-      } else {
-        const note = (document.getElementById("crypto-sender-note")?.value || "").trim();
-        refInfo = note ? `${selectedMethod.toUpperCase()} — ${note}` : selectedMethod.toUpperCase();
+      } catch (_) {
+        matchedTxHash = null;
+      } finally {
+        btn.disabled = false;
+        btn.textContent = "⛓️ Blockchain-de Gelen Tölegi Barla we Tassyklap Bakiýä Goş";
       }
+
+      if (!matchedTxHash) {
+        showToast("Salgyňa heniz laýyk kripto tölegi düşmedik — pul geçenden soň gaýtadan barlaň!");
+        return;
+      }
+
+      markTxHashUsed(matchedTxHash);
 
       const payload = {
         username: user.username,
         amount_tmt: amountTmt,
         method: selectedMethod.toUpperCase(),
-        reference_info: refInfo,
+        reference_info: `${selectedMethod.toUpperCase()} (${conv.amount} ${conv.symbol}) · TX: ${matchedTxHash}`,
         status: "approved"
       };
 
@@ -256,7 +393,7 @@
       cache.unshift(savedRow);
       localStorage.setItem("tkm_deposits_cache", JSON.stringify(cache));
 
-      showToast(`+${amountTmt.toLocaleString()} TMT bakiýäňize goşuldy!`);
+      showToast(`Blockchain tassyklady! +${amountTmt.toLocaleString()} TMT bakiýäňize goşuldy.`);
       await refreshWalletAndList();
     });
 
@@ -280,21 +417,26 @@
 
       const wrap = document.getElementById("my-deposits-list");
       if (!mine.length) {
-        wrap.innerHTML = `<p class="muted">Heniz bakiýe ýatyryş ýok.</p>`;
+        wrap.innerHTML = `<p class="muted">Heniz blockchain ýatyryş ýok.</p>`;
         return;
       }
 
-      wrap.innerHTML = mine.map(d => `
-        <div class="list-row">
-          <div>
-            <strong>+${Number(d.amount_tmt || 0).toLocaleString()} TMT</strong> — <span class="chip-cat">${esc(d.method)}</span>
-            <div class="muted">${esc(d.reference_info || "")}</div>
+      wrap.innerHTML = mine.map(d => {
+        const badgeText = d.status === "rejected" ? "Ret Edildi ❌" : "Blockchain Tassyklady ✅";
+        return `
+          <div class="list-row">
+            <div>
+              <strong>+${Number(d.amount_tmt || 0).toLocaleString()} TMT</strong> — <span class="chip-cat">${esc(d.method)}</span>
+              <div class="muted" style="word-break:break-all;">${esc(d.reference_info || "")}</div>
+            </div>
+            <span class="badge-status ok">${badgeText}</span>
           </div>
-          <span class="badge-status ok">${d.status === "rejected" ? "Ret Edildi ❌" : "Bakiýede ✅"}</span>
-        </div>
-      `).join("");
+        `;
+      }).join("");
     }
 
+    fetchBtcPrice();
+    updateConversionPreview();
     renderDynamicPaymentFields();
     refreshWalletAndList();
   </script>
