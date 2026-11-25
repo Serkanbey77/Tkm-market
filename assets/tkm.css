@@ -83,6 +83,17 @@ body:not(.dark) .top-head { background: rgba(255, 255, 255, 0.92); }
   -webkit-background-clip: text; -webkit-text-fill-color: transparent;
 }
 .top-right { display: flex; align-items: center; gap: 6px; }
+.bal-pill {
+  text-decoration: none;
+  font-size: 10px;
+  font-weight: 800;
+  padding: 4px 9px;
+  border-radius: 999px;
+  background: rgba(52, 211, 153, 0.16);
+  border: 1px solid rgba(52, 211, 153, 0.45);
+  color: #34d399;
+  white-space: nowrap;
+}
 .db-mini {
   font-size: 10px; font-weight: 700; padding: 4px 8px; border-radius: 999px;
   background: rgba(16, 185, 129, 0.16); color: #34d399;
@@ -104,7 +115,6 @@ body:not(.dark) .top-head { background: rgba(255, 255, 255, 0.92); }
 
 .page-wrap { max-width: 980px; margin: 0 auto; padding: 14px 16px 24px; position: relative; z-index: 10; }
 
-/* 4K Animasyonlu Gamer Hero Banner */
 .gamer-hero {
   position: relative;
   border-radius: 22px;
@@ -339,7 +349,6 @@ input[type="file"] { padding: 7px; }
 }
 .badge-status.ok { background: rgba(16, 185, 129, 0.18); color: #34d399; }
 
-/* Alt Sabit Menü (6 sekmeli: Gözleg, Kategorýa, Exness, Hatlar, Satmak, Pul Çek) */
 .bottom-nav {
   position: fixed; left: 0; right: 0; bottom: 0; z-index: 60;
   background: rgba(13, 20, 38, 0.95); backdrop-filter: blur(12px);
