@@ -335,6 +335,50 @@ function getImages(item) {
   return out;
 }
 
+async function refreshTopBalancePill() {
+  const pill = document.getElementById("top-balance-pill");
+  if (!pill) return;
+  const u = (getUser().username || "Serkanbey77").toLowerCase();
+
+  let orders = [];
+  let deposits = [];
+  let withdrawals = [];
+
+  try { orders = await sbGet("orders"); } catch (_) {}
+  try {
+    deposits = await sbGet("deposits");
+    localStorage.setItem("tkm_deposits_cache", JSON.stringify(deposits));
+  } catch (_) {
+    try { deposits = JSON.parse(localStorage.getItem("tkm_deposits_cache") || "[]"); } catch (__) {}
+  }
+  try {
+    withdrawals = await sbGet("withdrawals");
+    localStorage.setItem("tkm_withdrawals_cache", JSON.stringify(withdrawals));
+  } catch (_) {
+    try { withdrawals = JSON.parse(localStorage.getItem("tkm_withdrawals_cache") || "[]"); } catch (__) {}
+  }
+
+  let released = 0, dep = 0, wd = 0;
+  for (const o of orders) {
+    if (String(o.seller || "Serkanbey77").toLowerCase() === u && o.seller_confirmed && o.buyer_confirmed) {
+      released += Number(o.price_tmt || 0);
+    }
+  }
+  for (const d of deposits) {
+    if (String(d.username || "Serkanbey77").toLowerCase() === u && d.status !== "rejected") {
+      dep += Number(d.amount_tmt || 0);
+    }
+  }
+  for (const w of withdrawals) {
+    if (String(w.seller || "Serkanbey77").toLowerCase() === u && w.status !== "rejected") {
+      wd += Number(w.amount_tmt || 0);
+    }
+  }
+
+  const bal = Math.max(0, released + dep - wd);
+  pill.textContent = `💰 ${bal.toLocaleString()} TMT`;
+}
+
 function mountPlayerokShell(activeTab, searchPlaceholder, showBackArrow = false) {
   applySavedTheme();
   mountSnowEffect();
@@ -416,6 +460,7 @@ function mountPlayerokShell(activeTab, searchPlaceholder, showBackArrow = false)
             <a class="brand-link" href="index.html">TKM Market</a>
           </div>
           <div class="top-right">
+            <a class="bal-pill" id="top-balance-pill" href="sargytlar.html" title="Bakiýe we Pul Çek">💰 0 TMT</a>
             <span class="db-mini" id="db-status-pill">Supabase</span>
             <button class="theme-switch" type="button" title="Tema" onclick="toggleTheme()">☀/☾</button>
           </div>
@@ -435,4 +480,5 @@ function mountPlayerokShell(activeTab, searchPlaceholder, showBackArrow = false)
   `;
 
   syncUserFields();
+  refreshTopBalancePill();
 }
