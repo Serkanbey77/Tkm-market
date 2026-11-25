@@ -1,255 +1,118 @@
 <!DOCTYPE html>
-<html lang="tk">
+<html lang="tr">
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Çykarmak — TKM Market</title>
-  <link rel="stylesheet" href="assets/tkm.css" />
+  <title>TKM Market — Bakiye Çek</title>
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
   <style>
-    .bal-top-tabs { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin-bottom: 14px; }
-    .bal-tab {
-      padding: 12px;
-      border-radius: 14px;
-      border: 1.5px solid var(--border);
-      background: var(--surface-2);
-      color: var(--text);
-      font-weight: 900;
-      text-align: center;
-      text-decoration: none;
-      cursor: pointer;
+    * { box-sizing: border-box; }
+    body { margin: 0; font-family: system-ui, sans-serif; background: #070b14; color: #f8fafc; padding: 16px; }
+    .wrap { max-width: 480px; margin: 0 auto; }
+    .card { background: #111827; border: 1px solid #1e293b; border-radius: 16px; padding: 18px; }
+    h1 { font-size: 19px; color: #38bdf8; margin: 0 0 8px; }
+    .bal { font-size: 22px; font-weight: 800; color: #22c55e; margin-bottom: 14px; }
+    label { display: block; font-size: 12px; color: #94a3b8; margin-bottom: 5px; }
+    input, select {
+      width: 100%; background: #0b1120; border: 1px solid #283548; color: #fff;
+      padding: 11px; border-radius: 10px; margin-bottom: 12px; font-size: 14px;
     }
-    .bal-tab.active {
-      background: linear-gradient(135deg, #2563eb, #4f46e5);
-      border-color: transparent;
-      color: #fff;
+    button {
+      width: 100%; padding: 12px; border: none; border-radius: 10px;
+      background: #2563eb; color: #fff; font-weight: 700; font-size: 14px; cursor: pointer;
     }
-    .bal-hero-card {
-      padding: 16px;
-      border-radius: 16px;
-      background: var(--surface-2);
-      border: 1px solid var(--border);
-      margin-bottom: 12px;
-    }
-    .bal-hero-label { font-size: 13px; color: var(--muted); font-weight: 700; }
-    .bal-hero-val { font-size: 24px; font-weight: 900; color: #34d399; margin-top: 4px; }
-    .net-pills { display: grid; grid-template-columns: repeat(3, 1fr); gap: 8px; margin-top: 10px; }
-    @media (max-width: 600px) { .net-pills { grid-template-columns: 1fr; } }
-    .net-pill {
-      padding: 11px 8px;
-      border-radius: 12px;
-      border: 1.5px solid var(--border);
-      background: var(--surface);
-      color: var(--text);
-      font-weight: 800;
-      cursor: pointer;
-      text-align: center;
-    }
-    .net-pill.active {
-      border-color: #3b82f6;
-      background: rgba(59, 130, 246, 0.18);
-      color: #93c5fd;
-    }
-    .conv-badge {
-      display: inline-block;
-      margin-top: 8px;
-      padding: 6px 10px;
-      border-radius: 10px;
-      background: rgba(52, 211, 153, 0.14);
-      border: 1px solid rgba(52, 211, 153, 0.35);
-      font-size: 12px;
-      font-weight: 800;
-      color: #6ee7b7;
-    }
+    .msg { font-size: 13px; margin-top: 10px; }
+    a { color: #38bdf8; text-decoration: none; font-size: 13px; }
   </style>
 </head>
 <body>
-  <div id="playerok-shell"></div>
+  <div class="wrap">
+    <div style="margin-bottom:10px;"><a href="profil.html">← Profile Dön</a></div>
+    <div class="card">
+      <h1>Bakiye Çekim Talebi</h1>
+      <div class="bal" id="curBal">Bakiye: $0.00</div>
 
-  <main class="page-wrap">
-    <div class="panel">
-      <div class="bal-top-tabs">
-        <a class="bal-tab" href="bakiye-yatir.html">Bakiýe Ýatyr</a>
-        <button type="button" class="bal-tab active">Çykarmak</button>
-      </div>
+      <label>Çekim Yöntemi</label>
+      <select id="method">
+        <option value="USDT_BEP20">USDT (BEP20)</option>
+        <option value="KART_TRANSFER">Kart / Hesap Transferi</option>
+      </select>
 
-      <div class="bal-hero-card">
-        <div class="bal-hero-label">Çykaryp Boljak Bakiýe</div>
-        <div class="bal-hero-val" id="wd-cur-bal">0 TMT</div>
-      </div>
+      <label>Çekilecek Tutar ($ USD)</label>
+      <input type="number" id="amount" min="1" step="0.01" placeholder="Örn: 10.00" />
 
-      <form id="withdraw-form">
-        <div class="bal-hero-card">
-          <div style="font-weight:900; font-size:15px;">Blockchain Ulgamyny Saýlaň</div>
-          <div class="net-pills">
-            <button type="button" class="net-pill active" data-net="USDT BEP20" onclick="selectWdNet('USDT BEP20')">USDT BEP20</button>
-            <button type="button" class="net-pill" data-net="USDT TRC20" onclick="selectWdNet('USDT TRC20')">USDT TRC20</button>
-            <button type="button" class="net-pill" data-net="BTC" onclick="selectWdNet('BTC')">Bitcoin (BTC)</button>
-          </div>
+      <label>Cüzdan Adresi / Hesap Bilgisi</label>
+      <input type="text" id="address" placeholder="BEP20 cüzdan adresi veya hesap bilgisi" />
 
-          <div class="field" style="margin-top:12px;">
-            <label>Çekmek Möçberi (TMT) *</label>
-            <input id="wd-amount" type="number" min="10" step="1" placeholder="Mysal: 200" required />
-            <div class="conv-badge" id="wd-crypto-preview">Aljak mukdaryňyz: 0.00 USDT</div>
-          </div>
-
-          <div class="field" style="margin-top:12px;">
-            <label id="wd-addr-label">USDT BEP20 Cüzdan Salgyňyz *</label>
-            <input id="wd-wallet" type="text" placeholder="0x..." required />
-          </div>
-
-          <div class="btn-row">
-            <button type="submit" class="btn btn-main" style="width:100%; padding:13px; font-size:15px;">
-              Çykarmak İsledigini Ugrat
-            </button>
-          </div>
-        </div>
-      </form>
+      <button onclick="submitWithdraw()">Çekim Talebi Oluştur</button>
+      <div class="msg" id="msg"></div>
     </div>
+  </div>
 
-    <div class="panel">
-      <h3>Taryh (Çekişler)</h3>
-      <div id="my-withdrawals-list"></div>
-    </div>
-  </main>
-
-  <script src="assets/tkm.js"></script>
   <script>
-    mountPlayerokShell("profile", "", true);
+    const SUPABASE_URL = "https://piajbopfeqlyupkrsnik.supabase.co";
+    const SUPABASE_ANON_KEY = "sb_publishable_gQFoj3SUxW-TUMjYmTGrIg_5_6hwBAH";
+    const sb = supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+    let currentUser = null;
+    let currentBalance = 0;
 
-    const TMT_PER_USDT = 20;
-    let selectedNet = "USDT BEP20";
-    let btcUsdPrice = 95000;
-
-    async function fetchBtcPrice() {
-      try {
-        const res = await fetch("https://api.coingecko.com/api/v3/simple/price?ids=bitcoin&vs_currencies=usd");
-        const data = await res.json();
-        if (data?.bitcoin?.usd) {
-          btcUsdPrice = Number(data.bitcoin.usd);
-          updateWdPreview();
-        }
-      } catch (_) {}
+    async function loadBal() {
+      const { data: { user } } = await sb.auth.getUser();
+      if (!user) return;
+      currentUser = user;
+      const { data: prof } = await sb.from("profiles").select("balance").eq("id", user.id).single();
+      currentBalance = Number(prof?.balance || 0);
+      document.getElementById("curBal").innerText = `Bakiye: $${currentBalance.toFixed(2)}`;
     }
 
-    function getPayoutCrypto(tmt, net) {
-      const usd = tmt / TMT_PER_USDT;
-      if (net === "BTC") return { amount: Number((usd / btcUsdPrice).toFixed(6)), unit: "BTC" };
-      return { amount: Number(usd.toFixed(2)), unit: "USDT" };
-    }
-
-    function selectWdNet(net) {
-      selectedNet = net;
-      document.querySelectorAll(".net-pill").forEach(p => {
-        p.classList.toggle("active", p.dataset.net === net);
-      });
-      const lbl = document.getElementById("wd-addr-label");
-      const inp = document.getElementById("wd-wallet");
-      lbl.textContent = `${net} Cüzdan Salgyňyz *`;
-      if (net === "USDT BEP20") inp.placeholder = "0x... (42 simwol)";
-      else if (net === "USDT TRC20") inp.placeholder = "T... (34 simwol)";
-      else inp.placeholder = "bc1... ýa-da 1... / 3...";
-      updateWdPreview();
-    }
-
-    function updateWdPreview() {
-      const amt = Math.max(0, Number(document.getElementById("wd-amount").value || 0));
-      const p = getPayoutCrypto(amt, selectedNet);
-      document.getElementById("wd-crypto-preview").textContent = `Aljak mukdaryňyz: ${p.amount} ${p.unit}`;
-    }
-
-    function isValidWalletForNetwork(addr, net) {
-      if (net === "USDT BEP20") return /^0x[a-fA-F0-9]{40}$/.test(addr);
-      if (net === "USDT TRC20") return /^T[1-9A-HJ-NP-Za-km-z]{33}$/.test(addr);
-      if (net === "BTC") return /^(bc1|[13])[a-zA-HJ-NP-Z0-9]{25,62}$/.test(addr);
-      return false;
-    }
-
-    document.getElementById("wd-amount").addEventListener("input", updateWdPreview);
-
-    document.getElementById("withdraw-form").addEventListener("submit", async (e) => {
-      e.preventDefault();
-      if (!requireVerifiedUser("profil.html")) return;
-
-      const user = getUser();
-      const amountTmt = Number(document.getElementById("wd-amount").value || 0);
-      const walletAddr = document.getElementById("wd-wallet").value.trim();
-
-      if (!amountTmt || amountTmt < 10) {
-        showToast("İň az çekiş möçberi 10 TMT!");
-        return;
-      }
-      if (!isValidWalletForNetwork(walletAddr, selectedNet)) {
-        showToast(`Girizen salgyňyz dogry ${selectedNet} blockchain salgysy däl!`);
+    async function submitWithdraw() {
+      const msg = document.getElementById("msg");
+      if (!currentUser) {
+        msg.innerHTML = `<span style="color:#f87171;">Önce <a href="profil.html">giriş yapmalısın</a>.</span>`;
         return;
       }
 
-      const payout = getPayoutCrypto(amountTmt, selectedNet);
-      const payload = {
-        seller: user.username,
-        amount_tmt: amountTmt,
-        method: "Crypto",
-        network_or_coin: `${selectedNet} (${payout.amount} ${payout.unit})`,
-        wallet_or_card: walletAddr,
+      const amount = Number(document.getElementById("amount").value);
+      const method = document.getElementById("method").value;
+      const payout_address = document.getElementById("address").value.trim();
+
+      if (!amount || amount <= 0 || amount > currentBalance) {
+        msg.innerHTML = `<span style="color:#f87171;">Yetersiz bakiye veya geçersiz tutar.</span>`;
+        return;
+      }
+      if (!payout_address) {
+        msg.innerHTML = `<span style="color:#f87171;">Cüzdan/hesap bilgisini gir.</span>`;
+        return;
+      }
+
+      const nextBal = Number((currentBalance - amount).toFixed(2));
+      const { error: pErr } = await sb.from("profiles").update({ balance: nextBal }).eq("id", currentUser.id);
+      if (pErr) {
+        msg.innerHTML = `<span style="color:#f87171;">Bakiye düşülemedi: ${pErr.message}</span>`;
+        return;
+      }
+
+      const { error: wErr } = await sb.from("withdrawals").insert({
+        user_id: currentUser.id,
+        email: currentUser.email,
+        amount,
+        method,
+        payout_address,
         status: "pending"
-      };
+      });
 
-      let savedRow = null;
-      try { savedRow = await sbInsert("withdrawals", payload); }
-      catch (_) { savedRow = { id: "wd-" + Date.now(), ...payload }; }
-
-      let cache = [];
-      try { cache = JSON.parse(localStorage.getItem("tkm_withdrawals_cache") || "[]"); } catch (__) {}
-      cache.unshift(savedRow);
-      localStorage.setItem("tkm_withdrawals_cache", JSON.stringify(cache));
-
-      document.getElementById("wd-amount").value = "";
-      document.getElementById("wd-wallet").value = "";
-      updateWdPreview();
-      showToast(`${selectedNet} çekiş islegi ugradyldy (${payout.amount} ${payout.unit})!`);
-      await refreshWithdrawalsView();
-    });
-
-    async function refreshWithdrawalsView() {
-      await refreshTopBalancePill();
-      const pillTxt = document.getElementById("top-balance-pill")?.textContent || "💰 0 TMT";
-      document.getElementById("wd-cur-bal").textContent = pillTxt.replace("💰 ", "");
-
-      const user = getUser();
-      let list = [];
-      try {
-        list = await sbGet("withdrawals");
-        localStorage.setItem("tkm_withdrawals_cache", JSON.stringify(list));
-      } catch (_) {
-        try { list = JSON.parse(localStorage.getItem("tkm_withdrawals_cache") || "[]"); } catch (__) {}
+      if (wErr) {
+        msg.innerHTML = `<span style="color:#f87171;">Talep hatası: ${wErr.message}</span>`;
+      } else {
+        currentBalance = nextBal;
+        document.getElementById("curBal").innerText = `Bakiye: $${currentBalance.toFixed(2)}`;
+        msg.innerHTML = `<span style="color:#4ade80;">Çekim talebin alındı ve admin onayına gönderildi.</span>`;
+        document.getElementById("amount").value = "";
+        document.getElementById("address").value = "";
       }
-
-      const mine = user.loggedIn
-        ? list.filter(x => String(x.seller || "").toLowerCase() === String(user.username || "").toLowerCase())
-        : list.slice(0, 10);
-
-      const wrap = document.getElementById("my-withdrawals-list");
-      if (!mine.length) {
-        wrap.innerHTML = `<p class="muted">Heniz çekiş taryhy ýok.</p>`;
-        return;
-      }
-
-      wrap.innerHTML = mine.map(w => {
-        const st = w.status === "approved" ? "Tassyklanyldy ✅" : (w.status === "rejected" ? "Ret Edildi ❌" : "Ugradylýar ⏳");
-        return `
-          <div class="list-row">
-            <div>
-              <strong>${Number(w.amount_tmt || 0).toLocaleString()} TMT</strong> — <span class="chip-cat">${esc(w.network_or_coin || w.method)}</span>
-              <div class="muted" style="word-break:break-all;">${esc(w.wallet_or_card || "")}</div>
-            </div>
-            <span class="badge-status ${w.status === "approved" ? "ok" : ""}">${st}</span>
-          </div>
-        `;
-      }).join("");
     }
 
-    fetchBtcPrice();
-    selectWdNet("USDT BEP20");
-    refreshWithdrawalsView();
+    loadBal();
   </script>
 </body>
 </html>
