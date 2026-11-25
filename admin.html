@@ -1,0 +1,396 @@
+<!DOCTYPE html>
+<html lang="tk">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Dolandyryjy Paneli — TKM Market</title>
+  <link rel="stylesheet" href="assets/tkm.css" />
+  <style>
+    .admin-stats {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+      gap: 10px;
+      margin-top: 12px;
+    }
+    .admin-stat {
+      background: var(--surface-2);
+      border: 1px solid var(--border);
+      border-radius: 14px;
+      padding: 12px;
+    }
+    .admin-stat .num {
+      font-size: 19px;
+      font-weight: 900;
+      margin-top: 4px;
+      color: #34d399;
+    }
+    .admin-tabs {
+      display: flex;
+      gap: 8px;
+      overflow-x: auto;
+      margin-bottom: 14px;
+      padding-bottom: 4px;
+    }
+    .admin-tab {
+      background: var(--surface-2);
+      border: 1.5px solid var(--border);
+      color: var(--text);
+      border-radius: 12px;
+      padding: 9px 13px;
+      font-weight: 800;
+      font-size: 12px;
+      cursor: pointer;
+      white-space: nowrap;
+    }
+    .admin-tab.active {
+      border-color: #a855f7;
+      background: rgba(168, 85, 247, 0.18);
+      color: #f0abfc;
+    }
+  </style>
+</head>
+<body>
+  <div id="playerok-shell"></div>
+
+  <main class="page-wrap">
+    <!-- Yönetici Erişim Kartı -->
+    <div class="panel" id="admin-gate-panel">
+      <h2>🛡️ Dolandyryjy (Admin) Girişi</h2>
+      <p class="muted">Telefon belgä pul çekmek, bakiýe ýatyrmalary tassyklamak we sargytlary dolandyrmak üçin dolandyryjy parolyny giriziň.</p>
+      <form id="admin-login-form" class="form-grid">
+        <div class="field">
+          <label>Dolandyryjy Paroly</label>
+          <input id="admin-pass-input" type="password" placeholder="Paroly giriziň (mysal: tkmadmin77)" required />
+        </div>
+        <div class="field" style="display:flex; align-items:flex-end;">
+          <button type="submit" class="btn btn-main" style="width:100%;">Panele Gir</button>
+        </div>
+      </form>
+      <p class="muted" style="margin-top:8px;">İpucu: İlk girişde ýerli dolandyryjy paroly hökmünde <strong>tkmadmin77</strong> ulanyp bilersiňiz (koddaky <code>ADMIN_PASSCODE</code> bilen üýtgedip bilersiňiz).</p>
+    </div>
+
+    <!-- Asıl Yönetici Paneli -->
+    <div id="admin-dashboard" style="display:none;">
+      <div class="panel">
+        <div style="display:flex; justify-content:space-between; align-items:center; gap:8px; flex-wrap:wrap;">
+          <div>
+            <h2>TKM Market — Dolandyryjy Merkezi</h2>
+            <p class="muted">Çekişleri, bakiýe ýatyrmalary we emanet sargytlaryny gözden geçiriň we tassyklaň.</p>
+          </div>
+          <div class="btn-row" style="margin-top:0;">
+            <button type="button" class="btn btn-soft" onclick="loadAdminData()">↻ Täzele</button>
+            <button type="button" class="btn btn-del" onclick="lockAdminPanel()">Çyk</button>
+          </div>
+        </div>
+
+        <div class="admin-stats">
+          <div class="admin-stat">
+            <div class="muted">Garaşylýan Çekiş</div>
+            <div class="num" id="stat-pending-w">0</div>
+          </div>
+          <div class="admin-stat">
+            <div class="muted">Garaşylýan Ýatyryş</div>
+            <div class="num" id="stat-pending-d" style="color:#38bdf8;">0</div>
+          </div>
+          <div class="admin-stat">
+            <div class="muted">Jemi Sargyt</div>
+            <div class="num" id="stat-orders" style="color:#fbbf24;">0</div>
+          </div>
+          <div class="admin-stat">
+            <div class="muted">Hasaply Ulanyjy</div>
+            <div class="num" id="stat-users" style="color:#e879f9;">0</div>
+          </div>
+        </div>
+      </div>
+
+      <div class="admin-tabs">
+        <button type="button" class="admin-tab active" data-tab="withdrawals" onclick="switchAdminTab('withdrawals')">💸 Pul Çekişler (Belge/Kart/Kripto)</button>
+        <button type="button" class="admin-tab" data-tab="deposits" onclick="switchAdminTab('deposits')">💳 Bakiýe Ýatyrmalar</button>
+        <button type="button" class="admin-tab" data-tab="orders" onclick="switchAdminTab('orders')">🛡️ Emanet Sargytlar</button>
+        <button type="button" class="admin-tab" data-tab="users" onclick="switchAdminTab('users')">👤 Ulanyjylar</button>
+      </div>
+
+      <!-- 1. Çekim Talepleri (Telefon Numarası Dahil) -->
+      <div class="panel" id="sec-withdrawals">
+        <h3>Pul Çekiş İsledikleri</h3>
+        <p class="muted">Ulanyjy telefon belgä çekmek islände, ilki şu ýerde tassyklap hasabyndaky puluň üstünden belgesine geçiriň.</p>
+        <div id="admin-withdrawals-list"></div>
+      </div>
+
+      <!-- 2. Bakiye Yatırma Talepleri -->
+      <div class="panel" id="sec-deposits" style="display:none;">
+        <h3>Bakiýe Ýatyryş İsledikleri</h3>
+        <p class="muted">Kart ýa-da kripto TXID töleglerini barlap tassyklaň ýa-da ret ediň.</p>
+        <div id="admin-deposits-list"></div>
+      </div>
+
+      <!-- 3. Emanet Siparişleri -->
+      <div class="panel" id="sec-orders" style="display:none;">
+        <h3>Emanet (Escrow) Sargytlary</h3>
+        <p class="muted">İki tarapyň tassyklama ýagdaýyny görüň ýa-da dolandyryjy hökmünde tamamlaň.</p>
+        <div id="admin-orders-list"></div>
+      </div>
+
+      <!-- 4. Kayıtlı Kullanıcılar -->
+      <div class="panel" id="sec-users" style="display:none;">
+        <h3>Hasaba Alnan Ulanyjylar</h3>
+        <p class="muted">Satyjy we satyn alyjy hasaplarynyň tassyk we salgy maglumatlary.</p>
+        <div id="admin-users-list"></div>
+      </div>
+    </div>
+  </main>
+
+  <script src="assets/tkm.js"></script>
+  <script>
+    mountPlayerokShell("profile", "", true);
+
+    const ADMIN_PASSCODE = "tkmadmin77";
+    let adminWithdrawals = [];
+    let adminDeposits = [];
+    let adminOrders = [];
+    let adminUsers = [];
+
+    function isAdminUnlocked() {
+      return sessionStorage.getItem("tkm_admin_unlocked") === "1";
+    }
+
+    function syncAdminGate() {
+      const unlocked = isAdminUnlocked();
+      document.getElementById("admin-gate-panel").style.display = unlocked ? "none" : "block";
+      document.getElementById("admin-dashboard").style.display = unlocked ? "block" : "none";
+      if (unlocked) loadAdminData();
+    }
+
+    document.getElementById("admin-login-form").addEventListener("submit", (e) => {
+      e.preventDefault();
+      const val = document.getElementById("admin-pass-input").value.trim();
+      if (val === ADMIN_PASSCODE) {
+        sessionStorage.setItem("tkm_admin_unlocked", "1");
+        showToast("Dolandyryjy paneline girildi!");
+        syncAdminGate();
+      } else {
+        showToast("Dolandyryjy paroly nädogry!");
+      }
+    });
+
+    function lockAdminPanel() {
+      sessionStorage.removeItem("tkm_admin_unlocked");
+      showToast("Dolandyryjy panelinden çykyldy.");
+      syncAdminGate();
+    }
+
+    function switchAdminTab(tab) {
+      document.querySelectorAll(".admin-tab").forEach(b => {
+        b.classList.toggle("active", b.dataset.tab === tab);
+      });
+      document.getElementById("sec-withdrawals").style.display = tab === "withdrawals" ? "block" : "none";
+      document.getElementById("sec-deposits").style.display = tab === "deposits" ? "block" : "none";
+      document.getElementById("sec-orders").style.display = tab === "orders" ? "block" : "none";
+      document.getElementById("sec-users").style.display = tab === "users" ? "block" : "none";
+    }
+
+    async function loadAdminData() {
+      try {
+        adminWithdrawals = await sbGet("withdrawals");
+        localStorage.setItem("tkm_withdrawals_cache", JSON.stringify(adminWithdrawals));
+        setDbPill(true, "Onlaýn");
+      } catch (_) {
+        try { adminWithdrawals = JSON.parse(localStorage.getItem("tkm_withdrawals_cache") || "[]"); }
+        catch (__) { adminWithdrawals = []; }
+        setDbPill(false, "Ýerli");
+      }
+
+      try {
+        adminDeposits = await sbGet("deposits");
+        localStorage.setItem("tkm_deposits_cache", JSON.stringify(adminDeposits));
+      } catch (_) {
+        try { adminDeposits = JSON.parse(localStorage.getItem("tkm_deposits_cache") || "[]"); }
+        catch (__) { adminDeposits = []; }
+      }
+
+      try {
+        adminOrders = await sbGet("orders");
+      } catch (_) {
+        adminOrders = [];
+      }
+
+      try {
+        const regMap = JSON.parse(localStorage.getItem("tkm_users_registry") || "{}");
+        adminUsers = Object.values(regMap);
+      } catch (_) {
+        adminUsers = [];
+      }
+
+      updateStats();
+      renderAdminWithdrawals();
+      renderAdminDeposits();
+      renderAdminOrders();
+      renderAdminUsers();
+    }
+
+    function updateStats() {
+      const pw = adminWithdrawals.filter(x => x.status === "pending").length;
+      const pd = adminDeposits.filter(x => x.status === "pending").length;
+      document.getElementById("stat-pending-w").textContent = String(pw);
+      document.getElementById("stat-pending-d").textContent = String(pd);
+      document.getElementById("stat-orders").textContent = String(adminOrders.length);
+      document.getElementById("stat-users").textContent = String(adminUsers.length);
+    }
+
+    function renderAdminWithdrawals() {
+      const wrap = document.getElementById("admin-withdrawals-list");
+      if (!adminWithdrawals.length) {
+        wrap.innerHTML = `<p class="muted">Pul çekiş islegi ýok.</p>`;
+        return;
+      }
+
+      wrap.innerHTML = adminWithdrawals.map(w => {
+        const isPhone = w.method === "Phone" || w.network_or_coin === "Phone Approval";
+        const statusLabel = w.status === "approved"
+          ? "Tassyklanyldy ✅"
+          : (w.status === "rejected" ? "Ret Edildi ❌" : "Garaşylýar ⏳");
+
+        return `
+          <div class="list-row">
+            <div>
+              <strong>${Number(w.amount_tmt || 0).toLocaleString()} TMT</strong> —
+              <span class="chip-cat">${esc(w.network_or_coin || w.method)}</span>
+              ${isPhone ? `<span class="chip-escrow">📱 Telefon Belgi</span>` : ""}
+              <div class="muted">
+                Ulanyjy: <strong>${esc(w.seller)}</strong> ·
+                ${isPhone ? `Belgi: <strong>${esc(w.phone_number || w.wallet_or_card)}</strong>` : `Salgy/Karta: <strong>${esc(w.wallet_or_card || "")}</strong>`}
+                ${w.card_holder ? ` · Eýesi: ${esc(w.card_holder)}` : ""}
+                ${w.card_expiry ? ` (${esc(w.card_expiry)})` : ""}
+              </div>
+            </div>
+            <div style="display:flex; align-items:center; gap:6px; flex-wrap:wrap;">
+              <span class="badge-status ${w.status === "approved" ? "ok" : ""}">${statusLabel}</span>
+              ${w.status !== "approved" ? `
+                <button type="button" class="btn btn-green" onclick="setWithdrawalStatus('${esc(w.id)}', 'approved')">
+                  ${isPhone ? "Tassyklap Ugrat" : "Tassykla"}
+                </button>
+              ` : ""}
+              ${w.status !== "rejected" ? `
+                <button type="button" class="btn btn-del" onclick="setWithdrawalStatus('${esc(w.id)}', 'rejected')">Ret Et</button>
+              ` : ""}
+            </div>
+          </div>
+        `;
+      }).join("");
+    }
+
+    async function setWithdrawalStatus(id, nextStatus) {
+      try {
+        await sbPatch("withdrawals", id, { status: nextStatus });
+        showToast(nextStatus === "approved" ? "Çekiş tassyklanyldy!" : "Çekiş ret edildi.");
+      } catch (_) {
+        adminWithdrawals = adminWithdrawals.map(w => String(w.id) === String(id) ? { ...w, status: nextStatus } : w);
+        localStorage.setItem("tkm_withdrawals_cache", JSON.stringify(adminWithdrawals));
+        showToast("Ýerli ýatda ýagdaý täzelendi.");
+      }
+      loadAdminData();
+    }
+
+    function renderAdminDeposits() {
+      const wrap = document.getElementById("admin-deposits-list");
+      if (!adminDeposits.length) {
+        wrap.innerHTML = `<p class="muted">Bakiýe ýatyryş islegi ýok.</p>`;
+        return;
+      }
+
+      wrap.innerHTML = adminDeposits.map(d => {
+        const statusLabel = d.status === "rejected" ? "Ret Edildi ❌" : "Bakiýede ✅";
+        return `
+          <div class="list-row">
+            <div>
+              <strong>+${Number(d.amount_tmt || 0).toLocaleString()} TMT</strong> — <span class="chip-cat">${esc(d.method)}</span>
+              <div class="muted">Ulanyjy: <strong>${esc(d.username)}</strong> · TXID/Kod: <strong>${esc(d.reference_info)}</strong></div>
+            </div>
+            <div style="display:flex; align-items:center; gap:6px; flex-wrap:wrap;">
+              <span class="badge-status ${d.status !== "rejected" ? "ok" : ""}">${statusLabel}</span>
+              ${d.status === "pending" || d.status === "rejected" ? `
+                <button type="button" class="btn btn-green" onclick="setDepositStatus('${esc(d.id)}', 'approved')">Tassykla</button>
+              ` : ""}
+              ${d.status !== "rejected" ? `
+                <button type="button" class="btn btn-del" onclick="setDepositStatus('${esc(d.id)}', 'rejected')">Ret Et</button>
+              ` : ""}
+            </div>
+          </div>
+        `;
+      }).join("");
+    }
+
+    async function setDepositStatus(id, nextStatus) {
+      try {
+        await sbPatch("deposits", id, { status: nextStatus });
+        showToast(nextStatus === "approved" ? "Ýatyryş tassyklanyldy!" : "Ýatyryş ret edildi.");
+      } catch (_) {
+        adminDeposits = adminDeposits.map(d => String(d.id) === String(id) ? { ...d, status: nextStatus } : d);
+        localStorage.setItem("tkm_deposits_cache", JSON.stringify(adminDeposits));
+        showToast("Ýerli ýatda ýagdaý täzelendi.");
+      }
+      loadAdminData();
+    }
+
+    function renderAdminOrders() {
+      const wrap = document.getElementById("admin-orders-list");
+      if (!adminOrders.length) {
+        wrap.innerHTML = `<p class="muted">Emanet sargyt ýok.</p>`;
+        return;
+      }
+
+      wrap.innerHTML = adminOrders.map(o => {
+        const done = Boolean(o.seller_confirmed && o.buyer_confirmed);
+        return `
+          <div class="list-row">
+            <div>
+              <strong>${esc(o.order_code || ("Sargyt #" + o.id))}</strong> — ${esc(o.product_title)}
+              <div class="muted">${Number(o.price_tmt || 0).toLocaleString()} TMT · Satyjy: ${esc(o.seller || "Serkanbey77")} · Satyjy: ${o.seller_confirmed ? "✅" : "⏳"} / Alyjy: ${o.buyer_confirmed ? "✅" : "⏳"}</div>
+            </div>
+            <div style="display:flex; align-items:center; gap:6px; flex-wrap:wrap;">
+              <span class="badge-status ${done ? "ok" : ""}">${done ? "Tamamlandy ✅" : "Emanetde 🔒"}</span>
+              ${!done ? `
+                <button type="button" class="btn btn-green" onclick="forceCompleteOrder('${esc(o.id)}')">Dolandyryjy Tassygy</button>
+              ` : ""}
+            </div>
+          </div>
+        `;
+      }).join("");
+    }
+
+    async function forceCompleteOrder(id) {
+      try {
+        await sbPatch("orders", id, {
+          seller_confirmed: true,
+          buyer_confirmed: true,
+          escrow_status: "released",
+          status: "completed"
+        });
+        showToast("Sargyt dolandyryjy tarapyndan tassyklanyldy!");
+        loadAdminData();
+      } catch (err) {
+        showToast("Säwlik: " + err.message);
+      }
+    }
+
+    function renderAdminUsers() {
+      const wrap = document.getElementById("admin-users-list");
+      if (!adminUsers.length) {
+        wrap.innerHTML = `<p class="muted">Heniz ýazga alnan ulanyjy ýok.</p>`;
+        return;
+      }
+      wrap.innerHTML = adminUsers.map(u => `
+        <div class="list-row">
+          <div>
+            <strong>${esc(u.username)}</strong> — <span class="chip-cat">${u.role === "seller" ? "Satyjy" : "Satyn Alyjy"}</span>
+            <div class="muted">E-poçta: ${esc(u.email || "-")} · Tel: ${esc(u.phone || "-")} · Salgy: ${esc(u.address || "-")}</div>
+          </div>
+          <span class="badge-status ok">Tassyklanan ✅</span>
+        </div>
+      `).join("");
+    }
+
+    syncAdminGate();
+  </script>
+</body>
+</html>
