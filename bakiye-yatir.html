@@ -7,52 +7,88 @@
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
   <style>
     * { box-sizing: border-box; }
-    body { margin: 0; font-family: system-ui, sans-serif; background: #070b14; color: #f8fafc; padding: 16px; }
-    .wrap { max-width: 480px; margin: 0 auto; }
-    .card { background: #111827; border: 1px solid #1e293b; border-radius: 16px; padding: 18px; margin-bottom: 14px; }
-    h1 { font-size: 19px; color: #38bdf8; margin: 0 0 12px; }
+    body {
+      margin: 0;
+      font-family: system-ui, -apple-system, sans-serif;
+      background: radial-gradient(circle at top, #111c33 0%, #070b14 65%);
+      color: #f8fafc;
+      min-height: 100vh;
+      padding: 16px;
+    }
+    .wrap { max-width: 520px; margin: 0 auto; }
+    .topbar {
+      display: flex; justify-content: space-between; align-items: center;
+      margin-bottom: 16px; padding-bottom: 12px; border-bottom: 1px solid #1e293b;
+    }
+    .brand { font-weight: 800; font-size: 18px; color: #38bdf8; text-decoration: none; }
+    .nav-links { display: flex; gap: 8px; }
+    .nav-links a {
+      color: #cbd5e1; text-decoration: none; font-size: 13px;
+      padding: 6px 10px; border-radius: 8px; background: #111827; border: 1px solid #1e293b;
+    }
+    .card {
+      background: rgba(17, 24, 39, 0.94);
+      border: 1px solid #1e293b;
+      border-radius: 16px;
+      padding: 18px;
+      box-shadow: 0 12px 30px rgba(0,0,0,.35);
+    }
+    .info-box {
+      background: rgba(37, 99, 235, 0.12);
+      border: 1px dashed rgba(59, 130, 246, 0.5);
+      border-radius: 12px;
+      padding: 12px;
+      font-size: 12px;
+      color: #cbd5e1;
+      line-height: 1.55;
+      margin-bottom: 14px;
+    }
     label { display: block; font-size: 12px; color: #94a3b8; margin-bottom: 5px; }
     input, select {
       width: 100%; background: #0b1120; border: 1px solid #283548; color: #fff;
-      padding: 11px; border-radius: 10px; margin-bottom: 12px; font-size: 14px;
+      padding: 11px 12px; border-radius: 10px; margin-bottom: 12px; font-size: 14px;
     }
-    .info-box {
-      background: #0b1324; border: 1px dashed #2563eb; border-radius: 12px;
-      padding: 12px; font-size: 12px; color: #cbd5e1; margin-bottom: 14px; line-height: 1.5;
-    }
-    button {
+    button.primary {
       width: 100%; padding: 12px; border: none; border-radius: 10px;
-      background: #16a34a; color: #fff; font-weight: 700; font-size: 14px; cursor: pointer;
+      background: linear-gradient(135deg, #16a34a, #15803d);
+      color: #fff; font-weight: 700; font-size: 14px; cursor: pointer;
     }
-    .msg { font-size: 13px; margin-top: 10px; }
-    a { color: #38bdf8; text-decoration: none; font-size: 13px; }
+    .msg { font-size: 12px; margin-top: 10px; min-height: 18px; line-height: 1.45; }
+    .err { color: #f87171; } .ok { color: #4ade80; }
   </style>
 </head>
 <body>
   <div class="wrap">
-    <div style="margin-bottom:10px;"><a href="profil.html">← Profile Dön</a></div>
+    <div class="topbar">
+      <a class="brand" href="index.html">TKM MARKET</a>
+      <div class="nav-links">
+        <a href="profil.html">Profil</a>
+        <a href="pul-cek.html">Çek</a>
+      </div>
+    </div>
+
     <div class="card">
-      <h1>Güvenli Bakiye Yatırma</h1>
+      <h2 style="margin:0 0 12px; font-size:18px;">Güvenli Bakiye Yatırma</h2>
       <div class="info-box">
         <strong>Ödeme Bilgisi:</strong><br>
-        • <strong>USDT (BEP20):</strong> <code>0xCüzdanAdresiniBurayaYaz</code><br>
-        • <strong>Kart / Havale:</strong> Talebi oluşturduktan sonra referans kodunu kaydet; onaylandığında bakiyen cüzdanına yansır.
+        • <strong>USDT (BEP20):</strong> Kendi BEP20 cüzdan adresini buraya yaz<br>
+        • <strong>Kart / Havale:</strong> Talebi oluşturduktan sonra işlem referansını gir; onaylandığında bakiyen cüzdanına yansır.
       </div>
 
       <label>Ödeme Yöntemi</label>
       <select id="method">
-        <option value="USDT_BEP20">USDT (BEP20)</option>
-        <option value="VISA_MASTERCARD">Visa / Mastercard</option>
-        <option value="HAVALE_EFT">Banka / Kart Transferi</option>
+        <option value="USDT (BEP20)">USDT (BEP20)</option>
+        <option value="Visa / Mastercard">Visa / Mastercard</option>
+        <option value="Banka / Havale">Banka / Havale</option>
       </select>
 
       <label>Yatırılacak Tutar ($ USD)</label>
-      <input type="number" id="amount" min="1" step="0.01" placeholder="Örn: 25.00" />
+      <input type="number" id="amount" min="1" step="0.01" placeholder="Örn: 10" />
 
       <label>İşlem ID / Dekont Referansı</label>
-      <input type="text" id="txRef" placeholder="TxHash veya işlem referansı" />
+      <input type="text" id="refCode" placeholder="TxHash veya dekont referansı" />
 
-      <button onclick="submitDeposit()">Yatırım Talebi Gönder</button>
+      <button class="primary" onclick="submitDeposit()">Yatırım Talebi Gönder</button>
       <div class="msg" id="msg"></div>
     </div>
   </div>
@@ -64,37 +100,63 @@
 
     async function submitDeposit() {
       const msg = document.getElementById("msg");
+      msg.className = "msg";
+
       const { data: { user } } = await sb.auth.getUser();
       if (!user) {
-        msg.innerHTML = `<span style="color:#f87171;">Önce <a href="profil.html">giriş yapmalısın</a>.</span>`;
+        msg.className = "msg err";
+        msg.innerText = "Önce giriş yapmalısın. Profil sayfasına yönlendiriliyorsun...";
+        setTimeout(() => (location.href = "profil.html"), 1000);
         return;
       }
 
-      const amount = Number(document.getElementById("amount").value);
       const method = document.getElementById("method").value;
-      const tx_ref = document.getElementById("txRef").value.trim();
+      const amount = parseFloat(document.getElementById("amount").value);
+      const refCode = document.getElementById("refCode").value.trim();
 
       if (!amount || amount <= 0) {
-        msg.innerHTML = `<span style="color:#f87171;">Geçerli bir tutar gir.</span>`;
+        msg.className = "msg err";
+        msg.innerText = "Geçerli bir tutar gir.";
         return;
       }
+      if (!refCode) {
+        msg.className = "msg err";
+        msg.innerText = "İşlem ID veya referans kodu gir.";
+        return;
+      }
+
+      msg.innerText = "Talep gönderiliyor...";
+
+      const { data: prof } = await sb
+        .from("profiles")
+        .select("username")
+        .eq("id", user.id)
+        .maybeSingle();
+
+      const username =
+        prof?.username ||
+        user.user_metadata?.username ||
+        (user.email ? user.email.split("@")[0] : "Kullanici");
 
       const { error } = await sb.from("deposits").insert({
         user_id: user.id,
-        email: user.email,
+        username,
         amount,
         method,
-        tx_ref,
+        reference: refCode,
         status: "pending"
       });
 
       if (error) {
-        msg.innerHTML = `<span style="color:#f87171;">Hata: ${error.message}</span>`;
-      } else {
-        msg.innerHTML = `<span style="color:#4ade80;">Talep alındı! Onaylandığında bakiyene eklenecek.</span>`;
-        document.getElementById("amount").value = "";
-        document.getElementById("txRef").value = "";
+        msg.className = "msg err";
+        msg.innerText = "Hata: " + error.message;
+        return;
       }
+
+      msg.className = "msg ok";
+      msg.innerText = "Yatırım talebin alındı! Onaylandığında bakiyene eklenecek.";
+      document.getElementById("amount").value = "";
+      document.getElementById("refCode").value = "";
     }
   </script>
 </body>
