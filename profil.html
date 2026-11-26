@@ -3,542 +3,609 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>TKM Market — Profil &amp; Hesap Merkezi</title>
+  <title>TKM Market — Profil &amp; Hesap</title>
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
   <style>
     * { box-sizing: border-box; }
+    :root {
+      --bg: #070b14;
+      --surface: #0e1626;
+      --surface-2: #131f36;
+      --border: rgba(148, 163, 184, 0.16);
+      --accent: #3b82f6;
+      --accent-2: #06b6d4;
+      --text: #f8fafc;
+      --muted: #94a3b8;
+      --ok: #22c55e;
+      --err: #ef4444;
+      --warn: #f59e0b;
+    }
     body {
       margin: 0;
       font-family: system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
-      background: radial-gradient(circle at 50% 0%, #1d2b53 0%, #0d1221 58%, #070a13 100%);
-      color: #f8fafc;
+      background:
+        radial-gradient(circle at 15% 0%, rgba(59, 130, 246, 0.18), transparent 45%),
+        radial-gradient(circle at 85% 10%, rgba(6, 182, 212, 0.14), transparent 40%),
+        var(--bg);
+      color: var(--text);
       min-height: 100vh;
-      padding: 14px 14px 86px;
+      padding: 18px 14px 40px;
     }
-    @keyframes fadeUp {
-      from { opacity: 0; transform: translateY(8px); }
-      to { opacity: 1; transform: translateY(0); }
+    .container { max-width: 540px; margin: 0 auto; }
+    .header {
+      display: flex; align-items: center; justify-content: space-between;
+      padding: 12px 16px; border-radius: 16px;
+      background: rgba(14, 22, 38, 0.88); border: 1px solid var(--border);
+      backdrop-filter: blur(12px); margin-bottom: 16px;
     }
-    .wrap { max-width: 560px; margin: 0 auto; animation: fadeUp .25s ease; }
-    .topbar {
-      display: flex; justify-content: space-between; align-items: center; gap: 10px;
-      padding: 12px 14px; margin-bottom: 14px; border-radius: 15px;
-      background: rgba(20, 29, 51, 0.92); border: 1px solid rgba(99, 102, 241, 0.25);
+    .brand {
+      display: flex; align-items: center; gap: 10px;
+      text-decoration: none; color: var(--text); font-weight: 800; font-size: 17px; letter-spacing: 0.4px;
     }
-    .brand { font-weight: 900; font-size: 18px; letter-spacing: .5px; color: #fff; text-decoration: none; }
-    .brand span { color: #38bdf8; }
-    .pill-link {
-      text-decoration: none; font-size: 12px; font-weight: 700; color: #e2e8f0;
-      background: #18233d; border: 1px solid #2b3c63; padding: 7px 11px; border-radius: 10px;
+    .brand-dot {
+      width: 10px; height: 10px; border-radius: 50%;
+      background: linear-gradient(135deg, var(--accent), var(--accent-2));
+      box-shadow: 0 0 12px rgba(59, 130, 246, 0.8);
+    }
+    .nav-btn {
+      text-decoration: none; color: var(--text); font-size: 13px; font-weight: 600;
+      padding: 8px 12px; border-radius: 10px;
+      background: var(--surface-2); border: 1px solid var(--border);
     }
     .card {
-      background: rgba(20, 29, 51, 0.94);
-      border: 1px solid rgba(148, 163, 184, 0.16);
-      border-radius: 18px;
-      padding: 18px;
-      margin-bottom: 14px;
-      box-shadow: 0 14px 32px rgba(0, 0, 0, 0.38);
-      animation: fadeUp .25s ease;
+      background: rgba(14, 22, 38, 0.94); border: 1px solid var(--border);
+      border-radius: 20px; padding: 20px; margin-bottom: 14px;
+      box-shadow: 0 20px 45px rgba(0, 0, 0, 0.4);
     }
-    .tabs2 { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; margin-bottom: 14px; }
-    .tabs3 { display: grid; grid-template-columns: repeat(3, 1fr); gap: 7px; margin-bottom: 14px; }
-    .tab {
-      padding: 10px 8px; border-radius: 11px; border: 1px solid #28385c;
-      background: #10182b; color: #94a3b8; font-weight: 700; font-size: 12px; cursor: pointer;
+    .mode-switch {
+      display: grid; grid-template-columns: 1fr 1fr; gap: 8px;
+      background: var(--bg); padding: 5px; border-radius: 14px;
+      border: 1px solid var(--border); margin-bottom: 18px;
     }
-    .tab.active {
-      background: linear-gradient(135deg, #4f46e5, #2563eb);
-      color: #fff; border-color: #60a5fa;
+    .mode-btn {
+      padding: 10px; border: none; border-radius: 10px;
+      background: transparent; color: var(--muted);
+      font-weight: 700; font-size: 14px; cursor: pointer; transition: 0.2s ease;
     }
-    .google-btn {
-      width: 100%; display: flex; align-items: center; justify-content: center; gap: 9px;
-      padding: 12px; border-radius: 12px; border: none;
-      background: #ef4444; color: #fff; font-weight: 800; font-size: 14px; cursor: pointer;
+    .mode-btn.active {
+      background: linear-gradient(135deg, var(--accent), #2563eb);
+      color: #fff; box-shadow: 0 6px 18px rgba(37, 99, 235, 0.35);
     }
-    .divider {
-      display: flex; align-items: center; gap: 10px; margin: 14px 0;
-      color: #94a3b8; font-size: 12px; font-weight: 600;
+    .field { margin-bottom: 13px; }
+    label {
+      display: block; font-size: 12px; font-weight: 600;
+      color: var(--muted); margin-bottom: 6px;
     }
-    .divider::before, .divider::after { content: ""; flex: 1; height: 1px; background: #28385c; }
-    label { display: block; font-size: 12px; color: #cbd5e1; margin-bottom: 5px; font-weight: 600; }
     input, textarea {
-      width: 100%; background: #0d1424; border: 1px solid #2b3d63; color: #fff;
-      padding: 11px 12px; border-radius: 11px; margin-bottom: 11px; font-size: 14px; font-family: inherit;
+      width: 100%; padding: 12px 13px; border-radius: 12px;
+      border: 1px solid var(--border); background: var(--bg);
+      color: var(--text); font-size: 14px; font-family: inherit;
+      transition: border-color 0.2s ease;
     }
-    input:focus, textarea:focus { outline: none; border-color: #38bdf8; }
-    textarea { min-height: 68px; resize: vertical; }
-    .suggest-row { display: flex; flex-wrap: wrap; gap: 6px; margin: -4px 0 12px; }
-    .sug-chip {
-      background: #182542; color: #93c5fd; border: 1px solid #2d4373;
-      border-radius: 8px; padding: 4px 8px; font-size: 11px; font-weight: 700; cursor: pointer;
-    }
-    .check-row {
-      display: flex; align-items: flex-start; gap: 8px; font-size: 12px; color: #cbd5e1;
-      margin-bottom: 12px; line-height: 1.4;
-    }
-    .check-row input { width: auto; margin: 2px 0 0; }
-    .captcha-box {
-      background: #0d1424; border: 1px solid #2b3d63; border-radius: 12px;
-      padding: 11px; margin-bottom: 12px;
+    input:focus, textarea:focus { outline: none; border-color: var(--accent); }
+    input:disabled { opacity: 0.65; cursor: not-allowed; }
+    textarea { min-height: 82px; resize: vertical; }
+    .captcha-wrap {
+      background: var(--bg); border: 1px solid var(--border);
+      border-radius: 14px; padding: 12px; margin-bottom: 14px;
     }
     .captcha-top {
-      display: flex; justify-content: space-between; align-items: center;
-      margin-bottom: 8px; font-size: 12px; color: #94a3b8; font-weight: 700;
+      display: flex; align-items: center; justify-content: space-between;
+      margin-bottom: 10px; font-size: 12px; color: var(--muted); font-weight: 600;
     }
     .captcha-code {
-      font-family: ui-monospace, monospace; font-size: 17px; font-weight: 900; letter-spacing: 4px;
-      color: #38bdf8; background: #15223d; padding: 6px 10px; border-radius: 8px;
-      border: 1px dashed #38bdf8; user-select: none;
+      font-family: ui-monospace, SFMono-Regular, Menlo, monospace;
+      font-size: 18px; font-weight: 800; letter-spacing: 5px;
+      padding: 8px 12px; border-radius: 10px;
+      background: var(--surface-2); color: var(--accent-2);
+      border: 1px dashed rgba(6, 182, 212, 0.5); user-select: none;
     }
     .refresh-btn {
-      background: #1e2d4d; color: #fff; border: 1px solid #354c7d;
-      padding: 5px 9px; border-radius: 7px; font-size: 11px; font-weight: 700; cursor: pointer;
+      background: var(--surface-2); color: var(--text); border: 1px solid var(--border);
+      border-radius: 8px; padding: 6px 10px; font-size: 12px; font-weight: 600; cursor: pointer;
     }
-    button.primary {
-      width: 100%; padding: 12px; border: none; border-radius: 12px;
-      background: linear-gradient(135deg, #3b82f6, #2563eb);
-      color: #fff; font-weight: 800; font-size: 14px; cursor: pointer;
+    .btn-primary {
+      width: 100%; padding: 13px; border: none; border-radius: 12px;
+      background: linear-gradient(135deg, var(--accent), #2563eb);
+      color: #fff; font-size: 14px; font-weight: 700; cursor: pointer;
+      transition: transform 0.15s ease, opacity 0.2s ease;
     }
-    .prof-top { display: flex; justify-content: space-between; align-items: center; gap: 10px; }
-    .prof-user { display: flex; align-items: center; gap: 12px; }
+    .btn-primary:hover { opacity: 0.96; }
+    .btn-primary:active { transform: scale(0.99); }
+    .btn-secondary {
+      width: 100%; padding: 12px; border-radius: 12px;
+      background: var(--surface-2); color: var(--text); border: 1px solid var(--border);
+      font-size: 13px; font-weight: 700; cursor: pointer; margin-top: 8px;
+    }
+    .profile-top {
+      display: flex; align-items: center; justify-content: space-between; gap: 12px;
+    }
+    .user-meta { display: flex; align-items: center; gap: 13px; }
     .avatar {
-      width: 52px; height: 52px; border-radius: 14px;
-      background: linear-gradient(135deg, #38bdf8, #6366f1);
+      width: 54px; height: 54px; border-radius: 16px;
+      background: linear-gradient(135deg, var(--accent), var(--accent-2));
       display: flex; align-items: center; justify-content: center;
-      font-size: 20px; font-weight: 900; color: #fff; flex-shrink: 0;
+      font-size: 21px; font-weight: 800; color: #fff; flex-shrink: 0;
     }
-    .badge {
-      display: inline-block; font-size: 11px; font-weight: 800; padding: 3px 8px;
-      border-radius: 999px; margin-top: 5px;
+    .name-title { font-size: 18px; font-weight: 800; }
+    .email-sub { font-size: 12px; color: var(--muted); margin-top: 2px; word-break: break-all; }
+    .status-pill {
+      display: inline-flex; align-items: center; gap: 6px;
+      margin-top: 7px; padding: 4px 10px; border-radius: 999px;
+      font-size: 11px; font-weight: 700;
     }
-    .badge.unverified {
-      background: rgba(245, 158, 11, 0.16); color: #fbbf24; border: 1px solid rgba(245, 158, 11, 0.35);
+    .status-pill.ok {
+      background: rgba(34, 197, 94, 0.14); color: #4ade80; border: 1px solid rgba(34, 197, 94, 0.35);
     }
-    .badge.verified {
-      background: rgba(34, 197, 94, 0.16); color: #4ade80; border: 1px solid rgba(34, 197, 94, 0.35);
+    .status-pill.pending {
+      background: rgba(245, 158, 11, 0.14); color: #fbbf24; border: 1px solid rgba(245, 158, 11, 0.35);
     }
-    .wallet-strip {
-      display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin: 14px 0 12px;
+    .btn-logout {
+      padding: 8px 12px; border-radius: 10px;
+      background: rgba(239, 68, 68, 0.14); color: #f87171;
+      border: 1px solid rgba(239, 68, 68, 0.35); font-size: 12px; font-weight: 700; cursor: pointer;
     }
-    .w-box {
-      background: #0d1424; border: 1px solid #253659; border-radius: 13px; padding: 12px;
-    }
-    .bal { font-size: 22px; font-weight: 900; color: #38bdf8; margin-top: 3px; }
-    .act-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 9px; }
-    .act-btn {
-      display: block; text-align: center; text-decoration: none;
-      padding: 11px; border-radius: 11px; font-weight: 800; font-size: 13px; border: none; cursor: pointer;
-    }
-    .btn-dep { background: #2563eb; color: #fff; }
-    .btn-with { background: #192642; color: #f8fafc; border: 1px solid #2f4575; }
-    .btn-post {
-      grid-column: 1 / -1;
-      background: linear-gradient(135deg, #16a34a, #15803d); color: #fff;
-    }
-    .out-btn {
-      background: rgba(239, 68, 68, 0.15); color: #f87171; border: 1px solid rgba(239, 68, 68, 0.35);
-      padding: 7px 10px; border-radius: 9px; font-weight: 800; font-size: 12px; cursor: pointer;
-    }
-    .muted { color: #94a3b8; font-size: 12px; }
-    .msg { font-size: 12px; margin-top: 8px; min-height: 18px; font-weight: 700; line-height: 1.4; }
-    .err { color: #f87171; } .ok { color: #4ade80; }
-    .bottom-nav {
-      position: fixed; left: 0; right: 0; bottom: 0;
-      display: grid; grid-template-columns: repeat(4, 1fr);
-      background: rgba(13, 19, 36, 0.96); border-top: 1px solid #243354;
-      padding: 8px 6px; backdrop-filter: blur(10px);
-    }
-    .bottom-nav a {
-      text-decoration: none; color: #94a3b8; text-align: center;
-      font-size: 11px; font-weight: 700; padding: 4px 2px;
-    }
-    .bottom-nav a.active { color: #38bdf8; }
+    .section-title { font-size: 15px; font-weight: 800; margin: 0 0 12px; }
+    .section-hint { font-size: 12px; color: var(--muted); margin: -6px 0 14px; line-height: 1.45; }
+    .feedback { font-size: 12px; font-weight: 600; min-height: 18px; margin-top: 10px; line-height: 1.4; }
+    .feedback.err { color: #f87171; }
+    .feedback.ok { color: #4ade80; }
   </style>
 </head>
 <body>
-  <div class="wrap">
-    <div class="topbar">
-      <a class="brand" href="index.html">TKM <span>MARKET</span></a>
-      <a class="pill-link" href="index.html">İlan Pazarı</a>
+  <div class="container">
+    <div class="header">
+      <a class="brand" href="index.html">
+        <span class="brand-dot"></span>
+        <span>TKM MARKET</span>
+      </a>
+      <a class="nav-btn" href="index.html">Ana Sayfa</a>
     </div>
 
-    <!-- Giriş / Kayıt -->
-    <div class="card" id="authCard" style="display:none;">
-      <div class="tabs2">
-        <button class="tab active" id="tabLogin" onclick="switchAuth('login')">Giriş Yap</button>
-        <button class="tab" id="tabReg" onclick="switchAuth('reg')">Kayıt Ol</button>
+    <!-- Giriş Yap / Üye Ol Ekranı -->
+    <div class="card" id="authView" style="display:none;">
+      <div class="mode-switch">
+        <button type="button" class="mode-btn active" id="btnShowLogin" onclick="setAuthMode('login')">Giriş Yap</button>
+        <button type="button" class="mode-btn" id="btnShowRegister" onclick="setAuthMode('register')">Üye Ol</button>
       </div>
 
-      <button type="button" class="google-btn" onclick="googleSignIn()">
-        <span>G</span> Google ile Devam Et
-      </button>
-      <div class="divider">veya</div>
-
-      <div id="loginBox">
-        <label>E-posta veya Kullanıcı Adı</label>
-        <input type="text" id="logId" placeholder="ornek@mail.com veya kullanıcı adı" />
-        <label>Şifre</label>
-        <input type="password" id="logPass" placeholder="••••••••" />
-        <button class="primary" onclick="doLogin()">Giriş Yap</button>
+      <!-- Giriş Yap -->
+      <div id="loginPanel">
+        <div class="field">
+          <label for="loginEmail">E-posta Adresi</label>
+          <input type="email" id="loginEmail" placeholder="ornek@mail.com" autocomplete="email" />
+        </div>
+        <div class="field">
+          <label for="loginPassword">Şifre</label>
+          <input type="password" id="loginPassword" placeholder="Şifrenizi girin" autocomplete="current-password" />
+        </div>
+        <button type="button" class="btn-primary" id="loginSubmitBtn" onclick="handleLogin()">Giriş Yap</button>
       </div>
 
-      <div id="regBox" style="display:none;">
-        <label>Ad Soyad</label>
-        <input type="text" id="regFullName" placeholder="Adın Soyadın" />
-        <label>Kullanıcı Adı</label>
-        <input type="text" id="regUser" placeholder="En az 3 karakter" oninput="checkUsernameLive()" />
-        <div class="suggest-row" id="userSuggestions"></div>
-        <label>E-posta Adresi</label>
-        <input type="email" id="regEmail" placeholder="ornek@mail.com" />
-        <label>Telefon Numarası</label>
-        <input type="tel" id="regPhone" placeholder="+90 5xx xxx xx xx" />
-        <label>Şifre (en az 6 karakter)</label>
-        <input type="password" id="regPass" placeholder="••••••••" />
+      <!-- Üye Ol -->
+      <div id="registerPanel" style="display:none;">
+        <div class="field">
+          <label for="regFullName">İsim Soyad</label>
+          <input type="text" id="regFullName" placeholder="Adınız Soyadınız" autocomplete="name" />
+        </div>
+        <div class="field">
+          <label for="regEmail">E-posta Adresi</label>
+          <input type="email" id="regEmail" placeholder="ornek@mail.com" autocomplete="email" />
+        </div>
+        <div class="field">
+          <label for="regPhone">Telefon Numarası</label>
+          <input type="tel" id="regPhone" placeholder="+90 5xx xxx xx xx" autocomplete="tel" />
+        </div>
+        <div class="field">
+          <label for="regPassword">Şifre (En az 6 karakter)</label>
+          <input type="password" id="regPassword" placeholder="En az 6 karakterli şifre" autocomplete="new-password" />
+        </div>
 
-        <div class="captcha-box">
+        <div class="captcha-wrap">
           <div class="captcha-top">
-            <span>İnsan Doğrulaması</span>
-            <button type="button" class="refresh-btn" onclick="genCap()">Yeni Kod</button>
+            <span>İnsan Doğrulaması (CAPTCHA)</span>
+            <button type="button" class="refresh-btn" onclick="refreshCaptcha()">Yeni Kod</button>
           </div>
           <div style="display:flex; gap:10px; align-items:center;">
-            <div class="captcha-code" id="capBox">T5K8M</div>
-            <input type="text" id="capIn" placeholder="Kodu yaz" style="margin-bottom:0; text-transform:uppercase;" />
+            <div class="captcha-code" id="captchaCode">------</div>
+            <input type="text" id="captchaInput" placeholder="Kodu girin" style="margin-bottom:0; text-transform:uppercase;" />
           </div>
         </div>
 
-        <label class="check-row">
-          <input type="checkbox" id="agreeTerms" checked />
-          <span>Üyelik kurallarını ve pazar yeri şartlarını okudum, kabul ediyorum.</span>
-        </label>
-
-        <button class="primary" onclick="doRegister()">Kayıt Ol</button>
+        <button type="button" class="btn-primary" id="registerSubmitBtn" onclick="handleRegister()">Üye Ol ve Profil Oluştur</button>
       </div>
 
-      <div class="msg" id="authMsg"></div>
+      <div class="feedback" id="authFeedback"></div>
     </div>
 
-    <!-- Profil -->
-    <div id="profCard" style="display:none;">
+    <!-- Kalıcı Profil Ekranı -->
+    <div id="profileView" style="display:none;">
       <div class="card">
-        <div class="prof-top">
-          <div class="prof-user">
-            <div class="avatar" id="pAv">T</div>
+        <div class="profile-top">
+          <div class="user-meta">
+            <div class="avatar" id="profileAvatar">T</div>
             <div>
-              <div style="font-size:18px; font-weight:900;" id="pUser">Kullanıcı</div>
-              <div class="muted" id="pSub">-</div>
-              <span class="badge unverified" id="pVerifyBadge">Doğrulanmamış Hesap</span>
+              <div class="name-title" id="displayName">Kullanıcı</div>
+              <div class="email-sub" id="displayEmail">-</div>
+              <div class="status-pill pending" id="verifyBadge">Doğrulama Bekleniyor</div>
             </div>
           </div>
-          <button class="out-btn" onclick="doLogout()">Çıkış</button>
+          <button type="button" class="btn-logout" onclick="handleLogout()">Çıkış Yap</button>
         </div>
-
-        <div class="wallet-strip">
-          <div class="w-box">
-            <div class="muted">Cüzdan Bakiyesi</div>
-            <div class="bal" id="pBal">$0.00</div>
-          </div>
-          <div class="w-box">
-            <div class="muted">Hesap Statüsü</div>
-            <div style="font-size:14px; font-weight:800; color:#e2e8f0; margin-top:6px;" id="pStatusText">Standart</div>
-          </div>
-        </div>
-
-        <div class="act-grid">
-          <a class="act-btn btn-dep" href="bakiye-yatir.html">+ Bakiye Ekle</a>
-          <a class="act-btn btn-with" href="pul-cek.html">↗ Bakiye Çek</a>
-          <button type="button" class="act-btn btn-post" onclick="handleAddListing()">+ İlan Ekle</button>
-        </div>
-        <div class="msg" id="gateMsg"></div>
       </div>
 
+      <!-- Kimlik Doğrulama (İsim Soyad + Telefon) -->
       <div class="card">
-        <div class="tabs3">
-          <button class="tab active" id="tInfo" onclick="setSec('info')">Profil</button>
-          <button class="tab" id="tVerify" onclick="setSec('verify')">Kimlik Doğrulama</button>
-          <button class="tab" id="tAddr" onclick="setSec('addr')">Adres</button>
+        <h2 class="section-title">Hesap ve İletişim Doğrulaması</h2>
+        <p class="section-hint">TC kimlik numarası gerekmez. İsim soyad ve telefon numaranı doğrulayarak profilini onaylı duruma getirebilirsin.</p>
+
+        <div class="field">
+          <label for="profFullName">İsim Soyad</label>
+          <input type="text" id="profFullName" placeholder="Adınız Soyadınız" />
+        </div>
+        <div class="field">
+          <label for="profEmail">E-posta Adresi</label>
+          <input type="email" id="profEmail" disabled />
+        </div>
+        <div class="field">
+          <label for="profPhone">Telefon Numarası</label>
+          <input type="tel" id="profPhone" placeholder="+90 5xx xxx xx xx" />
         </div>
 
-        <div id="sInfo">
-          <label>Ad Soyad</label>
-          <input type="text" id="fFullName" placeholder="Adın Soyadın" />
-          <label>Kullanıcı Adı</label>
-          <input type="text" id="fUser" placeholder="Kullanıcı adı" />
-          <label>Telefon Numarası</label>
-          <input type="tel" id="fPhone" placeholder="+90 5xx xxx xx xx" />
-          <button class="primary" onclick="saveProfile()">Bilgileri Kaydet</button>
+        <button type="button" class="btn-primary" id="verifySaveBtn" onclick="saveVerification()">Bilgileri Kaydet ve Doğrula</button>
+        <div class="feedback" id="verifyFeedback"></div>
+      </div>
+
+      <!-- Adres Bilgileri (Sonradan Eklenebilir) -->
+      <div class="card">
+        <h2 class="section-title">Adres Bilgileri</h2>
+        <p class="section-hint">Adres bilgilerini şimdi veya daha sonra ekleyip dilediğin zaman güncelleyebilirsin.</p>
+
+        <div class="field">
+          <label for="profAddress">Açık Adres</label>
+          <textarea id="profAddress" placeholder="İl, ilçe, mahalle ve açık adres bilginizi girin..."></textarea>
         </div>
 
-        <div id="sVerify" style="display:none;">
-          <div class="muted" style="margin-bottom:10px;">TC kimlik numarası istenmez. Ad, soyad, telefon ve doğum tarihi ile hesabını doğrula.</div>
-          <label>Ad</label>
-          <input type="text" id="vFirst" placeholder="Adın" />
-          <label>Soyad</label>
-          <input type="text" id="vLast" placeholder="Soyadın" />
-          <label>Doğum Tarihi</label>
-          <input type="date" id="vBirth" />
-          <label>Telefon Numarası</label>
-          <input type="tel" id="vPhone" placeholder="+90 5xx xxx xx xx" />
-          <button class="primary" onclick="submitVerification()">Hesabı Doğrula (Verified Account)</button>
-        </div>
-
-        <div id="sAddr" style="display:none;">
-          <label>Şehir / Ülke</label>
-          <input type="text" id="fCity" placeholder="Şehir / Ülke" />
-          <label>Açık Adres</label>
-          <textarea id="fAddr" placeholder="Adres bilgin"></textarea>
-          <button class="primary" onclick="saveProfile()">Adresi Kaydet</button>
-        </div>
-
-        <div class="msg" id="saveMsg"></div>
+        <button type="button" class="btn-secondary" id="addressSaveBtn" onclick="saveAddress()">Adresi Kaydet</button>
+        <div class="feedback" id="addressFeedback"></div>
       </div>
     </div>
   </div>
 
-  <nav class="bottom-nav">
-    <a href="index.html">Ana Sayfa</a>
-    <a href="index.html">İlan Pazarı</a>
-    <a href="bakiye-yatir.html">Cüzdan</a>
-    <a href="profil.html" class="active">Profil</a>
-  </nav>
-
   <script>
     const SUPABASE_URL = "https://piajbopfeqlyupkrsnik.supabase.co";
     const SUPABASE_ANON_KEY = "sb_publishable_gQFoj3SUxW-TUMjYmTGrIg_5_6hwBAH";
-    const sb = supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
-
-    let capCode = "";
-    let me = null;
-
-    function genCap() {
-      const chars = "ABCDEFGHJKLMNPQRSTUVWXYZ23456789";
-      let out = "";
-      for (let i = 0; i < 5; i++) out += chars[Math.floor(Math.random() * chars.length)];
-      capCode = out;
-      document.getElementById("capBox").innerText = out;
-      document.getElementById("capIn").value = "";
-    }
-
-    function switchAuth(m) {
-      document.getElementById("tabLogin").classList.toggle("active", m === "login");
-      document.getElementById("tabReg").classList.toggle("active", m === "reg");
-      document.getElementById("loginBox").style.display = m === "login" ? "block" : "none";
-      document.getElementById("regBox").style.display = m === "reg" ? "block" : "none";
-      document.getElementById("authMsg").innerText = "";
-      if (m === "reg") genCap();
-    }
-
-    function setSec(s) {
-      document.getElementById("tInfo").classList.toggle("active", s === "info");
-      document.getElementById("tVerify").classList.toggle("active", s === "verify");
-      document.getElementById("tAddr").classList.toggle("active", s === "addr");
-      document.getElementById("sInfo").style.display = s === "info" ? "block" : "none";
-      document.getElementById("sVerify").style.display = s === "verify" ? "block" : "none";
-      document.getElementById("sAddr").style.display = s === "addr" ? "block" : "none";
-      document.getElementById("saveMsg").innerText = "";
-    }
-
-    async function checkUsernameLive() {
-      const raw = document.getElementById("regUser").value.trim();
-      const box = document.getElementById("userSuggestions");
-      box.innerHTML = "";
-      if (raw.length < 3) return;
-      const { data } = await sb.from("profiles").select("id").ilike("username", raw).maybeSingle();
-      if (data) {
-        const base = raw.replace(/[^a-zA-Z0-9_]/g, "") || "oyuncu";
-        const suggs = [`${base}2026`, `${base}_vip`, `${base}77`];
-        box.innerHTML = `<span class="muted" style="width:100%;">Bu kullanıcı adı dolu, öneriler:</span>` +
-          suggs.map(s => `<button type="button" class="sug-chip" onclick="pickUser('${s}')">${s}</button>`).join("");
+    const sb = supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY, {
+      auth: {
+        persistSession: true,
+        autoRefreshToken: true,
+        detectSessionInUrl: true
       }
+    });
+
+    let activeCaptcha = "";
+    let currentUser = null;
+
+    function refreshCaptcha() {
+      const pool = "ABCDEFGHJKLMNPQRSTUVWXYZ23456789";
+      let code = "";
+      for (let i = 0; i < 6; i++) {
+        code += pool[Math.floor(Math.random() * pool.length)];
+      }
+      activeCaptcha = code;
+      document.getElementById("captchaCode").textContent = code;
+      document.getElementById("captchaInput").value = "";
     }
 
-    function pickUser(val) {
-      document.getElementById("regUser").value = val;
-      document.getElementById("userSuggestions").innerHTML = "";
+    function setAuthMode(mode) {
+      const isLogin = mode === "login";
+      document.getElementById("btnShowLogin").classList.toggle("active", isLogin);
+      document.getElementById("btnShowRegister").classList.toggle("active", !isLogin);
+      document.getElementById("loginPanel").style.display = isLogin ? "block" : "none";
+      document.getElementById("registerPanel").style.display = isLogin ? "none" : "block";
+      setFeedback("authFeedback", "", "");
+      if (!isLogin) refreshCaptcha();
     }
 
-    async function googleSignIn() {
-      const msg = document.getElementById("authMsg");
-      msg.className = "msg"; msg.innerText = "Google girişine yönlendiriliyor...";
-      const { error } = await sb.auth.signInWithOAuth({
-        provider: "google",
-        options: { redirectTo: window.location.href }
-      });
-      if (error) { msg.className = "msg err"; msg.innerText = error.message; }
+    function setFeedback(elId, message, type) {
+      const el = document.getElementById(elId);
+      el.className = "feedback" + (type ? " " + type : "");
+      el.textContent = message;
     }
 
-    async function doLogin() {
-      let idVal = document.getElementById("logId").value.trim();
-      const password = document.getElementById("logPass").value;
-      const msg = document.getElementById("authMsg");
-      msg.className = "msg";
-      if (!idVal || !password) { msg.className = "msg err"; msg.innerText = "Bilgileri gir."; return; }
+    async function ensureProfileRow(user, extra = {}) {
+      const cleanEmail = (user.email || "").trim().toLowerCase();
+      const { data: existing, error: fetchErr } = await sb
+        .from("profiles")
+        .select("*")
+        .eq("id", user.id)
+        .maybeSingle();
 
-      if (!idVal.includes("@")) {
-        const { data: p } = await sb.from("profiles").select("email").ilike("username", idVal).maybeSingle();
-        if (p?.email) idVal = p.email;
+      if (fetchErr) throw fetchErr;
+
+      if (existing) {
+        const patch = {};
+        if (!existing.email && cleanEmail) patch.email = cleanEmail;
+        if (!existing.full_name && (extra.full_name || user.user_metadata?.full_name)) {
+          patch.full_name = extra.full_name || user.user_metadata.full_name;
+        }
+        if (!existing.phone && (extra.phone || user.user_metadata?.phone)) {
+          patch.phone = extra.phone || user.user_metadata.phone;
+        }
+        if (Object.keys(patch).length > 0) {
+          patch.updated_at = new Date().toISOString();
+          const { data: updated, error: updErr } = await sb
+            .from("profiles")
+            .update(patch)
+            .eq("id", user.id)
+            .select("*")
+            .single();
+          if (updErr) throw updErr;
+          return updated;
+        }
+        return existing;
       }
 
-      const { error } = await sb.auth.signInWithPassword({ email: idVal.toLowerCase(), password });
-      if (error) { msg.className = "msg err"; msg.innerText = error.message; return; }
-      loadMe();
-    }
-
-    async function doRegister() {
-      const fullName = document.getElementById("regFullName").value.trim();
-      const username = document.getElementById("regUser").value.trim();
-      const email = document.getElementById("regEmail").value.trim().toLowerCase();
-      const phone = document.getElementById("regPhone").value.trim();
-      const password = document.getElementById("regPass").value;
-      const capIn = document.getElementById("capIn").value.trim().toUpperCase();
-      const agreed = document.getElementById("agreeTerms").checked;
-      const msg = document.getElementById("authMsg");
-      msg.className = "msg";
-
-      if (!fullName.includes(" ")) {
-        msg.className = "msg err"; msg.innerText = "Lütfen ad ve soyadını arada boşluk bırakarak yaz."; return;
-      }
-      if (username.length < 3 || !email || password.length < 6) {
-        msg.className = "msg err"; msg.innerText = "Kullanıcı adı, e-posta ve en az 6 karakter şifre gir."; return;
-      }
-      if (!agreed) {
-        msg.className = "msg err"; msg.innerText = "Üyelik şartlarını onaylamalısın."; return;
-      }
-      if (capIn !== capCode) {
-        msg.className = "msg err"; msg.innerText = "İnsan doğrulaması hatalı."; genCap(); return;
-      }
-
-      const [{ data: uTaken }, { data: eTaken }] = await Promise.all([
-        sb.from("profiles").select("id").ilike("username", username).maybeSingle(),
-        sb.from("profiles").select("id").ilike("email", email).maybeSingle()
-      ]);
-      if (uTaken) { msg.className = "msg err"; msg.innerText = "Bu kullanıcı adı zaten kayıtlı."; checkUsernameLive(); return; }
-      if (eTaken) { msg.className = "msg err"; msg.innerText = "Bu e-posta zaten kayıtlı."; return; }
-
-      const { data, error } = await sb.auth.signUp({
-        email, password, options: { data: { username, full_name: fullName, phone } }
-      });
-      if (error) { msg.className = "msg err"; msg.innerText = error.message; genCap(); return; }
-      if (!data.session) await sb.auth.signInWithPassword({ email, password });
-      loadMe();
-    }
-
-    async function doLogout() {
-      await sb.auth.signOut();
-      location.reload();
-    }
-
-    async function saveProfile() {
-      const { data: { user } } = await sb.auth.getUser();
-      const msg = document.getElementById("saveMsg");
-      if (!user) return;
-
-      const payload = {
-        full_name: document.getElementById("fFullName").value.trim(),
-        username: document.getElementById("fUser").value.trim() || me?.username,
-        phone: document.getElementById("fPhone").value.trim(),
-        city: document.getElementById("fCity").value.trim(),
-        address: document.getElementById("fAddr").value.trim()
+      const initialRow = {
+        id: user.id,
+        email: cleanEmail,
+        full_name: (extra.full_name || user.user_metadata?.full_name || "").trim(),
+        phone: (extra.phone || user.user_metadata?.phone || "").trim(),
+        address: "",
+        is_verified: false,
+        updated_at: new Date().toISOString()
       };
 
-      const { error } = await sb.from("profiles").update(payload).eq("id", user.id);
-      msg.className = error ? "msg err" : "msg ok";
-      msg.innerText = error ? error.message : "Profil güncellendi!";
-      if (!error) loadMe();
+      const { data: inserted, error: insErr } = await sb
+        .from("profiles")
+        .upsert(initialRow, { onConflict: "id" })
+        .select("*")
+        .single();
+
+      if (insErr) throw insErr;
+      return inserted;
     }
 
-    async function submitVerification() {
-      const { data: { user } } = await sb.auth.getUser();
-      const msg = document.getElementById("saveMsg");
-      if (!user) return;
+    async function handleRegister() {
+      const fullName = document.getElementById("regFullName").value.trim();
+      const email = document.getElementById("regEmail").value.trim().toLowerCase();
+      const phone = document.getElementById("regPhone").value.trim();
+      const password = document.getElementById("regPassword").value;
+      const typedCaptcha = document.getElementById("captchaInput").value.trim().toUpperCase();
 
-      const first = document.getElementById("vFirst").value.trim();
-      const last = document.getElementById("vLast").value.trim();
-      const birth = document.getElementById("vBirth").value;
-      const phone = document.getElementById("vPhone").value.trim();
-
-      if (!first || !last || !birth || !phone) {
-        msg.className = "msg err";
-        msg.innerText = "Doğrulama için ad, soyad, doğum tarihi ve telefon numarası zorunlu.";
+      if (!fullName || fullName.split(/\s+/).length < 2) {
+        setFeedback("authFeedback", "Lütfen adınızı ve soyadınızı eksiksiz girin.", "err");
+        return;
+      }
+      if (!email || !email.includes("@")) {
+        setFeedback("authFeedback", "Geçerli bir e-posta adresi girin.", "err");
+        return;
+      }
+      if (!phone || phone.length < 7) {
+        setFeedback("authFeedback", "Lütfen geçerli bir telefon numarası girin.", "err");
+        return;
+      }
+      if (!password || password.length < 6) {
+        setFeedback("authFeedback", "Şifre en az 6 karakter olmalıdır.", "err");
+        return;
+      }
+      if (typedCaptcha !== activeCaptcha) {
+        setFeedback("authFeedback", "CAPTCHA kodu hatalı. Lütfen tekrar deneyin.", "err");
+        refreshCaptcha();
         return;
       }
 
-      const fullName = `${first} ${last}`;
-      const { error } = await sb.from("profiles").update({
-        full_name: fullName,
-        phone,
-        birth_date: birth,
-        is_verified: true,
-        verification_level: "Verified Account"
-      }).eq("id", user.id);
+      const btn = document.getElementById("registerSubmitBtn");
+      btn.disabled = true;
+      setFeedback("authFeedback", "Hesabınız oluşturuluyor...", "");
 
-      msg.className = error ? "msg err" : "msg ok";
-      msg.innerText = error ? error.message : "Hesabın Verified Account olarak doğrulandı!";
-      if (!error) loadMe();
-    }
-
-    function handleAddListing() {
-      const gateMsg = document.getElementById("gateMsg");
-      if (!me?.is_verified) {
-        gateMsg.className = "msg err";
-        gateMsg.innerText = "İlan eklemek için önce Kimlik Doğrulama sekmesinden hesabını doğrula.";
-        setSec("verify");
-        return;
-      }
-      gateMsg.className = "msg ok";
-      gateMsg.innerText = "Doğrulanmış hesap! İlan oluşturma ekranına geçiliyor...";
-      setTimeout(() => (location.href = "ilan-ekle.html"), 500);
-    }
-
-    async function loadMe() {
-      const { data: { user } } = await sb.auth.getUser();
-      const logged = !!user;
-      document.getElementById("authCard").style.display = logged ? "none" : "block";
-      document.getElementById("profCard").style.display = logged ? "block" : "none";
-      if (!logged) { genCap(); return; }
-
-      let { data: prof } = await sb.from("profiles").select("*").eq("id", user.id).maybeSingle();
-      if (!prof) {
-        const uname = user.user_metadata?.username || user.user_metadata?.full_name || user.email?.split("@")[0] || "Kullanici";
-        const role = user.email && user.email.toLowerCase() === "sahip@tkm-market.store" ? "admin" : "user";
-        await sb.from("profiles").upsert({
-          id: user.id, email: user.email, username: uname, role, balance: 0, is_verified: false
+      try {
+        const { data, error } = await sb.auth.signUp({
+          email,
+          password,
+          options: {
+            data: { full_name: fullName, phone }
+          }
         });
-        prof = (await sb.from("profiles").select("*").eq("id", user.id).single()).data;
+
+        if (error) {
+          if (error.message.toLowerCase().includes("already registered")) {
+            setFeedback("authFeedback", "Bu e-posta zaten kayıtlı. Giriş Yap sekmesinden aynı hesabınıza girebilirsiniz.", "err");
+          } else {
+            setFeedback("authFeedback", "Kayıt başarısız: " + error.message, "err");
+          }
+          refreshCaptcha();
+          btn.disabled = false;
+          return;
+        }
+
+        let sessionUser = data.session?.user || null;
+        if (!sessionUser) {
+          const loginRes = await sb.auth.signInWithPassword({ email, password });
+          if (loginRes.error) {
+            setFeedback("authFeedback", "Hesap oluşturuldu. Giriş Yap sekmesinden e-posta ve şifrenizle giriş yapabilirsiniz.", "ok");
+            setAuthMode("login");
+            document.getElementById("loginEmail").value = email;
+            btn.disabled = false;
+            return;
+          }
+          sessionUser = loginRes.data.user;
+        }
+
+        await ensureProfileRow(sessionUser, { full_name: fullName, phone });
+        await renderAuthenticatedUser(sessionUser);
+      } catch (err) {
+        setFeedback("authFeedback", "Bir hata oluştu: " + (err.message || err), "err");
+        refreshCaptcha();
+      } finally {
+        btn.disabled = false;
       }
-
-      me = prof;
-      const name = prof.username || user.email?.split("@")[0] || "Kullanıcı";
-      const parts = (prof.full_name || "").trim().split(/\s+/);
-
-      document.getElementById("pAv").innerText = name.charAt(0).toUpperCase();
-      document.getElementById("pUser").innerText = name;
-      document.getElementById("pSub").innerText = prof.full_name ? `${prof.full_name} • ${prof.email || ""}` : (prof.email || "");
-      document.getElementById("pBal").innerText = `$${Number(prof.balance || 0).toFixed(2)}`;
-
-      const badge = document.getElementById("pVerifyBadge");
-      if (prof.is_verified) {
-        badge.className = "badge verified";
-        badge.innerText = "✓ Verified Account";
-        document.getElementById("pStatusText").innerText = "Doğrulanmış Üye";
-      } else {
-        badge.className = "badge unverified";
-        badge.innerText = "Doğrulanmamış Hesap";
-        document.getElementById("pStatusText").innerText = "Doğrulama Bekliyor";
-      }
-
-      document.getElementById("fFullName").value = prof.full_name || "";
-      document.getElementById("fUser").value = name;
-      document.getElementById("fPhone").value = prof.phone || "";
-      document.getElementById("vFirst").value = parts[0] || "";
-      document.getElementById("vLast").value = parts.slice(1).join(" ") || "";
-      document.getElementById("vBirth").value = prof.birth_date || "";
-      document.getElementById("vPhone").value = prof.phone || "";
-      document.getElementById("fCity").value = prof.city || "";
-      document.getElementById("fAddr").value = prof.address || "";
     }
 
-    genCap();
-    loadMe();
+    async function handleLogin() {
+      const email = document.getElementById("loginEmail").value.trim().toLowerCase();
+      const password = document.getElementById("loginPassword").value;
+
+      if (!email || !password) {
+        setFeedback("authFeedback", "Lütfen e-posta adresinizi ve şifrenizi girin.", "err");
+        return;
+      }
+
+      const btn = document.getElementById("loginSubmitBtn");
+      btn.disabled = true;
+      setFeedback("authFeedback", "Profilinize giriş yapılıyor...", "");
+
+      try {
+        const { data, error } = await sb.auth.signInWithPassword({ email, password });
+        if (error) {
+          setFeedback("authFeedback", "Giriş başarısız: E-posta veya şifre hatalı.", "err");
+          btn.disabled = false;
+          return;
+        }
+
+        await renderAuthenticatedUser(data.user);
+      } catch (err) {
+        setFeedback("authFeedback", "Giriş sırasında hata oluştu: " + (err.message || err), "err");
+      } finally {
+        btn.disabled = false;
+      }
+    }
+
+    async function handleLogout() {
+      await sb.auth.signOut();
+      currentUser = null;
+      document.getElementById("profileView").style.display = "none";
+      document.getElementById("authView").style.display = "block";
+      setAuthMode("login");
+      refreshCaptcha();
+    }
+
+    function applyProfileToUI(user, profile) {
+      const fullName = (profile?.full_name || user.user_metadata?.full_name || "").trim();
+      const email = (profile?.email || user.email || "").trim();
+      const phone = (profile?.phone || user.user_metadata?.phone || "").trim();
+      const address = (profile?.address || "").trim();
+      const verified = Boolean(profile?.is_verified || (fullName && phone));
+
+      const titleText = fullName || (email ? email.split("@")[0] : "Üye");
+      const initial = titleText.charAt(0).toUpperCase() || "T";
+
+      document.getElementById("profileAvatar").textContent = initial;
+      document.getElementById("displayName").textContent = titleText;
+      document.getElementById("displayEmail").textContent = email;
+
+      const badge = document.getElementById("verifyBadge");
+      if (verified) {
+        badge.className = "status-pill ok";
+        badge.textContent = "✓ Doğrulanmış Profil";
+      } else {
+        badge.className = "status-pill pending";
+        badge.textContent = "Doğrulama Bekleniyor";
+      }
+
+      document.getElementById("profFullName").value = fullName;
+      document.getElementById("profEmail").value = email;
+      document.getElementById("profPhone").value = phone;
+      document.getElementById("profAddress").value = address;
+    }
+
+    async function renderAuthenticatedUser(user) {
+      currentUser = user;
+      document.getElementById("authView").style.display = "none";
+      document.getElementById("profileView").style.display = "block";
+
+      const profile = await ensureProfileRow(user);
+      applyProfileToUI(user, profile);
+    }
+
+    async function saveVerification() {
+      if (!currentUser) return;
+      const fullName = document.getElementById("profFullName").value.trim();
+      const phone = document.getElementById("profPhone").value.trim();
+
+      if (!fullName || fullName.split(/\s+/).length < 2) {
+        setFeedback("verifyFeedback", "Doğrulama için isim ve soyisim girin.", "err");
+        return;
+      }
+      if (!phone || phone.length < 7) {
+        setFeedback("verifyFeedback", "Doğrulama için geçerli bir telefon numarası girin.", "err");
+        return;
+      }
+
+      const btn = document.getElementById("verifySaveBtn");
+      btn.disabled = true;
+      setFeedback("verifyFeedback", "Doğrulama kaydediliyor...", "");
+
+      try {
+        const { data, error } = await sb
+          .from("profiles")
+          .update({
+            full_name: fullName,
+            phone,
+            is_verified: true,
+            updated_at: new Date().toISOString()
+          })
+          .eq("id", currentUser.id)
+          .select("*")
+          .single();
+
+        if (error) throw error;
+        applyProfileToUI(currentUser, data);
+        setFeedback("verifyFeedback", "Profil bilgileriniz kaydedildi ve hesabınız doğrulandı.", "ok");
+      } catch (err) {
+        setFeedback("verifyFeedback", "Kaydedilemedi: " + (err.message || err), "err");
+      } finally {
+        btn.disabled = false;
+      }
+    }
+
+    async function saveAddress() {
+      if (!currentUser) return;
+      const address = document.getElementById("profAddress").value.trim();
+
+      const btn = document.getElementById("addressSaveBtn");
+      btn.disabled = true;
+      setFeedback("addressFeedback", "Adres kaydediliyor...", "");
+
+      try {
+        const { data, error } = await sb
+          .from("profiles")
+          .update({
+            address,
+            updated_at: new Date().toISOString()
+          })
+          .eq("id", currentUser.id)
+          .select("*")
+          .single();
+
+        if (error) throw error;
+        applyProfileToUI(currentUser, data);
+        setFeedback("addressFeedback", "Adres bilgileriniz kalıcı olarak kaydedildi.", "ok");
+      } catch (err) {
+        setFeedback("addressFeedback", "Adres kaydedilemedi: " + (err.message || err), "err");
+      } finally {
+        btn.disabled = false;
+      }
+    }
+
+    async function boot() {
+      refreshCaptcha();
+      const { data: { session } } = await sb.auth.getSession();
+      if (session?.user) {
+        await renderAuthenticatedUser(session.user);
+      } else {
+        document.getElementById("authView").style.display = "block";
+        document.getElementById("profileView").style.display = "none";
+      }
+
+      sb.auth.onAuthStateChange(async (_event, nextSession) => {
+        if (nextSession?.user) {
+          await renderAuthenticatedUser(nextSession.user);
+        }
+      });
+    }
+
+    boot();
   </script>
 </body>
 </html>
