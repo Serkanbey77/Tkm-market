@@ -1,0 +1,119 @@
+<!DOCTYPE html>
+<html lang="tr">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>TKM Market — İlanlarım</title>
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+  <style>
+    * { box-sizing: border-box; }
+    body {
+      margin: 0; font-family: system-ui, -apple-system, sans-serif;
+      background: radial-gradient(circle at 50% 0%, #1d294d 0%, #0b0f1d 58%, #070a14 100%);
+      color: #f8fafc; min-height: 100vh; padding: 14px 14px 86px;
+    }
+    .container { max-width: 560px; margin: 0 auto; }
+    .topbar {
+      display: flex; justify-content: space-between; align-items: center;
+      padding: 12px 14px; border-radius: 14px; background: #141b30;
+      border: 1px solid rgba(148,163,184,.16); margin-bottom: 12px;
+    }
+    .topbar a { color: #93c5fd; text-decoration: none; font-weight: 800; font-size: 13px; }
+    .card {
+      background: #141b30; border: 1px solid rgba(148,163,184,.16);
+      border-radius: 16px; padding: 16px; margin-bottom: 12px;
+    }
+    label { display: block; font-size: 12px; font-weight: 700; color: #94a3b8; margin-bottom: 5px; }
+    input, select {
+      width: 100%; padding: 11px 12px; border-radius: 10px;
+      border: 1px solid rgba(148,163,184,.18); background: #0b0f1d; color: #fff;
+      font-size: 14px; margin-bottom: 10px;
+    }
+    button.add {
+      width: 100%; padding: 12px; border-radius: 11px; border: none;
+      background: linear-gradient(135deg, #5b4df5, #3b6ef6); color: #fff; font-weight: 800; cursor: pointer;
+    }
+    .row {
+      display: flex; justify-content: space-between; align-items: center;
+      padding: 11px 0; border-bottom: 1px solid rgba(148,163,184,.14); font-size: 13px;
+    }
+    .row:last-child { border-bottom: none; }
+    .del {
+      background: rgba(239,68,68,.15); color: #f87171; border: 1px solid rgba(239,68,68,.3);
+      border-radius: 8px; padding: 5px 9px; font-size: 11px; font-weight: 800; cursor: pointer;
+    }
+    .muted { font-size: 12px; color: #94a3b8; }
+    .bottom-nav {
+      position: fixed; left: 0; right: 0; bottom: 0; display: grid; grid-template-columns: repeat(5, 1fr);
+      background: rgba(15, 21, 38, 0.97); border-top: 1px solid rgba(148,163,184,.16); padding: 8px 4px;
+    }
+    .bottom-nav a { text-decoration: none; color: #94a3b8; text-align: center; font-size: 11px; font-weight: 700; }
+    .bottom-nav a.active { color: #60a5fa; }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <div class="topbar">
+      <a href="profil.html">← Profil Menüsü</a>
+      <span style="font-size:13px;font-weight:800;">İlanlarım</span>
+    </div>
+    <div class="card">
+      <label>İlan Başlığı</label>
+      <input type="text" id="title" placeholder="Örn: PUBG Mobile 75 Seviye Hesap" />
+      <label>Kategori</label>
+      <select id="cat">
+        <option value="Oyun Hesap">Oyun Hesap</option>
+        <option value="E-Pin / Top-Up">E-Pin / Top-Up</option>
+        <option value="Dijital Ürün">Dijital Ürün</option>
+      </select>
+      <label>Fiyat (TMT)</label>
+      <input type="number" id="price" min="1" step="0.01" placeholder="0.00" />
+      <button type="button" class="add" onclick="createListing()">+ İlan Yayınla</button>
+    </div>
+    <div class="card" id="listBox"><div class="muted">Yükleniyor...</div></div>
+  </div>
+  <nav class="bottom-nav">
+    <a href="index.html">Ana Sayfa</a>
+    <a href="index.html#ilan-pazari">İlan Pazarı</a>
+    <a href="index.html#kategoriler">Kategoriler</a>
+    <a href="bakiye-yatir.html">Cüzdan</a>
+    <a href="profil.html" class="active">Profil</a>
+  </nav>
+  <script>
+    const sb = supabase.createClient("https://piajbopfeqlyupkrsnik.supabase.co", "sb_publishable_gQFoj3SUxW-TUMjYmTGrIg_5_6hwBAH");
+    let uid = null;
+
+    async function load() {
+      const { data: { session } } = await sb.auth.getSession();
+      if (!session?.user) { location.href = "profil.html"; return; }
+      uid = session.user.id;
+      const { data } = await sb.from("listings").select("*").eq("user_id", uid).order("created_at", { ascending: false });
+      const box = document.getElementById("listBox");
+      if (!data || !data.length) { box.innerHTML = `<div class="muted">Henüz ilanınız bulunmuyor.</div>`; return; }
+      box.innerHTML = data.map(x => `
+        <div class="row">
+          <div><strong>${x.title}</strong><div class="muted">${x.category} • ${Number(x.price_tmt).toFixed(2)} TMT</div></div>
+          <button type="button" class="del" onclick="removeListing('${x.id}')">Sil</button>
+        </div>`).join("");
+    }
+
+    async function createListing() {
+      const title = document.getElementById("title").value.trim();
+      const category = document.getElementById("cat").value;
+      const price_tmt = parseFloat(document.getElementById("price").value);
+      if (!title || !price_tmt || price_tmt <= 0) return;
+      await sb.from("listings").insert({ user_id: uid, title, category, price_tmt, status: "active" });
+      document.getElementById("title").value = "";
+      document.getElementById("price").value = "";
+      load();
+    }
+
+    async function removeListing(id) {
+      await sb.from("listings").delete().eq("id", id);
+      load();
+    }
+
+    load();
+  </script>
+</body>
+</html>
