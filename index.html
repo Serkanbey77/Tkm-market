@@ -3,438 +3,158 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>TKM Market — Canlı Hesap & Pazar Akışı</title>
+  <title>TKM Market — Dijital Pazar Yeri</title>
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
   <style>
-    :root {
-      --bg: #070b14;
-      --panel: #0e1628;
-      --panel-2: #131f38;
-      --text: #eef4ff;
-      --muted: #93a4c3;
-      --accent: #38bdf8;
-      --accent-2: #818cf8;
-      --ok: #22c55e;
-      --err: #ef4444;
-      --info: #38bdf8;
-      --border: rgba(148, 163, 184, 0.16);
-    }
-
-    * { box-sizing: border-box; margin: 0; padding: 0; font-family: Inter, system-ui, -apple-system, sans-serif; }
-
+    * { box-sizing: border-box; }
     body {
+      margin: 0;
+      font-family: system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+      background: radial-gradient(circle at 50% 0%, #192d5c 0%, #090f1d 55%, #050811 100%);
+      color: #f8fafc;
       min-height: 100vh;
-      background:
-        radial-gradient(circle at 15% 15%, rgba(56, 189, 248, 0.16), transparent 40%),
-        radial-gradient(circle at 85% 20%, rgba(129, 140, 248, 0.16), transparent 42%),
-        var(--bg);
-      color: var(--text);
-      line-height: 1.5;
+      padding: 16px;
+      animation: fadeIn .35s ease;
     }
-
-    .container { max-width: 1080px; margin: 0 auto; padding: 20px 16px 64px; }
-
+    @keyframes fadeIn {
+      from { opacity: 0; transform: translateY(6px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
+    .wrap { max-width: 920px; margin: 0 auto; }
     .topbar {
-      display: flex; align-items: center; justify-content: space-between; gap: 12px;
-      padding: 14px 18px; background: rgba(14, 22, 40, 0.88); backdrop-filter: blur(12px);
-      border: 1px solid var(--border); border-radius: 16px; margin-bottom: 22px;
+      display: flex; flex-wrap: wrap; justify-content: space-between; align-items: center; gap: 12px;
+      padding: 12px 14px; margin-bottom: 18px; border-radius: 16px;
+      background: rgba(15, 23, 42, 0.85); border: 1px solid rgba(56, 189, 248, 0.2);
+      backdrop-filter: blur(10px);
     }
-
-    .brand { display: flex; align-items: center; gap: 10px; font-weight: 800; font-size: 1.05rem; }
+    .brand-box { display: flex; align-items: center; gap: 10px; text-decoration: none; }
     .eye-badge {
-      width: 36px; height: 36px; border-radius: 11px;
-      background: linear-gradient(135deg, var(--accent), var(--accent-2));
-      display: grid; place-items: center; color: #04101f; font-weight: 900;
+      width: 36px; height: 36px; border-radius: 50%;
+      background: radial-gradient(circle, #38bdf8 18%, #0284c7 55%, #090f1d 100%);
+      border: 2px solid #7dd3fc; box-shadow: 0 0 16px rgba(56, 189, 248, 0.55);
+      display: flex; align-items: center; justify-content: center;
     }
-
-    .pill {
-      font-size: 0.78rem; padding: 6px 12px; border-radius: 999px;
-      background: var(--panel-2); border: 1px solid var(--border); color: var(--muted);
+    .eye-pupil {
+      width: 10px; height: 10px; border-radius: 50%; background: #050811;
+      animation: blinkEye 4.2s infinite;
     }
-
+    @keyframes blinkEye {
+      0%, 92%, 100% { transform: scaleY(1); }
+      95% { transform: scaleY(0.1); }
+    }
+    .brand-name { font-weight: 900; font-size: 18px; letter-spacing: .6px; color: #f8fafc; }
+    .brand-name span { color: #38bdf8; }
+    .nav { display: flex; flex-wrap: wrap; gap: 8px; }
+    .nav a {
+      text-decoration: none; color: #e2e8f0; font-size: 13px; font-weight: 700;
+      padding: 8px 12px; border-radius: 10px;
+      background: #111b2e; border: 1px solid #263754; transition: .2s ease;
+    }
+    .nav a:hover { border-color: #38bdf8; transform: translateY(-1px); }
+    .nav a.cta {
+      background: linear-gradient(135deg, #2563eb, #0284c7); border-color: #38bdf8; color: #fff;
+    }
     .hero {
-      background: linear-gradient(180deg, rgba(19, 31, 56, 0.92), rgba(14, 22, 40, 0.96));
-      border: 1px solid var(--border); border-radius: 22px; padding: 28px 20px; text-align: center;
+      background: linear-gradient(135deg, rgba(17, 29, 54, 0.95), rgba(10, 16, 30, 0.95));
+      border: 1px solid rgba(56, 189, 248, 0.22); border-radius: 20px;
+      padding: 22px; margin-bottom: 18px; box-shadow: 0 18px 40px rgba(0,0,0,.4);
     }
-
-    .hero h1 { font-size: clamp(1.5rem, 4vw, 2.3rem); font-weight: 800; margin-bottom: 10px; }
-    .hero p { max-width: 660px; margin: 0 auto 20px; color: var(--muted); font-size: 0.96rem; }
-
-    .actions { display: flex; flex-wrap: wrap; justify-content: center; gap: 10px; }
-
-    button {
-      cursor: pointer; border: none; border-radius: 12px; padding: 11px 16px;
-      font-weight: 700; font-size: 0.92rem; transition: transform 0.12s ease, opacity 0.12s ease;
+    .hero h1 { margin: 0 0 8px; font-size: 24px; font-weight: 900; }
+    .hero p { margin: 0 0 14px; color: #94a3b8; font-size: 14px; line-height: 1.5; }
+    .chips { display: flex; flex-wrap: wrap; gap: 8px; }
+    .chip {
+      font-size: 12px; font-weight: 700; padding: 6px 11px; border-radius: 999px;
+      background: rgba(56, 189, 248, 0.12); color: #7dd3fc; border: 1px solid rgba(56, 189, 248, 0.28);
     }
-    button:active { transform: scale(0.98); }
-
-    .btn-primary { background: linear-gradient(135deg, var(--accent), var(--accent-2)); color: #051120; }
-    .btn-secondary { background: var(--panel-2); color: var(--text); border: 1px solid var(--border); }
-    .btn-ghost { background: transparent; color: var(--muted); border: 1px solid var(--border); }
-
-    .auth-box {
-      max-width: 480px; margin: 22px auto 0; background: var(--panel);
-      border: 1px solid var(--border); border-radius: 20px; padding: 22px;
+    .grid {
+      display: grid; grid-template-columns: repeat(auto-fit, minmax(250px, 1fr)); gap: 14px;
     }
-
-    .auth-tabs {
-      display: grid; grid-template-columns: 1fr 1fr; gap: 8px;
-      background: var(--bg); padding: 6px; border-radius: 14px; margin-bottom: 18px;
+    .card {
+      background: #10192b; border: 1px solid #20304d; border-radius: 16px;
+      padding: 16px; transition: .2s ease;
     }
-
-    .tab-btn { padding: 10px; border-radius: 10px; background: transparent; color: var(--muted); }
-    .tab-btn.active { background: var(--panel-2); color: var(--text); border: 1px solid var(--border); }
-
-    .field { margin-bottom: 14px; }
-    .field label { display: block; font-size: 0.84rem; color: var(--muted); margin-bottom: 6px; }
-    .field input {
-      width: 100%; padding: 11px 13px; border-radius: 11px;
-      border: 1px solid var(--border); background: var(--bg); color: var(--text); font-size: 0.95rem;
+    .card:hover { border-color: #38bdf8; transform: translateY(-2px); }
+    .tag {
+      display: inline-block; font-size: 11px; font-weight: 800; padding: 3px 8px;
+      border-radius: 7px; background: rgba(34, 197, 94, 0.14); color: #4ade80; margin-bottom: 8px;
     }
-
-    .captcha-box {
-      display: flex; align-items: center; justify-content: space-between; gap: 10px;
-      padding: 12px 14px; border-radius: 12px; background: var(--bg);
-      border: 1px dashed rgba(56, 189, 248, 0.45); margin-bottom: 14px;
+    .title { font-size: 16px; font-weight: 800; margin-bottom: 6px; }
+    .desc { font-size: 13px; color: #94a3b8; line-height: 1.45; margin-bottom: 12px; }
+    .foot { display: flex; justify-content: space-between; align-items: center; }
+    .price { font-size: 18px; font-weight: 900; color: #38bdf8; }
+    .btn {
+      text-decoration: none; background: #1e293b; color: #fff; border: 1px solid #334155;
+      padding: 8px 12px; border-radius: 9px; font-size: 12px; font-weight: 700;
     }
-
-    .captcha-code {
-      font-family: monospace; font-size: 1.15rem; font-weight: 800;
-      letter-spacing: 3px; color: var(--accent); user-select: none;
-    }
-
-    .msg { margin-top: 12px; padding: 11px 14px; border-radius: 12px; font-size: 0.88rem; display: none; }
-    .msg.ok { display: block; background: rgba(34, 197, 94, 0.14); border: 1px solid rgba(34, 197, 94, 0.4); color: #86efac; }
-    .msg.err { display: block; background: rgba(239, 68, 68, 0.14); border: 1px solid rgba(239, 68, 68, 0.4); color: #fca5a5; }
-    .msg.info { display: block; background: rgba(56, 189, 248, 0.14); border: 1px solid rgba(56, 189, 248, 0.4); color: #bae6fd; }
-
-    .dashboard { display: none; }
-    .dashboard.active { display: block; }
-
-    .grid-3 { display: grid; grid-template-columns: repeat(auto-fit, minmax(210px, 1fr)); gap: 14px; margin-bottom: 18px; }
-    .stat-card { background: var(--panel); border: 1px solid var(--border); border-radius: 18px; padding: 18px; }
-    .stat-card small { color: var(--muted); display: block; margin-bottom: 6px; }
-    .stat-card strong { font-size: 1.35rem; }
-
-    .menu-bar { display: flex; flex-wrap: wrap; gap: 10px; margin-bottom: 18px; }
-    .panel-section { background: var(--panel); border: 1px solid var(--border); border-radius: 20px; padding: 20px; margin-bottom: 16px; }
-    .hidden { display: none !important; }
   </style>
 </head>
 <body>
-  <div class="container">
-    <header class="topbar">
-      <div class="brand">
-        <div class="eye-badge">◎</div>
-        <span>TKM MARKET</span>
+  <div class="wrap">
+    <div class="topbar">
+      <a class="brand-box" href="index.html">
+        <div class="eye-badge"><div class="eye-pupil"></div></div>
+        <div class="brand-name">TKM <span>MARKET</span></div>
+      </a>
+      <div class="nav">
+        <a href="index.html">Vitrin</a>
+        <a href="profil.html" id="profileLink" class="cta">Hesabım / Profil</a>
       </div>
-      <div class="pill" id="sessionStatus">Durum: Karşılama Ekranı</div>
-    </header>
+    </div>
 
-    <!-- KARŞILAMA + GİRİŞ / ÜYE OL -->
-    <section id="gateView">
-      <div class="hero">
-        <h1>Güvenli Dijital Oyun & Hesap Pazar Yeri</h1>
-        <p>
-          Üye ol, robot doğrulamasını ve kod onayını tamamla; sistem seni bekletmeden doğrudan ana menüye alsın ve hesabını hatırlasın.
-        </p>
-        <div class="actions">
-          <button class="btn-primary" onclick="openAuthTab('register')">Hemen Üye Ol</button>
-          <button class="btn-secondary" onclick="openAuthTab('login')">Giriş Yap</button>
+    <div class="hero">
+      <h1>Güvenli Dijital Pazar Yeri</h1>
+      <p>Hesap, bakiye ve vitrin akışını tek noktadan yönet. Profiline geçerek bilgilerini, telefonunu, adresini ve cüzdanını düzenleyebilirsin.</p>
+      <div class="chips">
+        <span class="chip">⚡ Hızlı Arayüz</span>
+        <span class="chip">🛡️ Güvenli Hesap Yapısı</span>
+        <span class="chip">🌐 Global Erişim</span>
+      </div>
+    </div>
+
+    <div class="grid">
+      <div class="card">
+        <span class="tag">POPÜLER VİTRİN</span>
+        <div class="title">PUBG Mobile Hesap &amp; Paket</div>
+        <div class="desc">Öne çıkan vitrin kartı; profil ve bakiye sistemin hazır olduğunda stok/sipariş akışına bağlanacak.</div>
+        <div class="foot">
+          <span class="price">$25.00</span>
+          <a class="btn" href="profil.html">Profili Aç</a>
         </div>
       </div>
 
-      <div class="auth-box" id="authBox">
-        <div class="auth-tabs">
-          <button class="tab-btn active" id="tabRegister" onclick="switchTab('register')">Üye Ol</button>
-          <button class="tab-btn" id="tabLogin" onclick="switchTab('login')">Giriş Yap</button>
-        </div>
-
-        <!-- ÜYE OL -->
-        <form id="registerForm" onsubmit="handleRegister(event)">
-          <div class="field">
-            <label>Ad Soyad veya Kullanıcı Adı</label>
-            <input type="text" id="regName" placeholder="Örn: Serkan_TKM" required />
-          </div>
-          <div class="field">
-            <label>E-Posta Adresi</label>
-            <input type="email" id="regEmail" placeholder="ornek@mail.com" required />
-          </div>
-          <div class="field">
-            <label>Telefon Numarası</label>
-            <input type="tel" id="regPhone" placeholder="+90 5xx xxx xx xx" required />
-          </div>
-          <div class="field">
-            <label>Şifre</label>
-            <input type="password" id="regPass" placeholder="En az 6 karakter" minlength="6" required />
-          </div>
-
-          <div class="captcha-box">
-            <div>
-              <small style="color: var(--muted); display: block;">Robot Değilim Doğrulaması (CAPTCHA)</small>
-              <span class="captcha-code" id="captchaDisplay"></span>
-            </div>
-            <button type="button" class="btn-ghost" onclick="refreshCaptcha()">Yenile</button>
-          </div>
-          <div class="field">
-            <label>Yukarıdaki Kodu Gir</label>
-            <input type="text" id="captchaInput" placeholder="Kodu yaz" required />
-          </div>
-
-          <button type="submit" class="btn-primary" style="width: 100%;">Üye Ol & Doğrulama Kodu Gönder</button>
-        </form>
-
-        <!-- DOĞRULAMA (ONAYLANINCA OTOMATİK ANA MENÜYE GEÇER) -->
-        <form id="verifyForm" class="hidden" onsubmit="handleVerifyAndEnter(event)">
-          <p style="color: var(--muted); font-size: 0.9rem; margin-bottom: 14px;">
-            Doğrulama kodunu gir; onaylandığı anda hesabın kaydedilir ve <strong>doğrudan ana menüye</strong> girersin:
-            <strong id="demoCodeHint" style="color: var(--accent);"></strong>
-          </p>
-          <div class="field">
-            <label>6 Haneli Doğrulama Kodu</label>
-            <input type="text" id="verifyCodeInput" maxlength="6" placeholder="123456" required />
-          </div>
-          <button type="submit" class="btn-primary" style="width: 100%;">Onayla ve Direkt Ana Menüye Gir</button>
-        </form>
-
-        <!-- GİRİŞ YAP -->
-        <form id="loginForm" class="hidden" onsubmit="handleLogin(event)">
-          <div class="field">
-            <label>E-Posta veya Kullanıcı Adı</label>
-            <input type="text" id="loginId" placeholder="E-posta veya kullanıcı adı" required />
-          </div>
-          <div class="field">
-            <label>Şifre</label>
-            <input type="password" id="loginPass" placeholder="Şifren" required />
-          </div>
-          <button type="submit" class="btn-primary" style="width: 100%;">Giriş Yap & Ana Menüye Git</button>
-        </form>
-
-        <div class="msg" id="authMsg"></div>
-      </div>
-    </section>
-
-    <!-- ANA MENÜ -->
-    <section id="dashboardView" class="dashboard">
-      <div class="grid-3">
-        <div class="stat-card">
-          <small>Aktif Kullanıcı</small>
-          <strong id="dashUser">-</strong>
-        </div>
-        <div class="stat-card">
-          <small>Kullanılabilir Bakiye</small>
-          <strong id="dashBalance">0.00 USDT</strong>
-        </div>
-        <div class="stat-card">
-          <small>Emanette Bekleyen (Escrow)</small>
-          <strong id="dashEscrow">0.00 USDT</strong>
+      <div class="card">
+        <span class="tag">GÜVENLİ İŞLEM</span>
+        <div class="title">Clash of Clans Hesap &amp; Destek</div>
+        <div class="desc">Kullanıcı profili ve hesap doğrulama/iletişim bilgileri tamamlandıktan sonra vitrin listelemesine geçilecek.</div>
+        <div class="foot">
+          <span class="price">$40.00</span>
+          <a class="btn" href="profil.html">Bilgileri Düzenle</a>
         </div>
       </div>
 
-      <div class="menu-bar">
-        <button class="btn-primary" onclick="showSection('marketSec')">Ana Pazar Menüsü</button>
-        <button class="btn-secondary" onclick="showSection('profileSec')">Profil & Kayıtlı Hesap</button>
-        <button class="btn-secondary" onclick="showSection('payoutPrepSec')">Sıradaki Adım: Payout</button>
-        <button class="btn-ghost" onclick="logout()">Çıkış Yap</button>
+      <div class="card">
+        <span class="tag">DİJİTAL TOP-UP</span>
+        <div class="title">Oyun Kredisi &amp; E-Pin</div>
+        <div class="desc">Üyelik ve profil altyapısı oturduktan sonra otomatik ödeme ve vitrin satın alma adımları eklenecek.</div>
+        <div class="foot">
+          <span class="price">$10.00</span>
+          <a class="btn" href="profil.html">Hesaba Git</a>
+        </div>
       </div>
-
-      <div class="panel-section" id="marketSec">
-        <h3>Canlı Ana Menü — Hesap Tanındı ve Oturum Aktif</h3>
-        <p style="color: var(--muted); margin-top: 8px;">
-          Artık üye olduktan sonra seni kapıda bırakmayan ve hesabını tanıyan ana menüdesin. Sıradaki adımda emanet bakiye kilitleme, iptal iadesi ve payout çekim akışını kuracağız.
-        </p>
-      </div>
-
-      <div class="panel-section hidden" id="profileSec">
-        <h3>Profil Bilgileri</h3>
-        <p style="color: var(--muted); margin-top: 8px;" id="profileDetails"></p>
-      </div>
-
-      <div class="panel-section hidden" id="payoutPrepSec">
-        <h3>Payout Hazırlığı</h3>
-        <p style="color: var(--muted); margin-top: 8px;">
-          Giriş ve hesap tanıma akışı tamam. Bir sonraki adımda bakiye ekleme, emanette tutma, iptal edince geri yatırma ve payout çekim ekranını ekleyeceğiz.
-        </p>
-      </div>
-    </section>
+    </div>
   </div>
 
   <script>
-    const USERS_KEY = "tkm_market_users_v2";
-    const ACTIVE_KEY = "tkm_market_active_v2";
+    const SUPABASE_URL = "https://piajbopfeqlyupkrsnik.supabase.co";
+    const SUPABASE_ANON_KEY = "sb_publishable_gQFoj3SUxW-TUMjYmTGrIg_5_6hwBAH";
+    const sb = supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
 
-    let currentCaptcha = "";
-    let pendingUser = null;
-    let generatedCode = "";
-
-    function getUsers() {
-      try {
-        return JSON.parse(localStorage.getItem(USERS_KEY)) || [];
-      } catch {
-        return [];
-      }
-    }
-
-    function saveUsers(users) {
-      localStorage.setItem(USERS_KEY, JSON.stringify(users));
-    }
-
-    function makeCaptcha() {
-      const chars = "ABCDEFGHJKLMNPQRSTUVWXYZ23456789";
-      let code = "";
-      for (let i = 0; i < 6; i++) code += chars[Math.floor(Math.random() * chars.length)];
-      currentCaptcha = code;
-      document.getElementById("captchaDisplay").textContent = code;
-    }
-
-    function refreshCaptcha() {
-      makeCaptcha();
-      document.getElementById("captchaInput").value = "";
-    }
-
-    function showMsg(type, text) {
-      const el = document.getElementById("authMsg");
-      el.className = "msg " + type;
-      el.textContent = text;
-    }
-
-    function openAuthTab(mode) {
-      switchTab(mode);
-      document.getElementById("authBox").scrollIntoView({ behavior: "smooth" });
-    }
-
-    function switchTab(mode) {
-      document.getElementById("authMsg").className = "msg";
-      document.getElementById("tabRegister").classList.toggle("active", mode === "register");
-      document.getElementById("tabLogin").classList.toggle("active", mode === "login");
-      document.getElementById("registerForm").classList.toggle("hidden", mode !== "register");
-      document.getElementById("verifyForm").classList.add("hidden");
-      document.getElementById("loginForm").classList.toggle("hidden", mode !== "login");
-      if (mode === "register") refreshCaptcha();
-    }
-
-    function handleRegister(e) {
-      e.preventDefault();
-      const typedCaptcha = document.getElementById("captchaInput").value.trim().toUpperCase();
-      if (typedCaptcha !== currentCaptcha) {
-        showMsg("err", "CAPTCHA kodu hatalı. Yeni kod üretildi, tekrar dene.");
-        refreshCaptcha();
-        return;
-      }
-
-      const name = document.getElementById("regName").value.trim();
-      const email = document.getElementById("regEmail").value.trim().toLowerCase();
-      const phone = document.getElementById("regPhone").value.trim();
-      const pass = document.getElementById("regPass").value;
-
-      const users = getUsers();
-      const existing = users.find(u => u.email === email || u.name.toLowerCase() === name.toLowerCase());
-      if (existing) {
-        showMsg("err", "Bu e-posta veya kullanıcı adı zaten kayıtlı. Giriş Yap sekmesinden şifrenle girebilirsin.");
-        return;
-      }
-
-      pendingUser = {
-        id: "usr_" + Date.now(),
-        name,
-        email,
-        phone,
-        pass,
-        verified: false,
-        balance: 0,
-        escrow: 0,
-        createdAt: new Date().toISOString()
-      };
-
-      generatedCode = String(Math.floor(100000 + Math.random() * 900000));
-      document.getElementById("registerForm").classList.add("hidden");
-      document.getElementById("verifyForm").classList.remove("hidden");
-      document.getElementById("demoCodeHint").textContent = "(Kod: " + generatedCode + ")";
-      showMsg("info", "Doğrulama kodu oluşturuldu. Kodu girince hesabın açılıp ana menüye geçeceksin.");
-    }
-
-    function handleVerifyAndEnter(e) {
-      e.preventDefault();
-      const entered = document.getElementById("verifyCodeInput").value.trim();
-      if (entered !== generatedCode || !pendingUser) {
-        showMsg("err", "Doğrulama kodu hatalı.");
-        return;
-      }
-
-      pendingUser.verified = true;
-      const users = getUsers();
-      users.push(pendingUser);
-      saveUsers(users);
-      localStorage.setItem(ACTIVE_KEY, pendingUser.email);
-
-      const loggedUser = pendingUser;
-      pendingUser = null;
-      enterDashboard(loggedUser);
-    }
-
-    function handleLogin(e) {
-      e.preventDefault();
-      const idVal = document.getElementById("loginId").value.trim().toLowerCase();
-      const passVal = document.getElementById("loginPass").value;
-      const users = getUsers();
-
-      const matched = users.find(
-        u => u.email.toLowerCase() === idVal || u.name.toLowerCase() === idVal
-      );
-
-      if (!matched) {
-        showMsg("err", "Bu e-posta veya kullanıcı adıyla kayıtlı hesap bulunamadı. Önce Üye Ol sekmesinden kayıt ol.");
-        return;
-      }
-
-      if (matched.pass !== passVal) {
-        showMsg("err", "Şifre eşleşmedi. Şifreni kontrol edip tekrar dene.");
-        return;
-      }
-
-      if (!matched.verified) {
-        showMsg("err", "Hesap doğrulaması tamamlanmamış.");
-        return;
-      }
-
-      localStorage.setItem(ACTIVE_KEY, matched.email);
-      enterDashboard(matched);
-    }
-
-    function enterDashboard(user) {
-      document.getElementById("gateView").classList.add("hidden");
-      document.getElementById("dashboardView").classList.add("active");
-      document.getElementById("sessionStatus").textContent = "Aktif Hesap: " + user.name;
-      document.getElementById("dashUser").textContent = user.name;
-      document.getElementById("dashBalance").textContent = Number(user.balance).toFixed(2) + " USDT";
-      document.getElementById("dashEscrow").textContent = Number(user.escrow).toFixed(2) + " USDT";
-      document.getElementById("profileDetails").textContent =
-        "Kullanıcı: " + user.name + " | E-posta: " + user.email + " | Telefon: " + user.phone + " | Durum: Doğrulandı & Kaydedildi";
-    }
-
-    function logout() {
-      localStorage.removeItem(ACTIVE_KEY);
-      document.getElementById("dashboardView").classList.remove("active");
-      document.getElementById("gateView").classList.remove("hidden");
-      document.getElementById("sessionStatus").textContent = "Durum: Karşılama Ekranı";
-      switchTab("login");
-    }
-
-    function showSection(id) {
-      ["marketSec", "profileSec", "payoutPrepSec"].forEach(sec => {
-        document.getElementById(sec).classList.toggle("hidden", sec !== id);
-      });
-    }
-
-    // Sayfa yenilendiğinde veya geri dönüldüğünde aktif hesabı hatırla
-    (function init() {
-      makeCaptcha();
-      const activeEmail = localStorage.getItem(ACTIVE_KEY);
-      if (activeEmail) {
-        const users = getUsers();
-        const found = users.find(u => u.email.toLowerCase() === activeEmail.toLowerCase());
-        if (found && found.verified) {
-          enterDashboard(found);
-        }
+    (async () => {
+      const { data: { user } } = await sb.auth.getUser();
+      const link = document.getElementById("profileLink");
+      if (user) {
+        const name = user.user_metadata?.username || user.email?.split("@")[0] || "Profilim";
+        link.textContent = `👤 ${name}`;
       }
     })();
   </script>
