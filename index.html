@@ -1,180 +1,552 @@
 <!DOCTYPE html>
-<html lang="tk">
+<html lang="tr">
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>TKM Market — 4K Oýun &amp; Sanly Bazary</title>
-  <link rel="stylesheet" href="assets/tkm.css" />
+  <title>TKM Market — Güvenli Dijital Oyun Pazarı</title>
+  <style>
+    :root {
+      --bg: #070b14;
+      --panel: #0e1628;
+      --panel-2: #131f38;
+      --text: #eef4ff;
+      --muted: #93a4c3;
+      --accent: #38bdf8;
+      --accent-2: #818cf8;
+      --ok: #22c55e;
+      --warn: #f59e0b;
+      --danger: #ef4444;
+      --border: rgba(148, 163, 184, 0.16);
+    }
+
+    * { box-sizing: border-box; margin: 0; padding: 0; font-family: Inter, system-ui, -apple-system, sans-serif; }
+
+    body {
+      min-height: 100vh;
+      background:
+        radial-gradient(circle at 15% 15%, rgba(56, 189, 248, 0.16), transparent 40%),
+        radial-gradient(circle at 85% 20%, rgba(129, 140, 248, 0.16), transparent 42%),
+        var(--bg);
+      color: var(--text);
+      line-height: 1.5;
+    }
+
+    .container {
+      max-width: 1080px;
+      margin: 0 auto;
+      padding: 24px 18px 64px;
+    }
+
+    /* Üst Bar */
+    .topbar {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 12px;
+      padding: 14px 18px;
+      background: rgba(14, 22, 40, 0.85);
+      backdrop-filter: blur(12px);
+      border: 1px solid var(--border);
+      border-radius: 16px;
+      margin-bottom: 24px;
+    }
+
+    .brand {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      font-weight: 800;
+      font-size: 1.05rem;
+      letter-spacing: 0.3px;
+    }
+
+    .eye-badge {
+      width: 38px;
+      height: 38px;
+      border-radius: 12px;
+      background: linear-gradient(135deg, var(--accent), var(--accent-2));
+      display: grid;
+      place-items: center;
+      color: #04101f;
+      font-weight: 900;
+      animation: pulseGlow 2.8s infinite ease-in-out;
+    }
+
+    @keyframes pulseGlow {
+      0%, 100% { box-shadow: 0 0 0 0 rgba(56, 189, 248, 0.45); }
+      50% { box-shadow: 0 0 22px 4px rgba(129, 140, 248, 0.35); }
+    }
+
+    .pill {
+      font-size: 0.8rem;
+      padding: 6px 12px;
+      border-radius: 999px;
+      background: var(--panel-2);
+      border: 1px solid var(--border);
+      color: var(--muted);
+    }
+
+    /* Karşılama Alanı */
+    .hero {
+      background: linear-gradient(180deg, rgba(19, 31, 56, 0.9), rgba(14, 22, 40, 0.95));
+      border: 1px solid var(--border);
+      border-radius: 24px;
+      padding: 36px 24px;
+      text-align: center;
+      box-shadow: 0 24px 60px rgba(0, 0, 0, 0.45);
+    }
+
+    .hero h1 {
+      font-size: clamp(1.7rem, 4vw, 2.6rem);
+      font-weight: 800;
+      margin-bottom: 12px;
+    }
+
+    .hero p {
+      max-width: 680px;
+      margin: 0 auto 24px;
+      color: var(--muted);
+      font-size: 1rem;
+    }
+
+    .actions {
+      display: flex;
+      flex-wrap: wrap;
+      justify-content: center;
+      gap: 12px;
+    }
+
+    button {
+      cursor: pointer;
+      border: none;
+      border-radius: 12px;
+      padding: 12px 18px;
+      font-weight: 700;
+      font-size: 0.95rem;
+      transition: transform 0.14s ease, opacity 0.14s ease, background 0.14s ease;
+    }
+
+    button:active { transform: scale(0.98); }
+
+    .btn-primary {
+      background: linear-gradient(135deg, var(--accent), var(--accent-2));
+      color: #051120;
+    }
+
+    .btn-secondary {
+      background: var(--panel-2);
+      color: var(--text);
+      border: 1px solid var(--border);
+    }
+
+    .btn-ghost {
+      background: transparent;
+      color: var(--muted);
+      border: 1px solid var(--border);
+    }
+
+    /* Kart ve Form Yapısı */
+    .auth-box {
+      max-width: 480px;
+      margin: 24px auto 0;
+      background: var(--panel);
+      border: 1px solid var(--border);
+      border-radius: 20px;
+      padding: 24px;
+    }
+
+    .auth-tabs {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 8px;
+      background: var(--bg);
+      padding: 6px;
+      border-radius: 14px;
+      margin-bottom: 20px;
+    }
+
+    .tab-btn {
+      padding: 10px;
+      border-radius: 10px;
+      background: transparent;
+      color: var(--muted);
+    }
+
+    .tab-btn.active {
+      background: var(--panel-2);
+      color: var(--text);
+      border: 1px solid var(--border);
+    }
+
+    .field {
+      margin-bottom: 14px;
+      text-align: left;
+    }
+
+    .field label {
+      display: block;
+      font-size: 0.85rem;
+      color: var(--muted);
+      margin-bottom: 6px;
+    }
+
+    .field input {
+      width: 100%;
+      padding: 11px 13px;
+      border-radius: 11px;
+      border: 1px solid var(--border);
+      background: var(--bg);
+      color: var(--text);
+      font-size: 0.95rem;
+    }
+
+    .captcha-box {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 10px;
+      padding: 12px 14px;
+      border-radius: 12px;
+      background: var(--bg);
+      border: 1px dashed rgba(56, 189, 248, 0.45);
+      margin-bottom: 14px;
+    }
+
+    .captcha-code {
+      font-family: monospace;
+      font-size: 1.15rem;
+      font-weight: 800;
+      letter-spacing: 3px;
+      color: var(--accent);
+      user-select: none;
+    }
+
+    .msg {
+      margin-top: 12px;
+      padding: 11px 14px;
+      border-radius: 12px;
+      font-size: 0.9rem;
+      display: none;
+    }
+
+    .msg.ok { display: block; background: rgba(34, 197, 94, 0.14); border: 1px solid rgba(34, 197, 94, 0.4); color: #86efac; }
+    .msg.err { display: block; background: rgba(239, 68, 68, 0.14); border: 1px solid rgba(239, 68, 68, 0.4); color: #fca5a5; }
+    .msg.info { display: block; background: rgba(56, 189, 248, 0.14); border: 1px solid rgba(56, 189, 248, 0.4); color: #bae6fd; }
+
+    /* Ana Menü (Giriş Sonrası) */
+    .dashboard { display: none; }
+    .dashboard.active { display: block; }
+
+    .grid-3 {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+      gap: 14px;
+      margin-bottom: 20px;
+    }
+
+    .stat-card {
+      background: var(--panel);
+      border: 1px solid var(--border);
+      border-radius: 18px;
+      padding: 18px;
+    }
+
+    .stat-card small { color: var(--muted); display: block; margin-bottom: 6px; }
+    .stat-card strong { font-size: 1.4rem; }
+
+    .menu-bar {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 10px;
+      margin-bottom: 20px;
+    }
+
+    .panel-section {
+      background: var(--panel);
+      border: 1px solid var(--border);
+      border-radius: 20px;
+      padding: 22px;
+      margin-bottom: 18px;
+    }
+
+    .hidden { display: none !important; }
+  </style>
 </head>
 <body>
-  <div id="playerok-shell"></div>
+  <div class="container">
+    <!-- Üst Bar -->
+    <header class="topbar">
+      <div class="brand">
+        <div class="eye-badge">◎</div>
+        <span>TKM MARKET</span>
+      </div>
+      <div class="pill" id="sessionStatus">Durum: Karşılama Ekranı (Giriş Yapılmadı)</div>
+    </header>
 
-  <main class="page-wrap">
-    <section class="gamer-hero">
-      <div class="gamer-scanline"></div>
-      <h1>4K Oýun, Hasap &amp; Sanly Bazary</h1>
-      <p>Oýun hasaplary, programmalar, Exness MT5 we sanly hyzmatlar. Satyn alnandan soň hasap açylýar, iki tassykdan soň pul geçýär.</p>
-      <div class="split-action-row">
-        <a class="gamer-btn-sell" href="satyjy.html">⚡ Hasap / Haryt Sat</a>
-        <a class="gamer-btn-ask" href="mesajlar.html">💬 Hasap Sorag Iber</a>
+    <!-- 1. KARŞILAMA VE GİRİŞ / KAYIT KAPI EKRANI -->
+    <section id="gateView">
+      <div class="hero">
+        <h1>Güvenli Dijital Oyun & Hesap Pazar Yeri</h1>
+        <p>
+          Siteye ilk girdiğinde doğrudan iç menüye değil, güvenli giriş kapısına gelirsin.
+          Üye ol, robot doğrulamasını ve kod onayını tamamla; ardından emanet güvenceli ana menüye geç.
+        </p>
+        <div class="actions">
+          <button class="btn-primary" onclick="openAuthTab('register')">Hemen Üye Ol</button>
+          <button class="btn-secondary" onclick="openAuthTab('login')">Giriş Yap</button>
+        </div>
+      </div>
+
+      <div class="auth-box" id="authBox">
+        <div class="auth-tabs">
+          <button class="tab-btn active" id="tabRegister" onclick="switchTab('register')">Üye Ol</button>
+          <button class="tab-btn" id="tabLogin" onclick="switchTab('login')">Giriş Yap</button>
+        </div>
+
+        <!-- Üye Ol Formu -->
+        <form id="registerForm" onsubmit="handleRegister(event)">
+          <div class="field">
+            <label>Ad Soyad veya Kullanıcı Adı</label>
+            <input type="text" id="regName" placeholder="Örn: Oyuncu_TKM" required />
+          </div>
+          <div class="field">
+            <label>E-Posta Adresi</label>
+            <input type="email" id="regEmail" placeholder="ornek@mail.com" required />
+          </div>
+          <div class="field">
+            <label>Telefon Numarası</label>
+            <input type="tel" id="regPhone" placeholder="+90 5xx xxx xx xx" required />
+          </div>
+          <div class="field">
+            <label>Şifre</label>
+            <input type="password" id="regPass" placeholder="En az 6 karakter" minlength="6" required />
+          </div>
+
+          <!-- CAPTCHA ("Robot Değilim") -->
+          <div class="captcha-box">
+            <div>
+              <small style="color: var(--muted); display: block;">Robot Değilim Doğrulaması (CAPTCHA)</small>
+              <span class="captcha-code" id="captchaDisplay"></span>
+            </div>
+            <button type="button" class="btn-ghost" onclick="refreshCaptcha()">Yenile</button>
+          </div>
+          <div class="field">
+            <label>Yukarıdaki Kodu Gir</label>
+            <input type="text" id="captchaInput" placeholder="Kodu yaz" required />
+          </div>
+
+          <button type="submit" class="btn-primary" style="width: 100%;">Üyeliği Başlat & Doğrulama Kodu Gönder</button>
+        </form>
+
+        <!-- Doğrulama Adımı (Kayıt Sonrası) -->
+        <form id="verifyForm" class="hidden" onsubmit="handleVerify(event)">
+          <p style="color: var(--muted); font-size: 0.9rem; margin-bottom: 14px;">
+            E-posta adresine (ve test için aşağıda gösterilen) 6 haneli doğrulama kodunu girerek hesabını aktif et:
+            <strong id="demoCodeHint" style="color: var(--accent);"></strong>
+          </p>
+          <div class="field">
+            <label>Doğrulama Kodu</label>
+            <input type="text" id="verifyCodeInput" maxlength="6" placeholder="123456" required />
+          </div>
+          <button type="submit" class="btn-primary" style="width: 100%;">Kodu Onayla ve Giriş Ekranına Geç</button>
+        </form>
+
+        <!-- Giriş Yap Formu -->
+        <form id="loginForm" class="hidden" onsubmit="handleLogin(event)">
+          <div class="field">
+            <label>E-Posta veya Kullanıcı Adı</label>
+            <input type="text" id="loginId" placeholder="E-posta veya kullanıcı adı" required />
+          </div>
+          <div class="field">
+            <label>Şifre</label>
+            <input type="password" id="loginPass" placeholder="Şifren" required />
+          </div>
+          <button type="submit" class="btn-primary" style="width: 100%;">Giriş Yap & Ana Menüye Git</button>
+        </form>
+
+        <div class="msg" id="authMsg"></div>
       </div>
     </section>
 
-    <div class="sec-header">
-      <h2>Meşhur Bölümler</h2>
-      <a class="muted" style="text-decoration:none; font-weight:700; color:#e879f9;" href="kategoriler.html">Ählisi →</a>
-    </div>
-
-    <div class="home-quick-5" id="home-quick-5"></div>
-
-    <div class="cards-grid" id="market-grid"></div>
-  </main>
-
-  <div class="modal-bg" id="detail-modal">
-    <div class="modal-card">
-      <div class="modal-head">
-        <h3 id="dm-title">Haryt</h3>
-        <button class="btn btn-soft" type="button" onclick="document.getElementById('detail-modal').classList.remove('open')">Ýap</button>
+    <!-- 2. GERÇEK ANA MENÜ (GİRİŞ YAPILDIKTAN SONRA AÇILIR) -->
+    <section id="dashboardView" class="dashboard">
+      <div class="grid-3">
+        <div class="stat-card">
+          <small>Aktif Kullanıcı</small>
+          <strong id="dashUser">-</strong>
+        </div>
+        <div class="stat-card">
+          <small>Kullanılabilir Bakiye</small>
+          <strong id="dashBalance">0.00 USDT</strong>
+        </div>
+        <div class="stat-card">
+          <small>Emanette Bekleyen (Escrow)</small>
+          <strong id="dashEscrow">0.00 USDT</strong>
+        </div>
       </div>
-      <div id="dm-body"></div>
-    </div>
+
+      <div class="menu-bar">
+        <button class="btn-primary" onclick="showSection('marketSec')">İlan Vitrinini Gör</button>
+        <button class="btn-secondary" onclick="showSection('profileSec')">Profil & Doğrulama</button>
+        <button class="btn-secondary" onclick="showSection('nextStepSec')">Sıradaki Adım: Payout</button>
+        <button class="btn-ghost" onclick="logout()">Çıkış Yap</button>
+      </div>
+
+      <div class="panel-section" id="marketSec">
+        <h3>Gerçek Ana Menü — İlanlar ve Emanet Akışı</h3>
+        <p style="color: var(--muted); margin-top: 8px;">
+          Giriş ve doğrulama tamamlandığı için artık ana menüdesin. PUBG Mobile, Clash of Clans ve diğer oyun hesapları için ilan ve sipariş ekranlarını bir sonraki adımda buraya bağlayacağız.
+        </p>
+      </div>
+
+      <div class="panel-section hidden" id="profileSec">
+        <h3>Kullanıcı Profili & Hesap Bilgileri</h3>
+        <p style="color: var(--muted); margin-top: 8px;" id="profileDetails"></p>
+      </div>
+
+      <div class="panel-section hidden" id="nextStepSec">
+        <h3>2. Aşama Hazırlığı: Emanet & Payout Sistemi</h3>
+        <p style="color: var(--muted); margin-top: 8px;">
+          Karşılama, üye olma, CAPTCHA, doğrulama ve giriş akışı oturdu. Sıradaki adımda emanet bakiye kilitleme, iptal iadesi ve payout çekim akışını kuracağız.
+        </p>
+      </div>
+    </section>
   </div>
 
-  <script src="assets/tkm.js"></script>
   <script>
-    mountPlayerokShell("search", "Haryt, hasap ýa-da satyjy gözle...", false);
-    let list = [];
+    let currentCaptcha = "";
+    let pendingUser = null;
+    let generatedCode = "";
 
-    function renderHomeQuick5() {
-      const quickIds = ["pubg-mobile", "clash-of-clans", "telegram", "tiktok"];
-      const items = quickIds.map(id => findPlatform(id)).filter(Boolean);
-      const wrap = document.getElementById("home-quick-5");
-
-      wrap.innerHTML = items.map(p => `
-        <button class="quick-tile" type="button" onclick="location.href='uygulama.html?slug=${encodeURIComponent(p.id)}'">
-          <div class="app-icon-box" style="width:46px; height:46px; border-radius:13px;">${renderLogoWithAsset(p)}</div>
-          <span>${esc(p.name)}</span>
-        </button>
-      `).join("") + `
-        <button class="quick-tile active" type="button" onclick="location.href='kategoriler.html'">
-          <div class="app-icon-box" style="width:46px; height:46px; border-radius:13px;">
-            ${artLogo("#6366f1", "#ec4899", "ALL", "ÄHLI", "diamond")}
-          </div>
-          <span>Ählisi</span>
-        </button>
-      `;
+    function makeCaptcha() {
+      const chars = "ABCDEFGHJKLMNPQRSTUVWXYZ23456789";
+      let code = "";
+      for (let i = 0; i < 6; i++) code += chars[Math.floor(Math.random() * chars.length)];
+      currentCaptcha = code;
+      document.getElementById("captchaDisplay").textContent = code;
     }
 
-    async function loadMarket() {
-      try {
-        list = await sbGet("products");
-        localStorage.setItem("tkm_prod_cache", JSON.stringify(list));
-        setDbPill(true, "Onlaýn");
-      } catch (err) {
-        try { list = JSON.parse(localStorage.getItem("tkm_prod_cache") || "[]"); } catch (_) { list = []; }
-        setDbPill(false, "Ýerli");
-      }
-      renderMarket();
+    function refreshCaptcha() {
+      makeCaptcha();
+      document.getElementById("captchaInput").value = "";
     }
 
-    function renderMarket() {
-      const q = (document.getElementById("global-search")?.value || "").trim().toLowerCase();
-      const wrap = document.getElementById("market-grid");
-      const filtered = list.filter(item => !q ||
-        String(item.title || "").toLowerCase().includes(q) ||
-        String(item.platform_name || "").toLowerCase().includes(q) ||
-        String(item.subcat || "").toLowerCase().includes(q) ||
-        String(item.seller || "").toLowerCase().includes(q) ||
-        String(item.description || "").toLowerCase().includes(q)
-      );
+    function showMsg(type, text) {
+      const el = document.getElementById("authMsg");
+      el.className = "msg " + type;
+      el.textContent = text;
+    }
 
-      if (!filtered.length) {
-        wrap.innerHTML = `<div class="panel"><p class="muted">Heniz haryt ýok. <strong>Satmak</strong> sekmesinden täze haryt goşup ýa-da <strong>Hatlar</strong> sekmesinden isleg ibere bilersiňiz.</p></div>`;
+    function openAuthTab(mode) {
+      switchTab(mode);
+      document.getElementById("authBox").scrollIntoView({ behavior: "smooth" });
+    }
+
+    function switchTab(mode) {
+      document.getElementById("authMsg").className = "msg";
+      document.getElementById("tabRegister").classList.toggle("active", mode === "register");
+      document.getElementById("tabLogin").classList.toggle("active", mode === "login");
+      document.getElementById("registerForm").classList.toggle("hidden", mode !== "register");
+      document.getElementById("verifyForm").classList.add("hidden");
+      document.getElementById("loginForm").classList.toggle("hidden", mode !== "login");
+      if (mode === "register") refreshCaptcha();
+    }
+
+    function handleRegister(e) {
+      e.preventDefault();
+      const typedCaptcha = document.getElementById("captchaInput").value.trim().toUpperCase();
+      if (typedCaptcha !== currentCaptcha) {
+        showMsg("err", "CAPTCHA kodu hatalı. Yeni kod üretildi, tekrar dene.");
+        refreshCaptcha();
         return;
       }
 
-      wrap.innerHTML = filtered.map(p => {
-        const imgs = getImages(p);
-        return `
-          <article class="item-card">
-            <div>
-              ${imgs[0] ? `<img class="item-img" src="${esc(imgs[0])}" alt="${esc(p.title)}" loading="lazy" onerror="this.style.display='none'" />` : ""}
-              <span class="chip-cat">${esc(p.platform_name || p.cat || "HARYT")}${p.subcat ? " • " + esc(p.subcat) : ""}</span>
-              <span class="chip-escrow">ESCROW</span>
-              <div class="item-title">${esc(p.title)}</div>
-              <p class="item-desc">${esc(p.description || "")}</p>
-              <div class="muted">Satyjy: <strong>${esc(p.seller || "Serkanbey77")}</strong></div>
-              <div class="item-price-row">
-                <div class="item-price">${Number(p.price_tmt || 0).toLocaleString()} TMT</div>
-                ${p.market_compare_tmt ? `<div class="item-old">${Number(p.market_compare_tmt).toLocaleString()} TMT</div>` : ""}
-              </div>
-            </div>
-            <div class="btn-row">
-              <button class="btn btn-soft" type="button" style="flex:1;" onclick="openItem(${p.id})">Aç</button>
-              <button class="btn btn-main" type="button" style="flex:1;" onclick="orderItem(${p.id})">Satyn Al</button>
-            </div>
-          </article>
-        `;
-      }).join("");
+      pendingUser = {
+        name: document.getElementById("regName").value.trim(),
+        email: document.getElementById("regEmail").value.trim().toLowerCase(),
+        phone: document.getElementById("regPhone").value.trim(),
+        pass: document.getElementById("regPass").value,
+        verified: false,
+        balance: 0,
+        escrow: 0
+      };
+
+      generatedCode = String(Math.floor(100000 + Math.random() * 900000));
+      document.getElementById("registerForm").classList.add("hidden");
+      document.getElementById("verifyForm").classList.remove("hidden");
+      document.getElementById("demoCodeHint").textContent = "(Test Kodu: " + generatedCode + ")";
+      showMsg("info", "Doğrulama kodu oluşturuldu. Kodu girerek hesabını onayla.");
     }
 
-    function openItem(id) {
-      const p = list.find(x => String(x.id) === String(id));
-      if (!p) return;
-      const imgs = getImages(p);
-      document.getElementById("dm-title").textContent = p.title;
-      document.getElementById("dm-body").innerHTML = `
-        ${imgs.map(src => `<img class="item-img" style="margin-bottom:8px;" src="${esc(src)}" alt="${esc(p.title)}" />`).join("")}
-        <span class="chip-cat">${esc(p.platform_name || p.cat || "HARYT")}${p.subcat ? " • " + esc(p.subcat) : ""}</span>
-        <span class="chip-escrow">ÇIFT ONAYLY EMANET</span>
-        <p class="item-desc" style="margin-top:8px;">${esc(p.description || "Düşündiriş ýok.")}</p>
-        <div class="muted">Satyjy: <strong>${esc(p.seller || "Serkanbey77")}</strong></div>
-        <div class="cred-card">
-          <div><strong>Emanet düzgüni:</strong> Hasap ady we paroly satyn alnandan soň açylýar. Satyn alan we satyjy ikisi hem tassyklamasa, pul ortada saklanýar.</div>
-        </div>
-        <div class="item-price-row" style="margin-top:10px;">
-          <div class="item-price">${Number(p.price_tmt || 0).toLocaleString()} TMT</div>
-        </div>
-        <div class="btn-row">
-          <button class="btn btn-main" type="button" style="flex:1;" onclick="document.getElementById('detail-modal').classList.remove('open'); orderItem(${p.id});">Emanet Bilen Satyn Al</button>
-        </div>
-      `;
-      document.getElementById("detail-modal").classList.add("open");
-    }
-
-    async function orderItem(id) {
-      const p = list.find(x => String(x.id) === String(id));
-      if (!p) return;
-      const buyer = getUser().username;
-      const code = "TKM-" + Math.floor(100000 + Math.random() * 900000);
-      const sec = String(Math.floor(1000 + Math.random() * 9000));
-
-      try {
-        const saved = await sbInsert("orders", {
-          order_code: code,
-          product_title: p.title,
-          seller: p.seller || "Serkanbey77",
-          price_tmt: Number(p.price_tmt || 0),
-          status: "pending_delivery",
-          escrow_status: "escrow_hold",
-          seller_confirmed: false,
-          buyer_confirmed: false,
-          account_login: p.account_login || `Alyjy: ${buyer} — Satyjy bilen habarlaşyň`,
-          account_password: p.account_password || `Kod: ${sec}`,
-          account_extra: p.account_extra || "",
-          secret_code: sec
-        });
-        const createdId = saved && saved.id ? saved.id : "";
-        window.location.href = createdId ? `sargytlar.html?order=${encodeURIComponent(createdId)}` : "sargytlar.html";
-      } catch (err) {
-        showToast("Sargyt döredilmedi: " + err.message);
+    function handleVerify(e) {
+      e.preventDefault();
+      const entered = document.getElementById("verifyCodeInput").value.trim();
+      if (entered !== generatedCode || !pendingUser) {
+        showMsg("err", "Doğrulama kodu eşleşmedi.");
+        return;
       }
+
+      pendingUser.verified = true;
+      localStorage.setItem("tkm_demo_user", JSON.stringify(pendingUser));
+      showMsg("ok", "Hesabın doğrulandı! Şimdi Giriş Yap sekmesinden hesabına girebilirsin.");
+      setTimeout(() => {
+        document.getElementById("loginId").value = pendingUser.email;
+        switchTab("login");
+        showMsg("ok", "Doğrulama tamamlandı. Şifreni girip giriş yapabilirsin.");
+      }, 700);
     }
 
-    document.getElementById("global-search")?.addEventListener("input", renderMarket);
-    renderHomeQuick5();
-    loadMarket();
+    function handleLogin(e) {
+      e.preventDefault();
+      const savedRaw = localStorage.getItem("tkm_demo_user");
+      if (!savedRaw) {
+        showMsg("err", "Kayıtlı kullanıcı bulunamadı. Önce Üye Ol sekmesinden kayıt ol.");
+        return;
+      }
+
+      const user = JSON.parse(savedRaw);
+      const idVal = document.getElementById("loginId").value.trim().toLowerCase();
+      const passVal = document.getElementById("loginPass").value;
+
+      const idMatches = idVal === user.email || idVal === user.name.toLowerCase();
+      if (!idMatches || passVal !== user.pass) {
+        showMsg("err", "Bilgiler hatalı. E-posta/kullanıcı adı ve şifreni kontrol et.");
+        return;
+      }
+
+      if (!user.verified) {
+        showMsg("err", "Hesabın henüz doğrulanmamış.");
+        return;
+      }
+
+      enterDashboard(user);
+    }
+
+    function enterDashboard(user) {
+      document.getElementById("gateView").classList.add("hidden");
+      document.getElementById("dashboardView").classList.add("active");
+      document.getElementById("sessionStatus").textContent = "Giriş Yapıldı: " + user.name;
+      document.getElementById("dashUser").textContent = user.name;
+      document.getElementById("dashBalance").textContent = Number(user.balance).toFixed(2) + " USDT";
+      document.getElementById("dashEscrow").textContent = Number(user.escrow).toFixed(2) + " USDT";
+      document.getElementById("profileDetails").textContent =
+        "Kullanıcı: " + user.name + " | E-posta: " + user.email + " | Telefon: " + user.phone + " | Durum: Doğrulanmış Hesap";
+    }
+
+    function logout() {
+      document.getElementById("dashboardView").classList.remove("active");
+      document.getElementById("gateView").classList.remove("hidden");
+      document.getElementById("sessionStatus").textContent = "Durum: Karşılama Ekranı (Giriş Yapılmadı)";
+      switchTab("login");
+    }
+
+    function showSection(id) {
+      ["marketSec", "profileSec", "nextStepSec"].forEach(sec => {
+        document.getElementById(sec).classList.toggle("hidden", sec !== id);
+      });
+    }
+
+    makeCaptcha();
   </script>
-  <script src="tracker.js"></script>
 </body>
 </html>
