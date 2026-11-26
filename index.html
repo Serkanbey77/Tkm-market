@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>TKM Market — Güvenli Dijital Oyun Pazarı</title>
+  <title>TKM Market — Canlı Hesap & Pazar Akışı</title>
   <style>
     :root {
       --bg: #070b14;
@@ -14,8 +14,8 @@
       --accent: #38bdf8;
       --accent-2: #818cf8;
       --ok: #22c55e;
-      --warn: #f59e0b;
-      --danger: #ef4444;
+      --err: #ef4444;
+      --info: #38bdf8;
       --border: rgba(148, 163, 184, 0.16);
     }
 
@@ -31,265 +31,111 @@
       line-height: 1.5;
     }
 
-    .container {
-      max-width: 1080px;
-      margin: 0 auto;
-      padding: 24px 18px 64px;
-    }
+    .container { max-width: 1080px; margin: 0 auto; padding: 20px 16px 64px; }
 
-    /* Üst Bar */
     .topbar {
-      display: flex;
-      align-items: center;
-      justify-content: space-between;
-      gap: 12px;
-      padding: 14px 18px;
-      background: rgba(14, 22, 40, 0.85);
-      backdrop-filter: blur(12px);
-      border: 1px solid var(--border);
-      border-radius: 16px;
-      margin-bottom: 24px;
+      display: flex; align-items: center; justify-content: space-between; gap: 12px;
+      padding: 14px 18px; background: rgba(14, 22, 40, 0.88); backdrop-filter: blur(12px);
+      border: 1px solid var(--border); border-radius: 16px; margin-bottom: 22px;
     }
 
-    .brand {
-      display: flex;
-      align-items: center;
-      gap: 12px;
-      font-weight: 800;
-      font-size: 1.05rem;
-      letter-spacing: 0.3px;
-    }
-
+    .brand { display: flex; align-items: center; gap: 10px; font-weight: 800; font-size: 1.05rem; }
     .eye-badge {
-      width: 38px;
-      height: 38px;
-      border-radius: 12px;
+      width: 36px; height: 36px; border-radius: 11px;
       background: linear-gradient(135deg, var(--accent), var(--accent-2));
-      display: grid;
-      place-items: center;
-      color: #04101f;
-      font-weight: 900;
-      animation: pulseGlow 2.8s infinite ease-in-out;
-    }
-
-    @keyframes pulseGlow {
-      0%, 100% { box-shadow: 0 0 0 0 rgba(56, 189, 248, 0.45); }
-      50% { box-shadow: 0 0 22px 4px rgba(129, 140, 248, 0.35); }
+      display: grid; place-items: center; color: #04101f; font-weight: 900;
     }
 
     .pill {
-      font-size: 0.8rem;
-      padding: 6px 12px;
-      border-radius: 999px;
-      background: var(--panel-2);
-      border: 1px solid var(--border);
-      color: var(--muted);
+      font-size: 0.78rem; padding: 6px 12px; border-radius: 999px;
+      background: var(--panel-2); border: 1px solid var(--border); color: var(--muted);
     }
 
-    /* Karşılama Alanı */
     .hero {
-      background: linear-gradient(180deg, rgba(19, 31, 56, 0.9), rgba(14, 22, 40, 0.95));
-      border: 1px solid var(--border);
-      border-radius: 24px;
-      padding: 36px 24px;
-      text-align: center;
-      box-shadow: 0 24px 60px rgba(0, 0, 0, 0.45);
+      background: linear-gradient(180deg, rgba(19, 31, 56, 0.92), rgba(14, 22, 40, 0.96));
+      border: 1px solid var(--border); border-radius: 22px; padding: 28px 20px; text-align: center;
     }
 
-    .hero h1 {
-      font-size: clamp(1.7rem, 4vw, 2.6rem);
-      font-weight: 800;
-      margin-bottom: 12px;
-    }
+    .hero h1 { font-size: clamp(1.5rem, 4vw, 2.3rem); font-weight: 800; margin-bottom: 10px; }
+    .hero p { max-width: 660px; margin: 0 auto 20px; color: var(--muted); font-size: 0.96rem; }
 
-    .hero p {
-      max-width: 680px;
-      margin: 0 auto 24px;
-      color: var(--muted);
-      font-size: 1rem;
-    }
-
-    .actions {
-      display: flex;
-      flex-wrap: wrap;
-      justify-content: center;
-      gap: 12px;
-    }
+    .actions { display: flex; flex-wrap: wrap; justify-content: center; gap: 10px; }
 
     button {
-      cursor: pointer;
-      border: none;
-      border-radius: 12px;
-      padding: 12px 18px;
-      font-weight: 700;
-      font-size: 0.95rem;
-      transition: transform 0.14s ease, opacity 0.14s ease, background 0.14s ease;
+      cursor: pointer; border: none; border-radius: 12px; padding: 11px 16px;
+      font-weight: 700; font-size: 0.92rem; transition: transform 0.12s ease, opacity 0.12s ease;
     }
-
     button:active { transform: scale(0.98); }
 
-    .btn-primary {
-      background: linear-gradient(135deg, var(--accent), var(--accent-2));
-      color: #051120;
-    }
+    .btn-primary { background: linear-gradient(135deg, var(--accent), var(--accent-2)); color: #051120; }
+    .btn-secondary { background: var(--panel-2); color: var(--text); border: 1px solid var(--border); }
+    .btn-ghost { background: transparent; color: var(--muted); border: 1px solid var(--border); }
 
-    .btn-secondary {
-      background: var(--panel-2);
-      color: var(--text);
-      border: 1px solid var(--border);
-    }
-
-    .btn-ghost {
-      background: transparent;
-      color: var(--muted);
-      border: 1px solid var(--border);
-    }
-
-    /* Kart ve Form Yapısı */
     .auth-box {
-      max-width: 480px;
-      margin: 24px auto 0;
-      background: var(--panel);
-      border: 1px solid var(--border);
-      border-radius: 20px;
-      padding: 24px;
+      max-width: 480px; margin: 22px auto 0; background: var(--panel);
+      border: 1px solid var(--border); border-radius: 20px; padding: 22px;
     }
 
     .auth-tabs {
-      display: grid;
-      grid-template-columns: 1fr 1fr;
-      gap: 8px;
-      background: var(--bg);
-      padding: 6px;
-      border-radius: 14px;
-      margin-bottom: 20px;
+      display: grid; grid-template-columns: 1fr 1fr; gap: 8px;
+      background: var(--bg); padding: 6px; border-radius: 14px; margin-bottom: 18px;
     }
 
-    .tab-btn {
-      padding: 10px;
-      border-radius: 10px;
-      background: transparent;
-      color: var(--muted);
-    }
+    .tab-btn { padding: 10px; border-radius: 10px; background: transparent; color: var(--muted); }
+    .tab-btn.active { background: var(--panel-2); color: var(--text); border: 1px solid var(--border); }
 
-    .tab-btn.active {
-      background: var(--panel-2);
-      color: var(--text);
-      border: 1px solid var(--border);
-    }
-
-    .field {
-      margin-bottom: 14px;
-      text-align: left;
-    }
-
-    .field label {
-      display: block;
-      font-size: 0.85rem;
-      color: var(--muted);
-      margin-bottom: 6px;
-    }
-
+    .field { margin-bottom: 14px; }
+    .field label { display: block; font-size: 0.84rem; color: var(--muted); margin-bottom: 6px; }
     .field input {
-      width: 100%;
-      padding: 11px 13px;
-      border-radius: 11px;
-      border: 1px solid var(--border);
-      background: var(--bg);
-      color: var(--text);
-      font-size: 0.95rem;
+      width: 100%; padding: 11px 13px; border-radius: 11px;
+      border: 1px solid var(--border); background: var(--bg); color: var(--text); font-size: 0.95rem;
     }
 
     .captcha-box {
-      display: flex;
-      align-items: center;
-      justify-content: space-between;
-      gap: 10px;
-      padding: 12px 14px;
-      border-radius: 12px;
-      background: var(--bg);
-      border: 1px dashed rgba(56, 189, 248, 0.45);
-      margin-bottom: 14px;
+      display: flex; align-items: center; justify-content: space-between; gap: 10px;
+      padding: 12px 14px; border-radius: 12px; background: var(--bg);
+      border: 1px dashed rgba(56, 189, 248, 0.45); margin-bottom: 14px;
     }
 
     .captcha-code {
-      font-family: monospace;
-      font-size: 1.15rem;
-      font-weight: 800;
-      letter-spacing: 3px;
-      color: var(--accent);
-      user-select: none;
+      font-family: monospace; font-size: 1.15rem; font-weight: 800;
+      letter-spacing: 3px; color: var(--accent); user-select: none;
     }
 
-    .msg {
-      margin-top: 12px;
-      padding: 11px 14px;
-      border-radius: 12px;
-      font-size: 0.9rem;
-      display: none;
-    }
-
+    .msg { margin-top: 12px; padding: 11px 14px; border-radius: 12px; font-size: 0.88rem; display: none; }
     .msg.ok { display: block; background: rgba(34, 197, 94, 0.14); border: 1px solid rgba(34, 197, 94, 0.4); color: #86efac; }
     .msg.err { display: block; background: rgba(239, 68, 68, 0.14); border: 1px solid rgba(239, 68, 68, 0.4); color: #fca5a5; }
     .msg.info { display: block; background: rgba(56, 189, 248, 0.14); border: 1px solid rgba(56, 189, 248, 0.4); color: #bae6fd; }
 
-    /* Ana Menü (Giriş Sonrası) */
     .dashboard { display: none; }
     .dashboard.active { display: block; }
 
-    .grid-3 {
-      display: grid;
-      grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
-      gap: 14px;
-      margin-bottom: 20px;
-    }
-
-    .stat-card {
-      background: var(--panel);
-      border: 1px solid var(--border);
-      border-radius: 18px;
-      padding: 18px;
-    }
-
+    .grid-3 { display: grid; grid-template-columns: repeat(auto-fit, minmax(210px, 1fr)); gap: 14px; margin-bottom: 18px; }
+    .stat-card { background: var(--panel); border: 1px solid var(--border); border-radius: 18px; padding: 18px; }
     .stat-card small { color: var(--muted); display: block; margin-bottom: 6px; }
-    .stat-card strong { font-size: 1.4rem; }
+    .stat-card strong { font-size: 1.35rem; }
 
-    .menu-bar {
-      display: flex;
-      flex-wrap: wrap;
-      gap: 10px;
-      margin-bottom: 20px;
-    }
-
-    .panel-section {
-      background: var(--panel);
-      border: 1px solid var(--border);
-      border-radius: 20px;
-      padding: 22px;
-      margin-bottom: 18px;
-    }
-
+    .menu-bar { display: flex; flex-wrap: wrap; gap: 10px; margin-bottom: 18px; }
+    .panel-section { background: var(--panel); border: 1px solid var(--border); border-radius: 20px; padding: 20px; margin-bottom: 16px; }
     .hidden { display: none !important; }
   </style>
 </head>
 <body>
   <div class="container">
-    <!-- Üst Bar -->
     <header class="topbar">
       <div class="brand">
         <div class="eye-badge">◎</div>
         <span>TKM MARKET</span>
       </div>
-      <div class="pill" id="sessionStatus">Durum: Karşılama Ekranı (Giriş Yapılmadı)</div>
+      <div class="pill" id="sessionStatus">Durum: Karşılama Ekranı</div>
     </header>
 
-    <!-- 1. KARŞILAMA VE GİRİŞ / KAYIT KAPI EKRANI -->
+    <!-- KARŞILAMA + GİRİŞ / ÜYE OL -->
     <section id="gateView">
       <div class="hero">
         <h1>Güvenli Dijital Oyun & Hesap Pazar Yeri</h1>
         <p>
-          Siteye ilk girdiğinde doğrudan iç menüye değil, güvenli giriş kapısına gelirsin.
-          Üye ol, robot doğrulamasını ve kod onayını tamamla; ardından emanet güvenceli ana menüye geç.
+          Üye ol, robot doğrulamasını ve kod onayını tamamla; sistem seni bekletmeden doğrudan ana menüye alsın ve hesabını hatırlasın.
         </p>
         <div class="actions">
           <button class="btn-primary" onclick="openAuthTab('register')">Hemen Üye Ol</button>
@@ -303,11 +149,11 @@
           <button class="tab-btn" id="tabLogin" onclick="switchTab('login')">Giriş Yap</button>
         </div>
 
-        <!-- Üye Ol Formu -->
+        <!-- ÜYE OL -->
         <form id="registerForm" onsubmit="handleRegister(event)">
           <div class="field">
             <label>Ad Soyad veya Kullanıcı Adı</label>
-            <input type="text" id="regName" placeholder="Örn: Oyuncu_TKM" required />
+            <input type="text" id="regName" placeholder="Örn: Serkan_TKM" required />
           </div>
           <div class="field">
             <label>E-Posta Adresi</label>
@@ -322,7 +168,6 @@
             <input type="password" id="regPass" placeholder="En az 6 karakter" minlength="6" required />
           </div>
 
-          <!-- CAPTCHA ("Robot Değilim") -->
           <div class="captcha-box">
             <div>
               <small style="color: var(--muted); display: block;">Robot Değilim Doğrulaması (CAPTCHA)</small>
@@ -335,23 +180,23 @@
             <input type="text" id="captchaInput" placeholder="Kodu yaz" required />
           </div>
 
-          <button type="submit" class="btn-primary" style="width: 100%;">Üyeliği Başlat & Doğrulama Kodu Gönder</button>
+          <button type="submit" class="btn-primary" style="width: 100%;">Üye Ol & Doğrulama Kodu Gönder</button>
         </form>
 
-        <!-- Doğrulama Adımı (Kayıt Sonrası) -->
-        <form id="verifyForm" class="hidden" onsubmit="handleVerify(event)">
+        <!-- DOĞRULAMA (ONAYLANINCA OTOMATİK ANA MENÜYE GEÇER) -->
+        <form id="verifyForm" class="hidden" onsubmit="handleVerifyAndEnter(event)">
           <p style="color: var(--muted); font-size: 0.9rem; margin-bottom: 14px;">
-            E-posta adresine (ve test için aşağıda gösterilen) 6 haneli doğrulama kodunu girerek hesabını aktif et:
+            Doğrulama kodunu gir; onaylandığı anda hesabın kaydedilir ve <strong>doğrudan ana menüye</strong> girersin:
             <strong id="demoCodeHint" style="color: var(--accent);"></strong>
           </p>
           <div class="field">
-            <label>Doğrulama Kodu</label>
+            <label>6 Haneli Doğrulama Kodu</label>
             <input type="text" id="verifyCodeInput" maxlength="6" placeholder="123456" required />
           </div>
-          <button type="submit" class="btn-primary" style="width: 100%;">Kodu Onayla ve Giriş Ekranına Geç</button>
+          <button type="submit" class="btn-primary" style="width: 100%;">Onayla ve Direkt Ana Menüye Gir</button>
         </form>
 
-        <!-- Giriş Yap Formu -->
+        <!-- GİRİŞ YAP -->
         <form id="loginForm" class="hidden" onsubmit="handleLogin(event)">
           <div class="field">
             <label>E-Posta veya Kullanıcı Adı</label>
@@ -368,7 +213,7 @@
       </div>
     </section>
 
-    <!-- 2. GERÇEK ANA MENÜ (GİRİŞ YAPILDIKTAN SONRA AÇILIR) -->
+    <!-- ANA MENÜ -->
     <section id="dashboardView" class="dashboard">
       <div class="grid-3">
         <div class="stat-card">
@@ -386,37 +231,52 @@
       </div>
 
       <div class="menu-bar">
-        <button class="btn-primary" onclick="showSection('marketSec')">İlan Vitrinini Gör</button>
-        <button class="btn-secondary" onclick="showSection('profileSec')">Profil & Doğrulama</button>
-        <button class="btn-secondary" onclick="showSection('nextStepSec')">Sıradaki Adım: Payout</button>
+        <button class="btn-primary" onclick="showSection('marketSec')">Ana Pazar Menüsü</button>
+        <button class="btn-secondary" onclick="showSection('profileSec')">Profil & Kayıtlı Hesap</button>
+        <button class="btn-secondary" onclick="showSection('payoutPrepSec')">Sıradaki Adım: Payout</button>
         <button class="btn-ghost" onclick="logout()">Çıkış Yap</button>
       </div>
 
       <div class="panel-section" id="marketSec">
-        <h3>Gerçek Ana Menü — İlanlar ve Emanet Akışı</h3>
+        <h3>Canlı Ana Menü — Hesap Tanındı ve Oturum Aktif</h3>
         <p style="color: var(--muted); margin-top: 8px;">
-          Giriş ve doğrulama tamamlandığı için artık ana menüdesin. PUBG Mobile, Clash of Clans ve diğer oyun hesapları için ilan ve sipariş ekranlarını bir sonraki adımda buraya bağlayacağız.
+          Artık üye olduktan sonra seni kapıda bırakmayan ve hesabını tanıyan ana menüdesin. Sıradaki adımda emanet bakiye kilitleme, iptal iadesi ve payout çekim akışını kuracağız.
         </p>
       </div>
 
       <div class="panel-section hidden" id="profileSec">
-        <h3>Kullanıcı Profili & Hesap Bilgileri</h3>
+        <h3>Profil Bilgileri</h3>
         <p style="color: var(--muted); margin-top: 8px;" id="profileDetails"></p>
       </div>
 
-      <div class="panel-section hidden" id="nextStepSec">
-        <h3>2. Aşama Hazırlığı: Emanet & Payout Sistemi</h3>
+      <div class="panel-section hidden" id="payoutPrepSec">
+        <h3>Payout Hazırlığı</h3>
         <p style="color: var(--muted); margin-top: 8px;">
-          Karşılama, üye olma, CAPTCHA, doğrulama ve giriş akışı oturdu. Sıradaki adımda emanet bakiye kilitleme, iptal iadesi ve payout çekim akışını kuracağız.
+          Giriş ve hesap tanıma akışı tamam. Bir sonraki adımda bakiye ekleme, emanette tutma, iptal edince geri yatırma ve payout çekim ekranını ekleyeceğiz.
         </p>
       </div>
     </section>
   </div>
 
   <script>
+    const USERS_KEY = "tkm_market_users_v2";
+    const ACTIVE_KEY = "tkm_market_active_v2";
+
     let currentCaptcha = "";
     let pendingUser = null;
     let generatedCode = "";
+
+    function getUsers() {
+      try {
+        return JSON.parse(localStorage.getItem(USERS_KEY)) || [];
+      } catch {
+        return [];
+      }
+    }
+
+    function saveUsers(users) {
+      localStorage.setItem(USERS_KEY, JSON.stringify(users));
+    }
 
     function makeCaptcha() {
       const chars = "ABCDEFGHJKLMNPQRSTUVWXYZ23456789";
@@ -461,92 +321,122 @@
         return;
       }
 
+      const name = document.getElementById("regName").value.trim();
+      const email = document.getElementById("regEmail").value.trim().toLowerCase();
+      const phone = document.getElementById("regPhone").value.trim();
+      const pass = document.getElementById("regPass").value;
+
+      const users = getUsers();
+      const existing = users.find(u => u.email === email || u.name.toLowerCase() === name.toLowerCase());
+      if (existing) {
+        showMsg("err", "Bu e-posta veya kullanıcı adı zaten kayıtlı. Giriş Yap sekmesinden şifrenle girebilirsin.");
+        return;
+      }
+
       pendingUser = {
-        name: document.getElementById("regName").value.trim(),
-        email: document.getElementById("regEmail").value.trim().toLowerCase(),
-        phone: document.getElementById("regPhone").value.trim(),
-        pass: document.getElementById("regPass").value,
+        id: "usr_" + Date.now(),
+        name,
+        email,
+        phone,
+        pass,
         verified: false,
         balance: 0,
-        escrow: 0
+        escrow: 0,
+        createdAt: new Date().toISOString()
       };
 
       generatedCode = String(Math.floor(100000 + Math.random() * 900000));
       document.getElementById("registerForm").classList.add("hidden");
       document.getElementById("verifyForm").classList.remove("hidden");
-      document.getElementById("demoCodeHint").textContent = "(Test Kodu: " + generatedCode + ")";
-      showMsg("info", "Doğrulama kodu oluşturuldu. Kodu girerek hesabını onayla.");
+      document.getElementById("demoCodeHint").textContent = "(Kod: " + generatedCode + ")";
+      showMsg("info", "Doğrulama kodu oluşturuldu. Kodu girince hesabın açılıp ana menüye geçeceksin.");
     }
 
-    function handleVerify(e) {
+    function handleVerifyAndEnter(e) {
       e.preventDefault();
       const entered = document.getElementById("verifyCodeInput").value.trim();
       if (entered !== generatedCode || !pendingUser) {
-        showMsg("err", "Doğrulama kodu eşleşmedi.");
+        showMsg("err", "Doğrulama kodu hatalı.");
         return;
       }
 
       pendingUser.verified = true;
-      localStorage.setItem("tkm_demo_user", JSON.stringify(pendingUser));
-      showMsg("ok", "Hesabın doğrulandı! Şimdi Giriş Yap sekmesinden hesabına girebilirsin.");
-      setTimeout(() => {
-        document.getElementById("loginId").value = pendingUser.email;
-        switchTab("login");
-        showMsg("ok", "Doğrulama tamamlandı. Şifreni girip giriş yapabilirsin.");
-      }, 700);
+      const users = getUsers();
+      users.push(pendingUser);
+      saveUsers(users);
+      localStorage.setItem(ACTIVE_KEY, pendingUser.email);
+
+      const loggedUser = pendingUser;
+      pendingUser = null;
+      enterDashboard(loggedUser);
     }
 
     function handleLogin(e) {
       e.preventDefault();
-      const savedRaw = localStorage.getItem("tkm_demo_user");
-      if (!savedRaw) {
-        showMsg("err", "Kayıtlı kullanıcı bulunamadı. Önce Üye Ol sekmesinden kayıt ol.");
-        return;
-      }
-
-      const user = JSON.parse(savedRaw);
       const idVal = document.getElementById("loginId").value.trim().toLowerCase();
       const passVal = document.getElementById("loginPass").value;
+      const users = getUsers();
 
-      const idMatches = idVal === user.email || idVal === user.name.toLowerCase();
-      if (!idMatches || passVal !== user.pass) {
-        showMsg("err", "Bilgiler hatalı. E-posta/kullanıcı adı ve şifreni kontrol et.");
+      const matched = users.find(
+        u => u.email.toLowerCase() === idVal || u.name.toLowerCase() === idVal
+      );
+
+      if (!matched) {
+        showMsg("err", "Bu e-posta veya kullanıcı adıyla kayıtlı hesap bulunamadı. Önce Üye Ol sekmesinden kayıt ol.");
         return;
       }
 
-      if (!user.verified) {
-        showMsg("err", "Hesabın henüz doğrulanmamış.");
+      if (matched.pass !== passVal) {
+        showMsg("err", "Şifre eşleşmedi. Şifreni kontrol edip tekrar dene.");
         return;
       }
 
-      enterDashboard(user);
+      if (!matched.verified) {
+        showMsg("err", "Hesap doğrulaması tamamlanmamış.");
+        return;
+      }
+
+      localStorage.setItem(ACTIVE_KEY, matched.email);
+      enterDashboard(matched);
     }
 
     function enterDashboard(user) {
       document.getElementById("gateView").classList.add("hidden");
       document.getElementById("dashboardView").classList.add("active");
-      document.getElementById("sessionStatus").textContent = "Giriş Yapıldı: " + user.name;
+      document.getElementById("sessionStatus").textContent = "Aktif Hesap: " + user.name;
       document.getElementById("dashUser").textContent = user.name;
       document.getElementById("dashBalance").textContent = Number(user.balance).toFixed(2) + " USDT";
       document.getElementById("dashEscrow").textContent = Number(user.escrow).toFixed(2) + " USDT";
       document.getElementById("profileDetails").textContent =
-        "Kullanıcı: " + user.name + " | E-posta: " + user.email + " | Telefon: " + user.phone + " | Durum: Doğrulanmış Hesap";
+        "Kullanıcı: " + user.name + " | E-posta: " + user.email + " | Telefon: " + user.phone + " | Durum: Doğrulandı & Kaydedildi";
     }
 
     function logout() {
+      localStorage.removeItem(ACTIVE_KEY);
       document.getElementById("dashboardView").classList.remove("active");
       document.getElementById("gateView").classList.remove("hidden");
-      document.getElementById("sessionStatus").textContent = "Durum: Karşılama Ekranı (Giriş Yapılmadı)";
+      document.getElementById("sessionStatus").textContent = "Durum: Karşılama Ekranı";
       switchTab("login");
     }
 
     function showSection(id) {
-      ["marketSec", "profileSec", "nextStepSec"].forEach(sec => {
+      ["marketSec", "profileSec", "payoutPrepSec"].forEach(sec => {
         document.getElementById(sec).classList.toggle("hidden", sec !== id);
       });
     }
 
-    makeCaptcha();
+    // Sayfa yenilendiğinde veya geri dönüldüğünde aktif hesabı hatırla
+    (function init() {
+      makeCaptcha();
+      const activeEmail = localStorage.getItem(ACTIVE_KEY);
+      if (activeEmail) {
+        const users = getUsers();
+        const found = users.find(u => u.email.toLowerCase() === activeEmail.toLowerCase());
+        if (found && found.verified) {
+          enterDashboard(found);
+        }
+      }
+    })();
   </script>
 </body>
 </html>
