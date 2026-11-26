@@ -1,0 +1,75 @@
+<!DOCTYPE html>
+<html lang="tr">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>TKM Market — Kontrol Merkezi</title>
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+  <style>
+    * { box-sizing: border-box; }
+    body {
+      margin: 0; font-family: system-ui, -apple-system, sans-serif;
+      background: radial-gradient(circle at 50% 0%, #1d294d 0%, #0b0f1d 58%, #070a14 100%);
+      color: #f8fafc; min-height: 100vh; padding: 14px 14px 86px;
+    }
+    .container { max-width: 560px; margin: 0 auto; }
+    .topbar {
+      display: flex; justify-content: space-between; align-items: center;
+      padding: 12px 14px; border-radius: 14px; background: #141b30;
+      border: 1px solid rgba(148,163,184,.16); margin-bottom: 12px;
+    }
+    .topbar a { color: #93c5fd; text-decoration: none; font-weight: 800; font-size: 13px; }
+    .grid { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
+    .box {
+      background: #141b30; border: 1px solid rgba(148,163,184,.16);
+      border-radius: 15px; padding: 15px;
+    }
+    .num { font-size: 20px; font-weight: 900; color: #60a5fa; margin-top: 6px; }
+    .muted { font-size: 12px; color: #94a3b8; }
+    .bottom-nav {
+      position: fixed; left: 0; right: 0; bottom: 0; display: grid; grid-template-columns: repeat(5, 1fr);
+      background: rgba(15, 21, 38, 0.97); border-top: 1px solid rgba(148,163,184,.16); padding: 8px 4px;
+    }
+    .bottom-nav a { text-decoration: none; color: #94a3b8; text-align: center; font-size: 11px; font-weight: 700; }
+    .bottom-nav a.active { color: #60a5fa; }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <div class="topbar">
+      <a href="profil.html">← Profil Menüsü</a>
+      <span style="font-size:13px;font-weight:800;">Kontrol Merkezi</span>
+    </div>
+    <div class="grid">
+      <div class="box"><div class="muted">Toplam Bakiye</div><div class="num" id="b1">0.00 TMT</div></div>
+      <div class="box"><div class="muted">Çekilebilir Bakiye</div><div class="num" style="color:#4ade80;" id="b2">0.00 TMT</div></div>
+      <div class="box"><div class="muted">Aktif İlanlarım</div><div class="num" id="b3">0</div></div>
+      <div class="box"><div class="muted">Siparişlerim</div><div class="num" id="b4">0</div></div>
+    </div>
+  </div>
+  <nav class="bottom-nav">
+    <a href="index.html">Ana Sayfa</a>
+    <a href="index.html#ilan-pazari">İlan Pazarı</a>
+    <a href="index.html#kategoriler">Kategoriler</a>
+    <a href="bakiye-yatir.html">Cüzdan</a>
+    <a href="profil.html" class="active">Profil</a>
+  </nav>
+  <script>
+    const sb = supabase.createClient("https://piajbopfeqlyupkrsnik.supabase.co", "sb_publishable_gQFoj3SUxW-TUMjYmTGrIg_5_6hwBAH");
+    (async () => {
+      const { data: { session } } = await sb.auth.getSession();
+      if (!session?.user) { location.href = "profil.html"; return; }
+      const uid = session.user.id;
+      const [{ data: prof }, { data: ls }, { data: os }] = await Promise.all([
+        sb.from("profiles").select("balance_tmt, withdrawable_tmt").eq("id", uid).single(),
+        sb.from("listings").select("id").eq("user_id", uid),
+        sb.from("orders").select("id").eq("buyer_id", uid)
+      ]);
+      document.getElementById("b1").textContent = `${Number(prof?.balance_tmt || 0).toFixed(2)} TMT`;
+      document.getElementById("b2").textContent = `${Number(prof?.withdrawable_tmt || 0).toFixed(2)} TMT`;
+      document.getElementById("b3").textContent = String((ls || []).length);
+      document.getElementById("b4").textContent = String((os || []).length);
+    })();
+  </script>
+</body>
+</html>
