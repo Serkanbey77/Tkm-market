@@ -1,0 +1,103 @@
+<!DOCTYPE html>
+<html lang="tr">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>TKM Market — Profili Gör</title>
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+  <style>
+    * { box-sizing: border-box; }
+    body {
+      margin: 0; font-family: system-ui, -apple-system, sans-serif;
+      background: radial-gradient(circle at 50% 0%, #1d294d 0%, #0b0f1d 58%, #070a14 100%);
+      color: #f8fafc; min-height: 100vh; padding: 14px 14px 86px;
+    }
+    .container { max-width: 560px; margin: 0 auto; }
+    .topbar {
+      display: flex; justify-content: space-between; align-items: center;
+      padding: 12px 14px; border-radius: 14px; background: #141b30;
+      border: 1px solid rgba(148,163,184,.16); margin-bottom: 12px;
+    }
+    .topbar a { color: #93c5fd; text-decoration: none; font-weight: 800; font-size: 13px; }
+    .card {
+      background: #141b30; border: 1px solid rgba(148,163,184,.16);
+      border-radius: 16px; padding: 18px; margin-bottom: 12px; text-align: center;
+    }
+    .avatar {
+      width: 78px; height: 78px; border-radius: 18px; margin: 0 auto 10px;
+      background: linear-gradient(135deg, #3b6ef6, #5b4df5);
+      display: flex; align-items: center; justify-content: center;
+      font-size: 30px; font-weight: 900;
+    }
+    .lvl {
+      display: inline-block; background: #2563eb; color: #fff;
+      font-size: 11px; font-weight: 800; padding: 3px 9px; border-radius: 8px; margin-left: 6px;
+    }
+    .edit-btn {
+      display: block; width: 100%; padding: 12px; border-radius: 11px;
+      background: #2563eb; color: #fff; text-decoration: none; font-weight: 800; margin-top: 14px;
+    }
+    .stats { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin-top: 12px; }
+    .sbox { background: #0f1526; border: 1px solid rgba(148,163,184,.16); border-radius: 12px; padding: 12px; }
+    .muted { font-size: 12px; color: #94a3b8; }
+    .bottom-nav {
+      position: fixed; left: 0; right: 0; bottom: 0; display: grid; grid-template-columns: repeat(5, 1fr);
+      background: rgba(15, 21, 38, 0.97); border-top: 1px solid rgba(148,163,184,.16); padding: 8px 4px;
+    }
+    .bottom-nav a { text-decoration: none; color: #94a3b8; text-align: center; font-size: 11px; font-weight: 700; }
+    .bottom-nav a.active { color: #60a5fa; }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <div class="topbar">
+      <a href="profil.html">← Profil Menüsü</a>
+      <a href="profil-duzenle.html">Profil Düzenle</a>
+    </div>
+    <div class="card">
+      <div class="avatar" id="av">T</div>
+      <div style="font-size:18px;font-weight:900;"><span id="uName">Yükleniyor...</span><span class="lvl">SEVİYE 1</span></div>
+      <div class="muted" style="margin-top:5px;" id="joinDate">Üyelik Tarihi: -</div>
+      <div class="muted" style="margin-top:4px;" id="verText">Durum: -</div>
+      <a class="edit-btn" href="profil-duzenle.html">Profili Düzenle</a>
+      <div class="stats">
+        <div class="sbox">
+          <div class="muted">BAŞARILI İŞLEM</div>
+          <div style="font-size:20px;font-weight:900;color:#4ade80;margin-top:4px;" id="txCount">0</div>
+        </div>
+        <div class="sbox">
+          <div class="muted">AKTİF İLAN</div>
+          <div style="font-size:20px;font-weight:900;color:#60a5fa;margin-top:4px;" id="listCount">0</div>
+        </div>
+      </div>
+    </div>
+  </div>
+  <nav class="bottom-nav">
+    <a href="index.html">Ana Sayfa</a>
+    <a href="index.html#ilan-pazari">İlan Pazarı</a>
+    <a href="index.html#kategoriler">Kategoriler</a>
+    <a href="bakiye-yatir.html">Cüzdan</a>
+    <a href="profil.html" class="active">Profil</a>
+  </nav>
+  <script>
+    const sb = supabase.createClient("https://piajbopfeqlyupkrsnik.supabase.co", "sb_publishable_gQFoj3SUxW-TUMjYmTGrIg_5_6hwBAH");
+    (async () => {
+      const { data: { session } } = await sb.auth.getSession();
+      if (!session?.user) { location.href = "profil.html"; return; }
+      const u = session.user;
+      const [{ data: prof }, { data: listings }, { data: orders }] = await Promise.all([
+        sb.from("profiles").select("*").eq("id", u.id).single(),
+        sb.from("listings").select("id").eq("user_id", u.id),
+        sb.from("orders").select("id").or(`buyer_id.eq.${u.id},seller_id.eq.${u.id}`)
+      ]);
+      const name = prof?.full_name || u.email.split("@")[0];
+      document.getElementById("av").textContent = name.charAt(0).toUpperCase();
+      document.getElementById("uName").textContent = name;
+      document.getElementById("joinDate").textContent = "Üyelik Tarihi: " + new Date(prof?.created_at || u.created_at).toLocaleDateString("tr-TR");
+      document.getElementById("verText").textContent = prof?.is_verified ? "✓ Doğrulanmış Hesap" : "Standart Hesap";
+      document.getElementById("listCount").textContent = String((listings || []).length);
+      document.getElementById("txCount").textContent = String((orders || []).length);
+    })();
+  </script>
+</body>
+</html>
