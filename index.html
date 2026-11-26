@@ -1,162 +1,180 @@
 <!DOCTYPE html>
-<html lang="tr">
+<html lang="tk">
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>TKM Market — Dijital Pazar Yeri</title>
-  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
-  <style>
-    * { box-sizing: border-box; }
-    body {
-      margin: 0;
-      font-family: system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
-      background: radial-gradient(circle at 50% 0%, #192d5c 0%, #090f1d 55%, #050811 100%);
-      color: #f8fafc;
-      min-height: 100vh;
-      padding: 16px;
-      animation: fadeIn .35s ease;
-    }
-    @keyframes fadeIn {
-      from { opacity: 0; transform: translateY(6px); }
-      to { opacity: 1; transform: translateY(0); }
-    }
-    .wrap { max-width: 920px; margin: 0 auto; }
-    .topbar {
-      display: flex; flex-wrap: wrap; justify-content: space-between; align-items: center; gap: 12px;
-      padding: 12px 14px; margin-bottom: 18px; border-radius: 16px;
-      background: rgba(15, 23, 42, 0.85); border: 1px solid rgba(56, 189, 248, 0.2);
-      backdrop-filter: blur(10px);
-    }
-    .brand-box { display: flex; align-items: center; gap: 10px; text-decoration: none; }
-    .eye-badge {
-      width: 36px; height: 36px; border-radius: 50%;
-      background: radial-gradient(circle, #38bdf8 18%, #0284c7 55%, #090f1d 100%);
-      border: 2px solid #7dd3fc; box-shadow: 0 0 16px rgba(56, 189, 248, 0.55);
-      display: flex; align-items: center; justify-content: center;
-    }
-    .eye-pupil {
-      width: 10px; height: 10px; border-radius: 50%; background: #050811;
-      animation: blinkEye 4.2s infinite;
-    }
-    @keyframes blinkEye {
-      0%, 92%, 100% { transform: scaleY(1); }
-      95% { transform: scaleY(0.1); }
-    }
-    .brand-name { font-weight: 900; font-size: 18px; letter-spacing: .6px; color: #f8fafc; }
-    .brand-name span { color: #38bdf8; }
-    .nav { display: flex; flex-wrap: wrap; gap: 8px; }
-    .nav a {
-      text-decoration: none; color: #e2e8f0; font-size: 13px; font-weight: 700;
-      padding: 8px 12px; border-radius: 10px;
-      background: #111b2e; border: 1px solid #263754; transition: .2s ease;
-    }
-    .nav a:hover { border-color: #38bdf8; transform: translateY(-1px); }
-    .nav a.cta {
-      background: linear-gradient(135deg, #2563eb, #0284c7); border-color: #38bdf8; color: #fff;
-    }
-    .hero {
-      background: linear-gradient(135deg, rgba(17, 29, 54, 0.95), rgba(10, 16, 30, 0.95));
-      border: 1px solid rgba(56, 189, 248, 0.22); border-radius: 20px;
-      padding: 22px; margin-bottom: 18px; box-shadow: 0 18px 40px rgba(0,0,0,.4);
-    }
-    .hero h1 { margin: 0 0 8px; font-size: 24px; font-weight: 900; }
-    .hero p { margin: 0 0 14px; color: #94a3b8; font-size: 14px; line-height: 1.5; }
-    .chips { display: flex; flex-wrap: wrap; gap: 8px; }
-    .chip {
-      font-size: 12px; font-weight: 700; padding: 6px 11px; border-radius: 999px;
-      background: rgba(56, 189, 248, 0.12); color: #7dd3fc; border: 1px solid rgba(56, 189, 248, 0.28);
-    }
-    .grid {
-      display: grid; grid-template-columns: repeat(auto-fit, minmax(250px, 1fr)); gap: 14px;
-    }
-    .card {
-      background: #10192b; border: 1px solid #20304d; border-radius: 16px;
-      padding: 16px; transition: .2s ease;
-    }
-    .card:hover { border-color: #38bdf8; transform: translateY(-2px); }
-    .tag {
-      display: inline-block; font-size: 11px; font-weight: 800; padding: 3px 8px;
-      border-radius: 7px; background: rgba(34, 197, 94, 0.14); color: #4ade80; margin-bottom: 8px;
-    }
-    .title { font-size: 16px; font-weight: 800; margin-bottom: 6px; }
-    .desc { font-size: 13px; color: #94a3b8; line-height: 1.45; margin-bottom: 12px; }
-    .foot { display: flex; justify-content: space-between; align-items: center; }
-    .price { font-size: 18px; font-weight: 900; color: #38bdf8; }
-    .btn {
-      text-decoration: none; background: #1e293b; color: #fff; border: 1px solid #334155;
-      padding: 8px 12px; border-radius: 9px; font-size: 12px; font-weight: 700;
-    }
-  </style>
+  <title>TKM Market — 4K Oýun &amp; Sanly Bazary</title>
+  <link rel="stylesheet" href="assets/tkm.css" />
 </head>
 <body>
-  <div class="wrap">
-    <div class="topbar">
-      <a class="brand-box" href="index.html">
-        <div class="eye-badge"><div class="eye-pupil"></div></div>
-        <div class="brand-name">TKM <span>MARKET</span></div>
-      </a>
-      <div class="nav">
-        <a href="index.html">Vitrin</a>
-        <a href="profil.html" id="profileLink" class="cta">Hesabım / Profil</a>
+  <div id="playerok-shell"></div>
+
+  <main class="page-wrap">
+    <section class="gamer-hero">
+      <div class="gamer-scanline"></div>
+      <h1>4K Oýun, Hasap &amp; Sanly Bazary</h1>
+      <p>Oýun hasaplary, programmalar, Exness MT5 we sanly hyzmatlar. Satyn alnandan soň hasap açylýar, iki tassykdan soň pul geçýär.</p>
+      <div class="split-action-row">
+        <a class="gamer-btn-sell" href="satyjy.html">⚡ Hasap / Haryt Sat</a>
+        <a class="gamer-btn-ask" href="mesajlar.html">💬 Hasap Sorag Iber</a>
       </div>
+    </section>
+
+    <div class="sec-header">
+      <h2>Meşhur Bölümler</h2>
+      <a class="muted" style="text-decoration:none; font-weight:700; color:#e879f9;" href="kategoriler.html">Ählisi →</a>
     </div>
 
-    <div class="hero">
-      <h1>Güvenli Dijital Pazar Yeri</h1>
-      <p>Hesap, bakiye ve vitrin akışını tek noktadan yönet. Profiline geçerek bilgilerini, telefonunu, adresini ve cüzdanını düzenleyebilirsin.</p>
-      <div class="chips">
-        <span class="chip">⚡ Hızlı Arayüz</span>
-        <span class="chip">🛡️ Güvenli Hesap Yapısı</span>
-        <span class="chip">🌐 Global Erişim</span>
-      </div>
-    </div>
+    <div class="home-quick-5" id="home-quick-5"></div>
 
-    <div class="grid">
-      <div class="card">
-        <span class="tag">POPÜLER VİTRİN</span>
-        <div class="title">PUBG Mobile Hesap &amp; Paket</div>
-        <div class="desc">Öne çıkan vitrin kartı; profil ve bakiye sistemin hazır olduğunda stok/sipariş akışına bağlanacak.</div>
-        <div class="foot">
-          <span class="price">$25.00</span>
-          <a class="btn" href="profil.html">Profili Aç</a>
-        </div>
-      </div>
+    <div class="cards-grid" id="market-grid"></div>
+  </main>
 
-      <div class="card">
-        <span class="tag">GÜVENLİ İŞLEM</span>
-        <div class="title">Clash of Clans Hesap &amp; Destek</div>
-        <div class="desc">Kullanıcı profili ve hesap doğrulama/iletişim bilgileri tamamlandıktan sonra vitrin listelemesine geçilecek.</div>
-        <div class="foot">
-          <span class="price">$40.00</span>
-          <a class="btn" href="profil.html">Bilgileri Düzenle</a>
-        </div>
+  <div class="modal-bg" id="detail-modal">
+    <div class="modal-card">
+      <div class="modal-head">
+        <h3 id="dm-title">Haryt</h3>
+        <button class="btn btn-soft" type="button" onclick="document.getElementById('detail-modal').classList.remove('open')">Ýap</button>
       </div>
-
-      <div class="card">
-        <span class="tag">DİJİTAL TOP-UP</span>
-        <div class="title">Oyun Kredisi &amp; E-Pin</div>
-        <div class="desc">Üyelik ve profil altyapısı oturduktan sonra otomatik ödeme ve vitrin satın alma adımları eklenecek.</div>
-        <div class="foot">
-          <span class="price">$10.00</span>
-          <a class="btn" href="profil.html">Hesaba Git</a>
-        </div>
-      </div>
+      <div id="dm-body"></div>
     </div>
   </div>
 
+  <script src="assets/tkm.js"></script>
   <script>
-    const SUPABASE_URL = "https://piajbopfeqlyupkrsnik.supabase.co";
-    const SUPABASE_ANON_KEY = "sb_publishable_gQFoj3SUxW-TUMjYmTGrIg_5_6hwBAH";
-    const sb = supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+    mountPlayerokShell("search", "Haryt, hasap ýa-da satyjy gözle...", false);
+    let list = [];
 
-    (async () => {
-      const { data: { user } } = await sb.auth.getUser();
-      const link = document.getElementById("profileLink");
-      if (user) {
-        const name = user.user_metadata?.username || user.email?.split("@")[0] || "Profilim";
-        link.textContent = `👤 ${name}`;
+    function renderHomeQuick5() {
+      const quickIds = ["pubg-mobile", "clash-of-clans", "telegram", "tiktok"];
+      const items = quickIds.map(id => findPlatform(id)).filter(Boolean);
+      const wrap = document.getElementById("home-quick-5");
+
+      wrap.innerHTML = items.map(p => `
+        <button class="quick-tile" type="button" onclick="location.href='uygulama.html?slug=${encodeURIComponent(p.id)}'">
+          <div class="app-icon-box" style="width:46px; height:46px; border-radius:13px;">${renderLogoWithAsset(p)}</div>
+          <span>${esc(p.name)}</span>
+        </button>
+      `).join("") + `
+        <button class="quick-tile active" type="button" onclick="location.href='kategoriler.html'">
+          <div class="app-icon-box" style="width:46px; height:46px; border-radius:13px;">
+            ${artLogo("#6366f1", "#ec4899", "ALL", "ÄHLI", "diamond")}
+          </div>
+          <span>Ählisi</span>
+        </button>
+      `;
+    }
+
+    async function loadMarket() {
+      try {
+        list = await sbGet("products");
+        localStorage.setItem("tkm_prod_cache", JSON.stringify(list));
+        setDbPill(true, "Onlaýn");
+      } catch (err) {
+        try { list = JSON.parse(localStorage.getItem("tkm_prod_cache") || "[]"); } catch (_) { list = []; }
+        setDbPill(false, "Ýerli");
       }
-    })();
+      renderMarket();
+    }
+
+    function renderMarket() {
+      const q = (document.getElementById("global-search")?.value || "").trim().toLowerCase();
+      const wrap = document.getElementById("market-grid");
+      const filtered = list.filter(item => !q ||
+        String(item.title || "").toLowerCase().includes(q) ||
+        String(item.platform_name || "").toLowerCase().includes(q) ||
+        String(item.subcat || "").toLowerCase().includes(q) ||
+        String(item.seller || "").toLowerCase().includes(q) ||
+        String(item.description || "").toLowerCase().includes(q)
+      );
+
+      if (!filtered.length) {
+        wrap.innerHTML = `<div class="panel"><p class="muted">Heniz haryt ýok. <strong>Satmak</strong> sekmesinden täze haryt goşup ýa-da <strong>Hatlar</strong> sekmesinden isleg ibere bilersiňiz.</p></div>`;
+        return;
+      }
+
+      wrap.innerHTML = filtered.map(p => {
+        const imgs = getImages(p);
+        return `
+          <article class="item-card">
+            <div>
+              ${imgs[0] ? `<img class="item-img" src="${esc(imgs[0])}" alt="${esc(p.title)}" loading="lazy" onerror="this.style.display='none'" />` : ""}
+              <span class="chip-cat">${esc(p.platform_name || p.cat || "HARYT")}${p.subcat ? " • " + esc(p.subcat) : ""}</span>
+              <span class="chip-escrow">ESCROW</span>
+              <div class="item-title">${esc(p.title)}</div>
+              <p class="item-desc">${esc(p.description || "")}</p>
+              <div class="muted">Satyjy: <strong>${esc(p.seller || "Serkanbey77")}</strong></div>
+              <div class="item-price-row">
+                <div class="item-price">${Number(p.price_tmt || 0).toLocaleString()} TMT</div>
+                ${p.market_compare_tmt ? `<div class="item-old">${Number(p.market_compare_tmt).toLocaleString()} TMT</div>` : ""}
+              </div>
+            </div>
+            <div class="btn-row">
+              <button class="btn btn-soft" type="button" style="flex:1;" onclick="openItem(${p.id})">Aç</button>
+              <button class="btn btn-main" type="button" style="flex:1;" onclick="orderItem(${p.id})">Satyn Al</button>
+            </div>
+          </article>
+        `;
+      }).join("");
+    }
+
+    function openItem(id) {
+      const p = list.find(x => String(x.id) === String(id));
+      if (!p) return;
+      const imgs = getImages(p);
+      document.getElementById("dm-title").textContent = p.title;
+      document.getElementById("dm-body").innerHTML = `
+        ${imgs.map(src => `<img class="item-img" style="margin-bottom:8px;" src="${esc(src)}" alt="${esc(p.title)}" />`).join("")}
+        <span class="chip-cat">${esc(p.platform_name || p.cat || "HARYT")}${p.subcat ? " • " + esc(p.subcat) : ""}</span>
+        <span class="chip-escrow">ÇIFT ONAYLY EMANET</span>
+        <p class="item-desc" style="margin-top:8px;">${esc(p.description || "Düşündiriş ýok.")}</p>
+        <div class="muted">Satyjy: <strong>${esc(p.seller || "Serkanbey77")}</strong></div>
+        <div class="cred-card">
+          <div><strong>Emanet düzgüni:</strong> Hasap ady we paroly satyn alnandan soň açylýar. Satyn alan we satyjy ikisi hem tassyklamasa, pul ortada saklanýar.</div>
+        </div>
+        <div class="item-price-row" style="margin-top:10px;">
+          <div class="item-price">${Number(p.price_tmt || 0).toLocaleString()} TMT</div>
+        </div>
+        <div class="btn-row">
+          <button class="btn btn-main" type="button" style="flex:1;" onclick="document.getElementById('detail-modal').classList.remove('open'); orderItem(${p.id});">Emanet Bilen Satyn Al</button>
+        </div>
+      `;
+      document.getElementById("detail-modal").classList.add("open");
+    }
+
+    async function orderItem(id) {
+      const p = list.find(x => String(x.id) === String(id));
+      if (!p) return;
+      const buyer = getUser().username;
+      const code = "TKM-" + Math.floor(100000 + Math.random() * 900000);
+      const sec = String(Math.floor(1000 + Math.random() * 9000));
+
+      try {
+        const saved = await sbInsert("orders", {
+          order_code: code,
+          product_title: p.title,
+          seller: p.seller || "Serkanbey77",
+          price_tmt: Number(p.price_tmt || 0),
+          status: "pending_delivery",
+          escrow_status: "escrow_hold",
+          seller_confirmed: false,
+          buyer_confirmed: false,
+          account_login: p.account_login || `Alyjy: ${buyer} — Satyjy bilen habarlaşyň`,
+          account_password: p.account_password || `Kod: ${sec}`,
+          account_extra: p.account_extra || "",
+          secret_code: sec
+        });
+        const createdId = saved && saved.id ? saved.id : "";
+        window.location.href = createdId ? `sargytlar.html?order=${encodeURIComponent(createdId)}` : "sargytlar.html";
+      } catch (err) {
+        showToast("Sargyt döredilmedi: " + err.message);
+      }
+    }
+
+    document.getElementById("global-search")?.addEventListener("input", renderMarket);
+    renderHomeQuick5();
+    loadMarket();
   </script>
+  <script src="tracker.js"></script>
 </body>
 </html>
