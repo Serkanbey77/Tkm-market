@@ -3,17 +3,17 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>TKM Market — Profil &amp; Hesap</title>
+  <title>TKM Market — Profil &amp; Hesap Merkezi</title>
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
   <style>
     * { box-sizing: border-box; }
     :root {
-      --bg: #070b14;
-      --surface: #0e1626;
-      --surface-2: #131f36;
+      --bg: #0b0f1d;
+      --card: #141b30;
+      --card-2: #1b2440;
       --border: rgba(148, 163, 184, 0.16);
-      --accent: #3b82f6;
-      --accent-2: #06b6d4;
+      --primary: #3b6ef6;
+      --primary-2: #5b4df5;
       --text: #f8fafc;
       --muted: #94a3b8;
       --ok: #22c55e;
@@ -23,589 +23,518 @@
     body {
       margin: 0;
       font-family: system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
-      background:
-        radial-gradient(circle at 15% 0%, rgba(59, 130, 246, 0.18), transparent 45%),
-        radial-gradient(circle at 85% 10%, rgba(6, 182, 212, 0.14), transparent 40%),
-        var(--bg);
+      background: radial-gradient(circle at 50% 0%, #1d294d 0%, var(--bg) 58%, #070a14 100%);
       color: var(--text);
       min-height: 100vh;
-      padding: 18px 14px 40px;
+      padding: 14px 14px 86px;
     }
-    .container { max-width: 540px; margin: 0 auto; }
-    .header {
+    .container { max-width: 560px; margin: 0 auto; }
+    .topbar {
       display: flex; align-items: center; justify-content: space-between;
-      padding: 12px 16px; border-radius: 16px;
-      background: rgba(14, 22, 38, 0.88); border: 1px solid var(--border);
-      backdrop-filter: blur(12px); margin-bottom: 16px;
+      padding: 12px 14px; border-radius: 14px;
+      background: rgba(20, 27, 48, 0.94); border: 1px solid var(--border);
+      margin-bottom: 12px;
     }
-    .brand {
-      display: flex; align-items: center; gap: 10px;
-      text-decoration: none; color: var(--text); font-weight: 800; font-size: 17px; letter-spacing: 0.4px;
-    }
-    .brand-dot {
-      width: 10px; height: 10px; border-radius: 50%;
-      background: linear-gradient(135deg, var(--accent), var(--accent-2));
-      box-shadow: 0 0 12px rgba(59, 130, 246, 0.8);
-    }
-    .nav-btn {
-      text-decoration: none; color: var(--text); font-size: 13px; font-weight: 600;
-      padding: 8px 12px; border-radius: 10px;
-      background: var(--surface-2); border: 1px solid var(--border);
+    .brand { font-weight: 900; font-size: 18px; color: #fff; text-decoration: none; letter-spacing: 0.4px; }
+    .brand span { color: #60a5fa; }
+    .top-btn {
+      text-decoration: none; color: var(--text); font-size: 12px; font-weight: 700;
+      padding: 7px 11px; border-radius: 9px; background: var(--card-2); border: 1px solid var(--border);
     }
     .card {
-      background: rgba(14, 22, 38, 0.94); border: 1px solid var(--border);
-      border-radius: 20px; padding: 20px; margin-bottom: 14px;
-      box-shadow: 0 20px 45px rgba(0, 0, 0, 0.4);
+      background: var(--card); border: 1px solid var(--border);
+      border-radius: 16px; padding: 15px; margin-bottom: 12px;
+      box-shadow: 0 12px 28px rgba(0, 0, 0, 0.35);
     }
-    .mode-switch {
-      display: grid; grid-template-columns: 1fr 1fr; gap: 8px;
-      background: var(--bg); padding: 5px; border-radius: 14px;
-      border: 1px solid var(--border); margin-bottom: 18px;
-    }
-    .mode-btn {
-      padding: 10px; border: none; border-radius: 10px;
-      background: transparent; color: var(--muted);
-      font-weight: 700; font-size: 14px; cursor: pointer; transition: 0.2s ease;
-    }
-    .mode-btn.active {
-      background: linear-gradient(135deg, var(--accent), #2563eb);
-      color: #fff; box-shadow: 0 6px 18px rgba(37, 99, 235, 0.35);
-    }
-    .field { margin-bottom: 13px; }
-    label {
-      display: block; font-size: 12px; font-weight: 600;
-      color: var(--muted); margin-bottom: 6px;
-    }
-    input, textarea {
-      width: 100%; padding: 12px 13px; border-radius: 12px;
-      border: 1px solid var(--border); background: var(--bg);
-      color: var(--text); font-size: 14px; font-family: inherit;
-      transition: border-color 0.2s ease;
-    }
-    input:focus, textarea:focus { outline: none; border-color: var(--accent); }
-    input:disabled { opacity: 0.65; cursor: not-allowed; }
-    textarea { min-height: 82px; resize: vertical; }
-    .captcha-wrap {
-      background: var(--bg); border: 1px solid var(--border);
-      border-radius: 14px; padding: 12px; margin-bottom: 14px;
-    }
-    .captcha-top {
-      display: flex; align-items: center; justify-content: space-between;
-      margin-bottom: 10px; font-size: 12px; color: var(--muted); font-weight: 600;
-    }
-    .captcha-code {
-      font-family: ui-monospace, SFMono-Regular, Menlo, monospace;
-      font-size: 18px; font-weight: 800; letter-spacing: 5px;
-      padding: 8px 12px; border-radius: 10px;
-      background: var(--surface-2); color: var(--accent-2);
-      border: 1px dashed rgba(6, 182, 212, 0.5); user-select: none;
-    }
-    .refresh-btn {
-      background: var(--surface-2); color: var(--text); border: 1px solid var(--border);
-      border-radius: 8px; padding: 6px 10px; font-size: 12px; font-weight: 600; cursor: pointer;
-    }
-    .btn-primary {
-      width: 100%; padding: 13px; border: none; border-radius: 12px;
-      background: linear-gradient(135deg, var(--accent), #2563eb);
-      color: #fff; font-size: 14px; font-weight: 700; cursor: pointer;
-      transition: transform 0.15s ease, opacity 0.2s ease;
-    }
-    .btn-primary:hover { opacity: 0.96; }
-    .btn-primary:active { transform: scale(0.99); }
-    .btn-secondary {
-      width: 100%; padding: 12px; border-radius: 12px;
-      background: var(--surface-2); color: var(--text); border: 1px solid var(--border);
-      font-size: 13px; font-weight: 700; cursor: pointer; margin-top: 8px;
-    }
-    .profile-top {
+    .wallet-hero {
       display: flex; align-items: center; justify-content: space-between; gap: 12px;
+      background: var(--card-2); border: 1px solid var(--border);
+      border-radius: 14px; padding: 13px 14px; margin-bottom: 10px;
     }
-    .user-meta { display: flex; align-items: center; gap: 13px; }
+    .user-left { display: flex; align-items: center; gap: 11px; min-width: 0; }
     .avatar {
-      width: 54px; height: 54px; border-radius: 16px;
-      background: linear-gradient(135deg, var(--accent), var(--accent-2));
+      width: 46px; height: 46px; border-radius: 12px; flex-shrink: 0;
+      background: linear-gradient(135deg, var(--primary), var(--primary-2));
       display: flex; align-items: center; justify-content: center;
-      font-size: 21px; font-weight: 800; color: #fff; flex-shrink: 0;
+      font-weight: 900; font-size: 18px; color: #fff;
     }
-    .name-title { font-size: 18px; font-weight: 800; }
-    .email-sub { font-size: 12px; color: var(--muted); margin-top: 2px; word-break: break-all; }
-    .status-pill {
-      display: inline-flex; align-items: center; gap: 6px;
-      margin-top: 7px; padding: 4px 10px; border-radius: 999px;
-      font-size: 11px; font-weight: 700;
+    .u-name { font-weight: 800; font-size: 15px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+    .link-sub {
+      background: none; border: none; padding: 0; margin-top: 3px;
+      color: #93c5fd; font-size: 12px; font-weight: 700; cursor: pointer; display: block;
     }
-    .status-pill.ok {
-      background: rgba(34, 197, 94, 0.14); color: #4ade80; border: 1px solid rgba(34, 197, 94, 0.35);
+    .bal-right { text-align: right; flex-shrink: 0; }
+    .bal-main { font-size: 16px; font-weight: 900; color: #fff; }
+    .bal-label { font-size: 11px; color: var(--muted); margin-top: 2px; }
+    .withdrawable-box {
+      display: flex; align-items: center; justify-content: space-between;
+      background: #101628; border: 1px solid var(--border);
+      border-radius: 13px; padding: 12px 14px; margin-bottom: 12px;
     }
-    .status-pill.pending {
-      background: rgba(245, 158, 11, 0.14); color: #fbbf24; border: 1px solid rgba(245, 158, 11, 0.35);
+    .w-val { font-size: 15px; font-weight: 800; color: #4ade80; }
+    .btn-row { display: grid; grid-template-columns: 1fr 1fr; gap: 9px; margin-bottom: 9px; }
+    .action-btn {
+      width: 100%; padding: 12px; border-radius: 11px; border: none;
+      font-weight: 800; font-size: 13px; cursor: pointer; text-decoration: none; text-align: center;
     }
-    .btn-logout {
-      padding: 8px 12px; border-radius: 10px;
-      background: rgba(239, 68, 68, 0.14); color: #f87171;
-      border: 1px solid rgba(239, 68, 68, 0.35); font-size: 12px; font-weight: 700; cursor: pointer;
+    .btn-dep { background: linear-gradient(135deg, var(--primary-2), var(--primary)); color: #fff; }
+    .btn-with { background: var(--primary); color: #fff; }
+    .btn-full { width: 100%; background: linear-gradient(135deg, var(--primary-2), var(--primary)); color: #fff; }
+    .menu-list { display: flex; flex-direction: column; gap: 6px; }
+    .menu-item {
+      width: 100%; display: flex; align-items: center; justify-content: space-between;
+      background: transparent; border: 1px solid transparent; color: var(--text);
+      padding: 12px 12px; border-radius: 11px; font-size: 14px; font-weight: 700;
+      cursor: pointer; text-align: left; transition: 0.15s ease;
     }
-    .section-title { font-size: 15px; font-weight: 800; margin: 0 0 12px; }
-    .section-hint { font-size: 12px; color: var(--muted); margin: -6px 0 14px; line-height: 1.45; }
-    .feedback { font-size: 12px; font-weight: 600; min-height: 18px; margin-top: 10px; line-height: 1.4; }
+    .menu-item:hover, .menu-item.active {
+      background: var(--card-2); border-color: var(--border); color: #93c5fd;
+    }
+    .menu-item.danger { color: #f87171; }
+    .section-title { font-size: 16px; font-weight: 800; margin: 0 0 12px; }
+    .muted { font-size: 12px; color: var(--muted); }
+    label { display: block; font-size: 12px; font-weight: 700; color: var(--muted); margin-bottom: 5px; }
+    input, textarea, select {
+      width: 100%; padding: 11px 12px; border-radius: 10px;
+      border: 1px solid var(--border); background: var(--bg); color: var(--text);
+      font-size: 14px; font-family: inherit; margin-bottom: 11px;
+    }
+    textarea { min-height: 76px; resize: vertical; }
+    .stat-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 9px; margin-bottom: 10px; }
+    .stat-box { background: var(--bg); border: 1px solid var(--border); border-radius: 12px; padding: 12px; }
+    .stat-num { font-size: 20px; font-weight: 900; color: #60a5fa; margin-top: 4px; }
+    .list-row {
+      display: flex; align-items: center; justify-content: space-between; gap: 10px;
+      padding: 10px 0; border-bottom: 1px solid var(--border); font-size: 13px;
+    }
+    .list-row:last-child { border-bottom: none; }
+    .pill {
+      display: inline-block; padding: 3px 9px; border-radius: 999px; font-size: 11px; font-weight: 800;
+    }
+    .pill.ok { background: rgba(34, 197, 94, 0.15); color: #4ade80; }
+    .pill.wait { background: rgba(245, 158, 11, 0.15); color: #fbbf24; }
+    .feedback { font-size: 12px; font-weight: 700; min-height: 18px; margin-top: 8px; }
     .feedback.err { color: #f87171; }
     .feedback.ok { color: #4ade80; }
+    .tabs2 { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; margin-bottom: 14px; }
+    .tab-btn {
+      padding: 10px; border-radius: 10px; border: 1px solid var(--border);
+      background: var(--bg); color: var(--muted); font-weight: 800; cursor: pointer;
+    }
+    .tab-btn.active { background: var(--primary); color: #fff; border-color: #60a5fa; }
+    .bottom-nav {
+      position: fixed; left: 0; right: 0; bottom: 0;
+      display: grid; grid-template-columns: repeat(5, 1fr);
+      background: rgba(15, 21, 38, 0.97); border-top: 1px solid var(--border);
+      padding: 8px 4px; backdrop-filter: blur(12px); z-index: 20;
+    }
+    .bottom-nav a {
+      text-decoration: none; color: var(--muted); text-align: center;
+      font-size: 11px; font-weight: 700; padding: 4px 2px;
+    }
+    .bottom-nav a.active { color: #60a5fa; }
   </style>
 </head>
 <body>
   <div class="container">
-    <div class="header">
-      <a class="brand" href="index.html">
-        <span class="brand-dot"></span>
-        <span>TKM MARKET</span>
-      </a>
-      <a class="nav-btn" href="index.html">Ana Sayfa</a>
+    <div class="topbar">
+      <a class="brand" href="index.html">TKM <span>MARKET</span></a>
+      <a class="top-btn" href="index.html">Ana Sayfa</a>
     </div>
 
-    <!-- Giriş Yap / Üye Ol Ekranı -->
-    <div class="card" id="authView" style="display:none;">
-      <div class="mode-switch">
-        <button type="button" class="mode-btn active" id="btnShowLogin" onclick="setAuthMode('login')">Giriş Yap</button>
-        <button type="button" class="mode-btn" id="btnShowRegister" onclick="setAuthMode('register')">Üye Ol</button>
+    <!-- Giriş / Üye Ol -->
+    <div class="card" id="authCard" style="display:none;">
+      <div class="tabs2">
+        <button type="button" class="tab-btn active" id="tabIn" onclick="switchAuth('in')">Giriş Yap</button>
+        <button type="button" class="tab-btn" id="tabUp" onclick="switchAuth('up')">Üye Ol</button>
       </div>
 
-      <!-- Giriş Yap -->
-      <div id="loginPanel">
-        <div class="field">
-          <label for="loginEmail">E-posta Adresi</label>
-          <input type="email" id="loginEmail" placeholder="ornek@mail.com" autocomplete="email" />
-        </div>
-        <div class="field">
-          <label for="loginPassword">Şifre</label>
-          <input type="password" id="loginPassword" placeholder="Şifrenizi girin" autocomplete="current-password" />
-        </div>
-        <button type="button" class="btn-primary" id="loginSubmitBtn" onclick="handleLogin()">Giriş Yap</button>
+      <div id="boxIn">
+        <label>E-posta Adresi</label>
+        <input type="email" id="inEmail" placeholder="ornek@mail.com" autocomplete="email" />
+        <label>Şifre</label>
+        <input type="password" id="inPass" placeholder="••••••••" autocomplete="current-password" />
+        <button type="button" class="action-btn btn-full" onclick="doLogin()">Giriş Yap</button>
       </div>
 
-      <!-- Üye Ol -->
-      <div id="registerPanel" style="display:none;">
-        <div class="field">
-          <label for="regFullName">İsim Soyad</label>
-          <input type="text" id="regFullName" placeholder="Adınız Soyadınız" autocomplete="name" />
-        </div>
-        <div class="field">
-          <label for="regEmail">E-posta Adresi</label>
-          <input type="email" id="regEmail" placeholder="ornek@mail.com" autocomplete="email" />
-        </div>
-        <div class="field">
-          <label for="regPhone">Telefon Numarası</label>
-          <input type="tel" id="regPhone" placeholder="+90 5xx xxx xx xx" autocomplete="tel" />
-        </div>
-        <div class="field">
-          <label for="regPassword">Şifre (En az 6 karakter)</label>
-          <input type="password" id="regPassword" placeholder="En az 6 karakterli şifre" autocomplete="new-password" />
-        </div>
-
-        <div class="captcha-wrap">
-          <div class="captcha-top">
-            <span>İnsan Doğrulaması (CAPTCHA)</span>
-            <button type="button" class="refresh-btn" onclick="refreshCaptcha()">Yeni Kod</button>
-          </div>
-          <div style="display:flex; gap:10px; align-items:center;">
-            <div class="captcha-code" id="captchaCode">------</div>
-            <input type="text" id="captchaInput" placeholder="Kodu girin" style="margin-bottom:0; text-transform:uppercase;" />
-          </div>
-        </div>
-
-        <button type="button" class="btn-primary" id="registerSubmitBtn" onclick="handleRegister()">Üye Ol ve Profil Oluştur</button>
+      <div id="boxUp" style="display:none;">
+        <label>İsim Soyad</label>
+        <input type="text" id="upName" placeholder="Adınız Soyadınız" />
+        <label>E-posta Adresi</label>
+        <input type="email" id="upEmail" placeholder="ornek@mail.com" />
+        <label>Telefon Numarası</label>
+        <input type="tel" id="upPhone" placeholder="+993 6x xxx xx xx" />
+        <label>Şifre (en az 6 karakter)</label>
+        <input type="password" id="upPass" placeholder="••••••••" />
+        <button type="button" class="action-btn btn-full" onclick="doRegister()">Üye Ol</button>
       </div>
 
-      <div class="feedback" id="authFeedback"></div>
+      <div class="feedback" id="authMsg"></div>
     </div>
 
-    <!-- Kalıcı Profil Ekranı -->
-    <div id="profileView" style="display:none;">
+    <!-- Profil ve Menü -->
+    <div id="mainProfile" style="display:none;">
       <div class="card">
-        <div class="profile-top">
-          <div class="user-meta">
-            <div class="avatar" id="profileAvatar">T</div>
-            <div>
-              <div class="name-title" id="displayName">Kullanıcı</div>
-              <div class="email-sub" id="displayEmail">-</div>
-              <div class="status-pill pending" id="verifyBadge">Doğrulama Bekleniyor</div>
+        <div class="wallet-hero">
+          <div class="user-left">
+            <div class="avatar" id="av">T</div>
+            <div style="min-width:0;">
+              <div class="u-name" id="topUsername">Kullanıcı</div>
+              <button type="button" class="link-sub" onclick="openPanel('overview')">Profili Gör</button>
             </div>
           </div>
-          <button type="button" class="btn-logout" onclick="handleLogout()">Çıkış Yap</button>
+          <div class="bal-right">
+            <div class="bal-main" id="balTmt">0.00 TMT</div>
+            <div class="bal-label">Bakiyeniz</div>
+          </div>
+        </div>
+
+        <div class="withdrawable-box">
+          <div>
+            <div class="w-val" id="withTmt">0.00 TMT</div>
+            <div class="bal-label">Çekilebilir Bakiye</div>
+          </div>
+          <span class="pill ok" id="verBadge">Standart Üye</span>
+        </div>
+
+        <div class="btn-row">
+          <a class="action-btn btn-dep" href="bakiye-yatir.html">Bakiye Yükle</a>
+          <a class="action-btn btn-with" href="pul-cek.html">Para Çek</a>
+        </div>
+        <button type="button" class="action-btn btn-full" onclick="openPanel('listings')">+ İlan Ekle</button>
+      </div>
+
+      <!-- Profil Menüsü -->
+      <div class="card">
+        <div class="menu-list">
+          <button type="button" class="menu-item active" id="m-control" onclick="openPanel('control')">
+            <span>Kontrol Merkezi</span><span>›</span>
+          </button>
+          <button type="button" class="menu-item" id="m-orders" onclick="openPanel('orders')">
+            <span>Siparişlerim</span><span>›</span>
+          </button>
+          <button type="button" class="menu-item" id="m-listings" onclick="openPanel('listings')">
+            <span>İlanlarım</span><span>›</span>
+          </button>
+          <button type="button" class="menu-item" id="m-sold" onclick="openPanel('sold')">
+            <span>Sattığım İlanlar</span><span>›</span>
+          </button>
+          <button type="button" class="menu-item" id="m-cart" onclick="openPanel('cart')">
+            <span>Sepetim</span><span>›</span>
+          </button>
+          <button type="button" class="menu-item" id="m-edit" onclick="openPanel('edit')">
+            <span>Profil Düzenle</span><span>›</span>
+          </button>
+          <button type="button" class="menu-item danger" onclick="doLogout()">
+            <span>Çıkış Yap</span><span>›</span>
+          </button>
         </div>
       </div>
 
-      <!-- Kimlik Doğrulama (İsim Soyad + Telefon) -->
-      <div class="card">
-        <h2 class="section-title">Hesap ve İletişim Doğrulaması</h2>
-        <p class="section-hint">TC kimlik numarası gerekmez. İsim soyad ve telefon numaranı doğrulayarak profilini onaylı duruma getirebilirsin.</p>
-
-        <div class="field">
-          <label for="profFullName">İsim Soyad</label>
-          <input type="text" id="profFullName" placeholder="Adınız Soyadınız" />
-        </div>
-        <div class="field">
-          <label for="profEmail">E-posta Adresi</label>
-          <input type="email" id="profEmail" disabled />
-        </div>
-        <div class="field">
-          <label for="profPhone">Telefon Numarası</label>
-          <input type="tel" id="profPhone" placeholder="+90 5xx xxx xx xx" />
-        </div>
-
-        <button type="button" class="btn-primary" id="verifySaveBtn" onclick="saveVerification()">Bilgileri Kaydet ve Doğrula</button>
-        <div class="feedback" id="verifyFeedback"></div>
+      <!-- Aktif Panel İçeriği -->
+      <div class="card" id="panel-overview" style="display:none;">
+        <h2 class="section-title">Profil Özeti</h2>
+        <div class="list-row"><span class="muted">İsim Soyad</span><strong id="ovName">-</strong></div>
+        <div class="list-row"><span class="muted">E-posta</span><strong id="ovEmail">-</strong></div>
+        <div class="list-row"><span class="muted">Telefon</span><strong id="ovPhone">-</strong></div>
+        <div class="list-row"><span class="muted">Adres</span><strong id="ovAddr">-</strong></div>
       </div>
 
-      <!-- Adres Bilgileri (Sonradan Eklenebilir) -->
-      <div class="card">
-        <h2 class="section-title">Adres Bilgileri</h2>
-        <p class="section-hint">Adres bilgilerini şimdi veya daha sonra ekleyip dilediğin zaman güncelleyebilirsin.</p>
-
-        <div class="field">
-          <label for="profAddress">Açık Adres</label>
-          <textarea id="profAddress" placeholder="İl, ilçe, mahalle ve açık adres bilginizi girin..."></textarea>
+      <div class="card" id="panel-control">
+        <h2 class="section-title">Kontrol Merkezi</h2>
+        <div class="stat-grid">
+          <div class="stat-box">
+            <div class="muted">Toplam Bakiye</div>
+            <div class="stat-num" id="stBal">0.00 TMT</div>
+          </div>
+          <div class="stat-box">
+            <div class="muted">Çekilebilir Bakiye</div>
+            <div class="stat-num" id="stWith">0.00 TMT</div>
+          </div>
+          <div class="stat-box">
+            <div class="muted">Aktif İlanlar</div>
+            <div class="stat-num" id="stListings">0</div>
+          </div>
+          <div class="stat-box">
+            <div class="muted">Siparişlerim</div>
+            <div class="stat-num" id="stOrders">0</div>
+          </div>
         </div>
+      </div>
 
-        <button type="button" class="btn-secondary" id="addressSaveBtn" onclick="saveAddress()">Adresi Kaydet</button>
-        <div class="feedback" id="addressFeedback"></div>
+      <div class="card" id="panel-orders" style="display:none;">
+        <h2 class="section-title">Siparişlerim</h2>
+        <div id="ordersList"><div class="muted">Yükleniyor...</div></div>
+      </div>
+
+      <div class="card" id="panel-listings" style="display:none;">
+        <h2 class="section-title">İlanlarım &amp; Yeni İlan</h2>
+        <label>İlan Başlığı</label>
+        <input type="text" id="newListTitle" placeholder="Örn: PUBG Mobile Hesap" />
+        <label>Kategori</label>
+        <select id="newListCat">
+          <option value="Oyun Hesap">Oyun Hesap</option>
+          <option value="E-Pin / Top-Up">E-Pin / Top-Up</option>
+          <option value="Dijital Ürün">Dijital Ürün</option>
+        </select>
+        <label>Fiyat (TMT)</label>
+        <input type="number" id="newListPrice" min="1" step="0.01" placeholder="0.00" />
+        <button type="button" class="action-btn btn-full" onclick="addListing()">İlanı Kaydet</button>
+        <div class="feedback" id="listMsg"></div>
+        <div id="myListingsBox" style="margin-top:10px;"></div>
+      </div>
+
+      <div class="card" id="panel-sold" style="display:none;">
+        <h2 class="section-title">Sattığım İlanlar</h2>
+        <div id="soldList"><div class="muted">Henüz satış kaydı bulunmuyor.</div></div>
+      </div>
+
+      <div class="card" id="panel-cart" style="display:none;">
+        <h2 class="section-title">Sepetim</h2>
+        <div id="cartBox"><div class="muted">Sepetiniz boş.</div></div>
+      </div>
+
+      <!-- Ayrı Profil Düzenle & Doğrulama Sekmesi -->
+      <div class="card" id="panel-edit" style="display:none;">
+        <h2 class="section-title">Profil Düzenle &amp; Doğrulama</h2>
+        <label>İsim Soyad</label>
+        <input type="text" id="edName" placeholder="Adınız Soyadınız" />
+        <label>E-posta Adresi</label>
+        <input type="email" id="edEmail" disabled />
+        <label>Telefon Numarası</label>
+        <input type="tel" id="edPhone" placeholder="+993 6x xxx xx xx" />
+        <label>Adres Bilgisi</label>
+        <textarea id="edAddr" placeholder="Şehir, ilçe, mahalle ve açık adres..."></textarea>
+        <button type="button" class="action-btn btn-full" onclick="saveProfileDetails()">Bilgilerimi Kaydet ve Doğrula</button>
+        <div class="feedback" id="editMsg"></div>
       </div>
     </div>
   </div>
+
+  <nav class="bottom-nav">
+    <a href="index.html">Ana Sayfa</a>
+    <a href="index.html#ilan-pazari">İlan Pazarı</a>
+    <a href="index.html#kategoriler">Kategoriler</a>
+    <a href="bakiye-yatir.html">Cüzdan</a>
+    <a href="profil.html" class="active">Profil</a>
+  </nav>
 
   <script>
     const SUPABASE_URL = "https://piajbopfeqlyupkrsnik.supabase.co";
     const SUPABASE_ANON_KEY = "sb_publishable_gQFoj3SUxW-TUMjYmTGrIg_5_6hwBAH";
     const sb = supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY, {
-      auth: {
-        persistSession: true,
-        autoRefreshToken: true,
-        detectSessionInUrl: true
-      }
+      auth: { persistSession: true, autoRefreshToken: true, detectSessionInUrl: true }
     });
 
-    let activeCaptcha = "";
-    let currentUser = null;
+    let meUser = null;
+    let meProfile = null;
 
-    function refreshCaptcha() {
-      const pool = "ABCDEFGHJKLMNPQRSTUVWXYZ23456789";
-      let code = "";
-      for (let i = 0; i < 6; i++) {
-        code += pool[Math.floor(Math.random() * pool.length)];
-      }
-      activeCaptcha = code;
-      document.getElementById("captchaCode").textContent = code;
-      document.getElementById("captchaInput").value = "";
+    function switchAuth(m) {
+      document.getElementById("tabIn").classList.toggle("active", m === "in");
+      document.getElementById("tabUp").classList.toggle("active", m === "up");
+      document.getElementById("boxIn").style.display = m === "in" ? "block" : "none";
+      document.getElementById("boxUp").style.display = m === "up" ? "block" : "none";
+      setMsg("authMsg", "", "");
     }
 
-    function setAuthMode(mode) {
-      const isLogin = mode === "login";
-      document.getElementById("btnShowLogin").classList.toggle("active", isLogin);
-      document.getElementById("btnShowRegister").classList.toggle("active", !isLogin);
-      document.getElementById("loginPanel").style.display = isLogin ? "block" : "none";
-      document.getElementById("registerPanel").style.display = isLogin ? "none" : "block";
-      setFeedback("authFeedback", "", "");
-      if (!isLogin) refreshCaptcha();
-    }
-
-    function setFeedback(elId, message, type) {
-      const el = document.getElementById(elId);
+    function setMsg(id, text, type) {
+      const el = document.getElementById(id);
       el.className = "feedback" + (type ? " " + type : "");
-      el.textContent = message;
+      el.textContent = text;
     }
 
-    async function ensureProfileRow(user, extra = {}) {
-      const cleanEmail = (user.email || "").trim().toLowerCase();
-      const { data: existing, error: fetchErr } = await sb
-        .from("profiles")
-        .select("*")
-        .eq("id", user.id)
-        .maybeSingle();
-
-      if (fetchErr) throw fetchErr;
-
-      if (existing) {
-        const patch = {};
-        if (!existing.email && cleanEmail) patch.email = cleanEmail;
-        if (!existing.full_name && (extra.full_name || user.user_metadata?.full_name)) {
-          patch.full_name = extra.full_name || user.user_metadata.full_name;
-        }
-        if (!existing.phone && (extra.phone || user.user_metadata?.phone)) {
-          patch.phone = extra.phone || user.user_metadata.phone;
-        }
-        if (Object.keys(patch).length > 0) {
-          patch.updated_at = new Date().toISOString();
-          const { data: updated, error: updErr } = await sb
-            .from("profiles")
-            .update(patch)
-            .eq("id", user.id)
-            .select("*")
-            .single();
-          if (updErr) throw updErr;
-          return updated;
-        }
-        return existing;
-      }
-
-      const initialRow = {
-        id: user.id,
-        email: cleanEmail,
-        full_name: (extra.full_name || user.user_metadata?.full_name || "").trim(),
-        phone: (extra.phone || user.user_metadata?.phone || "").trim(),
-        address: "",
-        is_verified: false,
-        updated_at: new Date().toISOString()
-      };
-
-      const { data: inserted, error: insErr } = await sb
-        .from("profiles")
-        .upsert(initialRow, { onConflict: "id" })
-        .select("*")
-        .single();
-
-      if (insErr) throw insErr;
-      return inserted;
-    }
-
-    async function handleRegister() {
-      const fullName = document.getElementById("regFullName").value.trim();
-      const email = document.getElementById("regEmail").value.trim().toLowerCase();
-      const phone = document.getElementById("regPhone").value.trim();
-      const password = document.getElementById("regPassword").value;
-      const typedCaptcha = document.getElementById("captchaInput").value.trim().toUpperCase();
-
-      if (!fullName || fullName.split(/\s+/).length < 2) {
-        setFeedback("authFeedback", "Lütfen adınızı ve soyadınızı eksiksiz girin.", "err");
-        return;
-      }
-      if (!email || !email.includes("@")) {
-        setFeedback("authFeedback", "Geçerli bir e-posta adresi girin.", "err");
-        return;
-      }
-      if (!phone || phone.length < 7) {
-        setFeedback("authFeedback", "Lütfen geçerli bir telefon numarası girin.", "err");
-        return;
-      }
-      if (!password || password.length < 6) {
-        setFeedback("authFeedback", "Şifre en az 6 karakter olmalıdır.", "err");
-        return;
-      }
-      if (typedCaptcha !== activeCaptcha) {
-        setFeedback("authFeedback", "CAPTCHA kodu hatalı. Lütfen tekrar deneyin.", "err");
-        refreshCaptcha();
-        return;
-      }
-
-      const btn = document.getElementById("registerSubmitBtn");
-      btn.disabled = true;
-      setFeedback("authFeedback", "Hesabınız oluşturuluyor...", "");
-
-      try {
-        const { data, error } = await sb.auth.signUp({
-          email,
-          password,
-          options: {
-            data: { full_name: fullName, phone }
-          }
-        });
-
-        if (error) {
-          if (error.message.toLowerCase().includes("already registered")) {
-            setFeedback("authFeedback", "Bu e-posta zaten kayıtlı. Giriş Yap sekmesinden aynı hesabınıza girebilirsiniz.", "err");
-          } else {
-            setFeedback("authFeedback", "Kayıt başarısız: " + error.message, "err");
-          }
-          refreshCaptcha();
-          btn.disabled = false;
-          return;
-        }
-
-        let sessionUser = data.session?.user || null;
-        if (!sessionUser) {
-          const loginRes = await sb.auth.signInWithPassword({ email, password });
-          if (loginRes.error) {
-            setFeedback("authFeedback", "Hesap oluşturuldu. Giriş Yap sekmesinden e-posta ve şifrenizle giriş yapabilirsiniz.", "ok");
-            setAuthMode("login");
-            document.getElementById("loginEmail").value = email;
-            btn.disabled = false;
-            return;
-          }
-          sessionUser = loginRes.data.user;
-        }
-
-        await ensureProfileRow(sessionUser, { full_name: fullName, phone });
-        await renderAuthenticatedUser(sessionUser);
-      } catch (err) {
-        setFeedback("authFeedback", "Bir hata oluştu: " + (err.message || err), "err");
-        refreshCaptcha();
-      } finally {
-        btn.disabled = false;
-      }
-    }
-
-    async function handleLogin() {
-      const email = document.getElementById("loginEmail").value.trim().toLowerCase();
-      const password = document.getElementById("loginPassword").value;
-
-      if (!email || !password) {
-        setFeedback("authFeedback", "Lütfen e-posta adresinizi ve şifrenizi girin.", "err");
-        return;
-      }
-
-      const btn = document.getElementById("loginSubmitBtn");
-      btn.disabled = true;
-      setFeedback("authFeedback", "Profilinize giriş yapılıyor...", "");
-
-      try {
-        const { data, error } = await sb.auth.signInWithPassword({ email, password });
-        if (error) {
-          setFeedback("authFeedback", "Giriş başarısız: E-posta veya şifre hatalı.", "err");
-          btn.disabled = false;
-          return;
-        }
-
-        await renderAuthenticatedUser(data.user);
-      } catch (err) {
-        setFeedback("authFeedback", "Giriş sırasında hata oluştu: " + (err.message || err), "err");
-      } finally {
-        btn.disabled = false;
-      }
-    }
-
-    async function handleLogout() {
-      await sb.auth.signOut();
-      currentUser = null;
-      document.getElementById("profileView").style.display = "none";
-      document.getElementById("authView").style.display = "block";
-      setAuthMode("login");
-      refreshCaptcha();
-    }
-
-    function applyProfileToUI(user, profile) {
-      const fullName = (profile?.full_name || user.user_metadata?.full_name || "").trim();
-      const email = (profile?.email || user.email || "").trim();
-      const phone = (profile?.phone || user.user_metadata?.phone || "").trim();
-      const address = (profile?.address || "").trim();
-      const verified = Boolean(profile?.is_verified || (fullName && phone));
-
-      const titleText = fullName || (email ? email.split("@")[0] : "Üye");
-      const initial = titleText.charAt(0).toUpperCase() || "T";
-
-      document.getElementById("profileAvatar").textContent = initial;
-      document.getElementById("displayName").textContent = titleText;
-      document.getElementById("displayEmail").textContent = email;
-
-      const badge = document.getElementById("verifyBadge");
-      if (verified) {
-        badge.className = "status-pill ok";
-        badge.textContent = "✓ Doğrulanmış Profil";
-      } else {
-        badge.className = "status-pill pending";
-        badge.textContent = "Doğrulama Bekleniyor";
-      }
-
-      document.getElementById("profFullName").value = fullName;
-      document.getElementById("profEmail").value = email;
-      document.getElementById("profPhone").value = phone;
-      document.getElementById("profAddress").value = address;
-    }
-
-    async function renderAuthenticatedUser(user) {
-      currentUser = user;
-      document.getElementById("authView").style.display = "none";
-      document.getElementById("profileView").style.display = "block";
-
-      const profile = await ensureProfileRow(user);
-      applyProfileToUI(user, profile);
-    }
-
-    async function saveVerification() {
-      if (!currentUser) return;
-      const fullName = document.getElementById("profFullName").value.trim();
-      const phone = document.getElementById("profPhone").value.trim();
-
-      if (!fullName || fullName.split(/\s+/).length < 2) {
-        setFeedback("verifyFeedback", "Doğrulama için isim ve soyisim girin.", "err");
-        return;
-      }
-      if (!phone || phone.length < 7) {
-        setFeedback("verifyFeedback", "Doğrulama için geçerli bir telefon numarası girin.", "err");
-        return;
-      }
-
-      const btn = document.getElementById("verifySaveBtn");
-      btn.disabled = true;
-      setFeedback("verifyFeedback", "Doğrulama kaydediliyor...", "");
-
-      try {
-        const { data, error } = await sb
-          .from("profiles")
-          .update({
-            full_name: fullName,
-            phone,
-            is_verified: true,
-            updated_at: new Date().toISOString()
-          })
-          .eq("id", currentUser.id)
-          .select("*")
-          .single();
-
-        if (error) throw error;
-        applyProfileToUI(currentUser, data);
-        setFeedback("verifyFeedback", "Profil bilgileriniz kaydedildi ve hesabınız doğrulandı.", "ok");
-      } catch (err) {
-        setFeedback("verifyFeedback", "Kaydedilemedi: " + (err.message || err), "err");
-      } finally {
-        btn.disabled = false;
-      }
-    }
-
-    async function saveAddress() {
-      if (!currentUser) return;
-      const address = document.getElementById("profAddress").value.trim();
-
-      const btn = document.getElementById("addressSaveBtn");
-      btn.disabled = true;
-      setFeedback("addressFeedback", "Adres kaydediliyor...", "");
-
-      try {
-        const { data, error } = await sb
-          .from("profiles")
-          .update({
-            address,
-            updated_at: new Date().toISOString()
-          })
-          .eq("id", currentUser.id)
-          .select("*")
-          .single();
-
-        if (error) throw error;
-        applyProfileToUI(currentUser, data);
-        setFeedback("addressFeedback", "Adres bilgileriniz kalıcı olarak kaydedildi.", "ok");
-      } catch (err) {
-        setFeedback("addressFeedback", "Adres kaydedilemedi: " + (err.message || err), "err");
-      } finally {
-        btn.disabled = false;
-      }
-    }
-
-    async function boot() {
-      refreshCaptcha();
-      const { data: { session } } = await sb.auth.getSession();
-      if (session?.user) {
-        await renderAuthenticatedUser(session.user);
-      } else {
-        document.getElementById("authView").style.display = "block";
-        document.getElementById("profileView").style.display = "none";
-      }
-
-      sb.auth.onAuthStateChange(async (_event, nextSession) => {
-        if (nextSession?.user) {
-          await renderAuthenticatedUser(nextSession.user);
-        }
+    function openPanel(name) {
+      const panels = ["overview", "control", "orders", "listings", "sold", "cart", "edit"];
+      panels.forEach(p => {
+        const el = document.getElementById("panel-" + p);
+        if (el) el.style.display = p === name ? "block" : "none";
+        const menuEl = document.getElementById("m-" + p);
+        if (menuEl) menuEl.classList.toggle("active", p === name);
       });
     }
 
-    boot();
+    async function ensureProfile(user, extra = {}) {
+      const cleanEmail = (user.email || "").trim().toLowerCase();
+      const { data: row } = await sb.from("profiles").select("*").eq("id", user.id).maybeSingle();
+      if (row) return row;
+
+      const { data: created } = await sb.from("profiles").upsert({
+        id: user.id,
+        email: cleanEmail,
+        full_name: (extra.full_name || user.user_metadata?.full_name || cleanEmail.split("@")[0] || "Üye").trim(),
+        phone: (extra.phone || user.user_metadata?.phone || "").trim(),
+        address: "",
+        is_verified: false,
+        balance_tmt: 0,
+        withdrawable_tmt: 0
+      }, { onConflict: "id" }).select("*").single();
+
+      return created;
+    }
+
+    async function doLogin() {
+      const email = document.getElementById("inEmail").value.trim().toLowerCase();
+      const password = document.getElementById("inPass").value;
+      if (!email || !password) { setMsg("authMsg", "E-posta ve şifre girin.", "err"); return; }
+
+      setMsg("authMsg", "Giriş yapılıyor...", "");
+      const { data, error } = await sb.auth.signInWithPassword({ email, password });
+      if (error) { setMsg("authMsg", "Giriş başarısız: " + error.message, "err"); return; }
+      await loadAll(data.user);
+    }
+
+    async function doRegister() {
+      const full_name = document.getElementById("upName").value.trim();
+      const email = document.getElementById("upEmail").value.trim().toLowerCase();
+      const phone = document.getElementById("upPhone").value.trim();
+      const password = document.getElementById("upPass").value;
+
+      if (!full_name || !email || password.length < 6) {
+        setMsg("authMsg", "İsim soyad, e-posta ve en az 6 karakter şifre girin.", "err");
+        return;
+      }
+
+      setMsg("authMsg", "Hesap oluşturuluyor...", "");
+      const { data, error } = await sb.auth.signUp({
+        email, password, options: { data: { full_name, phone } }
+      });
+      if (error) { setMsg("authMsg", "Kayıt hatası: " + error.message, "err"); return; }
+
+      let u = data.session?.user;
+      if (!u) {
+        const res = await sb.auth.signInWithPassword({ email, password });
+        if (res.error) { setMsg("authMsg", "Kayıt oldu, Giriş Yap sekmesinden girebilirsiniz.", "ok"); return; }
+        u = res.data.user;
+      }
+      await ensureProfile(u, { full_name, phone });
+      await loadAll(u);
+    }
+
+    async function doLogout() {
+      await sb.auth.signOut();
+      location.reload();
+    }
+
+    async function saveProfileDetails() {
+      if (!meUser) return;
+      const full_name = document.getElementById("edName").value.trim();
+      const phone = document.getElementById("edPhone").value.trim();
+      const address = document.getElementById("edAddr").value.trim();
+
+      if (!full_name || !phone) {
+        setMsg("editMsg", "Doğrulama için isim soyad ve telefon numarası zorunlu.", "err");
+        return;
+      }
+
+      setMsg("editMsg", "Kaydediliyor...", "");
+      const { error } = await sb.from("profiles").update({
+        full_name, phone, address, is_verified: true, updated_at: new Date().toISOString()
+      }).eq("id", meUser.id);
+
+      if (error) { setMsg("editMsg", "Hata: " + error.message, "err"); return; }
+      setMsg("editMsg", "Profil bilgileriniz kaydedildi ve hesabınız doğrulandı.", "ok");
+      await loadAll(meUser);
+    }
+
+    async function addListing() {
+      if (!meUser) return;
+      const title = document.getElementById("newListTitle").value.trim();
+      const category = document.getElementById("newListCat").value;
+      const price_tmt = parseFloat(document.getElementById("newListPrice").value);
+
+      if (!title || !price_tmt || price_tmt <= 0) {
+        setMsg("listMsg", "Geçerli ilan başlığı ve TMT fiyatı girin.", "err");
+        return;
+      }
+
+      const { error } = await sb.from("listings").insert({
+        user_id: meUser.id, title, category, price_tmt, status: "active"
+      });
+      if (error) { setMsg("listMsg", "Hata: " + error.message, "err"); return; }
+
+      document.getElementById("newListTitle").value = "";
+      document.getElementById("newListPrice").value = "";
+      setMsg("listMsg", "İlan eklendi.", "ok");
+      await loadAll(meUser);
+    }
+
+    async function loadAll(user) {
+      meUser = user;
+      document.getElementById("authCard").style.display = "none";
+      document.getElementById("mainProfile").style.display = "block";
+
+      const prof = await ensureProfile(user);
+      meProfile = prof;
+
+      const displayName = (prof.full_name || user.email?.split("@")[0] || "Kullanıcı").trim();
+      const bal = Number(prof.balance_tmt || 0).toFixed(2);
+      const withBal = Number(prof.withdrawable_tmt || 0).toFixed(2);
+
+      document.getElementById("av").textContent = displayName.charAt(0).toUpperCase() || "T";
+      document.getElementById("topUsername").textContent = displayName;
+      document.getElementById("balTmt").textContent = `${bal} TMT`;
+      document.getElementById("withTmt").textContent = `${withBal} TMT`;
+      document.getElementById("stBal").textContent = `${bal} TMT`;
+      document.getElementById("stWith").textContent = `${withBal} TMT`;
+
+      const badge = document.getElementById("verBadge");
+      if (prof.is_verified) {
+        badge.className = "pill ok";
+        badge.textContent = "✓ Doğrulanmış Profil";
+      } else {
+        badge.className = "pill wait";
+        badge.textContent = "Doğrulama Bekleniyor";
+      }
+
+      document.getElementById("ovName").textContent = displayName;
+      document.getElementById("ovEmail").textContent = prof.email || user.email || "-";
+      document.getElementById("ovPhone").textContent = prof.phone || "Eklenmedi";
+      document.getElementById("ovAddr").textContent = prof.address || "Sonradan eklenebilir";
+
+      document.getElementById("edName").value = prof.full_name || "";
+      document.getElementById("edEmail").value = prof.email || user.email || "";
+      document.getElementById("edPhone").value = prof.phone || "";
+      document.getElementById("edAddr").value = prof.address || "";
+
+      const [{ data: listings }, { data: orders }, { data: sold }, { data: cart }] = await Promise.all([
+        sb.from("listings").select("*").eq("user_id", user.id).order("created_at", { ascending: false }),
+        sb.from("orders").select("*").eq("buyer_id", user.id).order("created_at", { ascending: false }),
+        sb.from("orders").select("*").eq("seller_id", user.id).order("created_at", { ascending: false }),
+        sb.from("cart_items").select("*").eq("user_id", user.id).order("created_at", { ascending: false })
+      ]);
+
+      document.getElementById("stListings").textContent = String((listings || []).length);
+      document.getElementById("stOrders").textContent = String((orders || []).length);
+
+      document.getElementById("myListingsBox").innerHTML = (listings && listings.length)
+        ? listings.map(x => `<div class="list-row"><div><strong>${x.title}</strong><div class="muted">${x.category}</div></div><strong>${Number(x.price_tmt).toFixed(2)} TMT</strong></div>`).join("")
+        : `<div class="muted">Henüz ilanınız bulunmuyor.</div>`;
+
+      document.getElementById("ordersList").innerHTML = (orders && orders.length)
+        ? orders.map(x => `<div class="list-row"><div><strong>${x.listing_title}</strong><div class="muted">${x.status}</div></div><strong>${Number(x.amount_tmt).toFixed(2)} TMT</strong></div>`).join("")
+        : `<div class="muted">Henüz siparişiniz bulunmuyor.</div>`;
+
+      document.getElementById("soldList").innerHTML = (sold && sold.length)
+        ? sold.map(x => `<div class="list-row"><div><strong>${x.listing_title}</strong><div class="muted">${x.status}</div></div><strong>${Number(x.amount_tmt).toFixed(2)} TMT</strong></div>`).join("")
+        : `<div class="muted">Henüz sattığınız ilan bulunmuyor.</div>`;
+
+      document.getElementById("cartBox").innerHTML = (cart && cart.length)
+        ? cart.map(x => `<div class="list-row"><strong>${x.item_title}</strong><strong>${Number(x.price_tmt).toFixed(2)} TMT</strong></div>`).join("")
+        : `<div class="muted">Sepetiniz boş.</div>`;
+    }
+
+    (async () => {
+      const { data: { session } } = await sb.auth.getSession();
+      if (session?.user) {
+        await loadAll(session.user);
+      } else {
+        document.getElementById("authCard").style.display = "block";
+      }
+
+      sb.auth.onAuthStateChange(async (_evt, nextSession) => {
+        if (nextSession?.user) await loadAll(nextSession.user);
+      });
+    })();
   </script>
 </body>
 </html>
