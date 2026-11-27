@@ -1,10 +1,59 @@
 <!DOCTYPE html>
-<html lang="tk">
+<html lang="tr">
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>TKM Market — 4K Oýun &amp; Sanly Bazary</title>
   <link rel="stylesheet" href="assets/tkm.css" />
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+  <style>
+    .tkm-top-right-box {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      margin-left: auto;
+      flex-shrink: 0;
+    }
+    .tkm-top-theme {
+      width: 34px;
+      height: 34px;
+      border-radius: 50%;
+      border: 1px solid rgba(148, 163, 184, 0.35);
+      background: #1b2440;
+      color: #fbbf24;
+      font-size: 15px;
+      cursor: pointer;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+    }
+    .tkm-top-avatar {
+      width: 36px;
+      height: 36px;
+      border-radius: 50%;
+      overflow: hidden;
+      border: 2px solid #60a5fa;
+      background: linear-gradient(135deg, #3b6ef6, #5b4df5);
+      color: #ffffff;
+      font-weight: 900;
+      font-size: 14px;
+      text-decoration: none;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      flex-shrink: 0;
+    }
+    .tkm-top-avatar img {
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+      display: block;
+    }
+    html[data-theme="light"] body {
+      background: #f4f7fb !important;
+      color: #0f172a !important;
+    }
+  </style>
 </head>
 <body>
   <div id="playerok-shell"></div>
@@ -170,6 +219,86 @@
         showToast("Sargyt döredilmedi: " + err.message);
       }
     }
+
+    // Sadece üst çubuktaki eski "Giriş Et" / "Supabase" butonlarını gizler ve sağ üstte tema + yuvarlak profil koyar
+    (function setupCleanTopBar() {
+      const sbClient = window.supabase
+        ? window.supabase.createClient("https://piajbopfeqlyupkrsnik.supabase.co", "sb_publishable_gQFoj3SUxW-TUMjYmTGrIg_5_6hwBAH", {
+            auth: { persistSession: true, autoRefreshToken: true, detectSessionInUrl: true }
+          })
+        : null;
+
+      function getSavedTheme() {
+        return localStorage.getItem("tkm_theme") === "light" ? "light" : "dark";
+      }
+
+      function applySavedTheme() {
+        const t = getSavedTheme();
+        document.documentElement.setAttribute("data-theme", t);
+        if (t === "light") {
+          document.body.style.background = "#f4f7fb";
+          document.body.style.color = "#0f172a";
+        } else {
+          document.body.style.background = "";
+          document.body.style.color = "";
+        }
+      }
+
+      function cleanTop() {
+        applySavedTheme();
+        const header = document.querySelector("header, .topbar, .app-header, #playerok-shell header");
+        if (!header) return;
+
+        header.querySelectorAll("a, button, span, div").forEach((el) => {
+          if (el.closest(".tkm-top-right-box")) return;
+          const txt = (el.textContent || "").trim().toLowerCase();
+          if (el.children.length === 0 && (txt === "giriş et" || txt === "supabase" || txt === "onlayn" || txt === "online")) {
+            el.style.display = "none";
+          }
+        });
+
+        if (!header.querySelector(".tkm-top-right-box")) {
+          const box = document.createElement("div");
+          box.className = "tkm-top-right-box";
+          box.innerHTML = `
+            <button type="button" class="tkm-top-theme" id="tkmTopThemeBtn" title="Tema">🌓</button>
+            <a href="profil.html" class="tkm-top-avatar" id="tkmTopAvatarLink" title="Profil">P</a>
+          `;
+          header.appendChild(box);
+
+          document.getElementById("tkmTopThemeBtn").addEventListener("click", () => {
+            const next = getSavedTheme() === "dark" ? "light" : "dark";
+            localStorage.setItem("tkm_theme", next);
+            applySavedTheme();
+          });
+        }
+      }
+
+      async function loadUserAvatar() {
+        if (!sbClient) return;
+        try {
+          const { data: { session } } = await sbClient.auth.getSession();
+          if (!session?.user) return;
+          const { data: prof } = await sbClient
+            .from("profiles")
+            .select("full_name, avatar_url")
+            .eq("id", session.user.id)
+            .maybeSingle();
+          const link = document.getElementById("tkmTopAvatarLink");
+          if (!link) return;
+          if (prof?.avatar_url) {
+            link.innerHTML = `<img src="${prof.avatar_url}" alt="Profil" />`;
+          } else {
+            const ch = (prof?.full_name || session.user.email || "P").trim().charAt(0).toUpperCase();
+            link.textContent = ch || "P";
+          }
+        } catch (_) {}
+      }
+
+      cleanTop();
+      loadUserAvatar();
+      setTimeout(cleanTop, 300);
+    })();
 
     document.getElementById("global-search")?.addEventListener("input", renderMarket);
     renderHomeQuick5();
