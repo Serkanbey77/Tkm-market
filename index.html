@@ -5,6 +5,62 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>TKM Market — 4K Oýun &amp; Sanly Bazary</title>
   <link rel="stylesheet" href="assets/tkm.css" />
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+  <style>
+    .tkm-top-controls {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      margin-left: auto;
+    }
+    .tkm-theme-btn {
+      width: 34px;
+      height: 34px;
+      border-radius: 50%;
+      border: 1px solid rgba(148, 163, 184, 0.32);
+      background: rgba(27, 36, 64, 0.92);
+      color: #fbbf24;
+      font-size: 15px;
+      cursor: pointer;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      flex-shrink: 0;
+    }
+    .tkm-avatar-link {
+      width: 36px;
+      height: 36px;
+      border-radius: 50%;
+      overflow: hidden;
+      border: 2px solid #60a5fa;
+      background: linear-gradient(135deg, #3b6ef6, #5b4df5);
+      color: #ffffff;
+      font-weight: 900;
+      font-size: 14px;
+      text-decoration: none;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      flex-shrink: 0;
+    }
+    .tkm-avatar-link img {
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+      display: block;
+    }
+    html[data-theme="light"] body {
+      background: #f4f7fb !important;
+      color: #0f172a !important;
+    }
+    html[data-theme="light"] .panel,
+    html[data-theme="light"] .item-card,
+    html[data-theme="light"] .modal-card {
+      background: #ffffff !important;
+      color: #0f172a !important;
+      border-color: rgba(15, 23, 42, 0.14) !important;
+    }
+  </style>
 </head>
 <body>
   <div id="playerok-shell"></div>
@@ -12,17 +68,17 @@
   <main class="page-wrap">
     <section class="gamer-hero">
       <div class="gamer-scanline"></div>
-      <h1>4K Oýun, Hasap &amp; Sanly Bazary</h1>
-      <p>Oýun hasaplary, programmalar, Exness MT5 we sanly hyzmatlar. Satyn alnandan soň hasap açylýar, iki tassykdan soň pul geçýär.</p>
+      <h1 data-i18n="heroTitle">4K Oýun, Hasap &amp; Sanly Bazary</h1>
+      <p data-i18n="heroDesc">Oýun hasaplary, programmalar, Exness MT5 we sanly hyzmatlar. Satyn alnandan soň hasap açylýar, iki tassykdan soň pul geçýär.</p>
       <div class="split-action-row">
-        <a class="gamer-btn-sell" href="satyjy.html">⚡ Hasap / Haryt Sat</a>
-        <a class="gamer-btn-ask" href="mesajlar.html">💬 Hasap Sorag Iber</a>
+        <a class="gamer-btn-sell" href="satyjy.html" data-i18n="sellBtn">⚡ Hasap / Haryt Sat</a>
+        <a class="gamer-btn-ask" href="mesajlar.html" data-i18n="askBtn">💬 Hasap Sorag Iber</a>
       </div>
     </section>
 
     <div class="sec-header">
-      <h2>Meşhur Bölümler</h2>
-      <a class="muted" style="text-decoration:none; font-weight:700; color:#e879f9;" href="kategoriler.html">Ählisi →</a>
+      <h2 data-i18n="popularSecs">Meşhur Bölümler</h2>
+      <a class="muted" style="text-decoration:none; font-weight:700; color:#e879f9;" href="kategoriler.html" data-i18n="allLink">Ählisi →</a>
     </div>
 
     <div class="home-quick-5" id="home-quick-5"></div>
@@ -41,45 +97,204 @@
   </div>
 
   <script src="assets/tkm.js"></script>
+  <script src="tkm-core.js"></script>
   <script>
-    mountPlayerokShell("search", "Haryt, hasap ýa-da satyjy gözle...", false);
+    const INDEX_I18N = {
+      tk: {
+        heroTitle: "4K Oýun, Hasap & Sanly Bazary",
+        heroDesc: "Oýun hasaplary, programmalar, Exness MT5 we sanly hyzmatlar. Satyn alnandan soň hasap açylýar, iki tassykdan soň pul geçýär.",
+        sellBtn: "⚡ Hasap / Haryt Sat",
+        askBtn: "💬 Hasap Sorag Iber",
+        popularSecs: "Meşhur Bölümler",
+        allLink: "Ählisi →",
+        searchPh: "Haryt, hasap ýa-da satyjy gözle...",
+        allTile: "Ählisi",
+        openBtn: "Aç",
+        buyBtn: "Satyn Al",
+        escrowBuyBtn: "Emanet Bilen Satyn Al",
+        sellerLabel: "Satyjy"
+      },
+      tr: {
+        heroTitle: "4K Oyun, Hesap & Dijital Pazarı",
+        heroDesc: "Oyun hesapları, programlar, Exness MT5 ve dijital hizmetler. Satın alındıktan sonra hesap açılır, çift onaydan sonra ödeme geçer.",
+        sellBtn: "⚡ Hesap / Ürün Sat",
+        askBtn: "💬 Hesap Sorusu Gönder",
+        popularSecs: "Popüler Bölümler",
+        allLink: "Tümü →",
+        searchPh: "Ürün, hesap veya satıcı ara...",
+        allTile: "Tümü",
+        openBtn: "Aç",
+        buyBtn: "Satın Al",
+        escrowBuyBtn: "Emanet İle Satın Al",
+        sellerLabel: "Satıcı"
+      },
+      ru: {
+        heroTitle: "4K Игры, Аккаунты и Цифровой Маркет",
+        heroDesc: "Игровые аккаунты, программы, Exness MT5 и цифровые услуги. Доступ открывается после покупки, выплата после двойного подтверждения.",
+        sellBtn: "⚡ Продать Аккаунт / Товар",
+        askBtn: "💬 Задать Вопрос",
+        popularSecs: "Популярные Разделы",
+        allLink: "Все →",
+        searchPh: "Поиск товара, аккаунта или продавца...",
+        allTile: "Все",
+        openBtn: "Открыть",
+        buyBtn: "Купить",
+        escrowBuyBtn: "Купить через Эскроу",
+        sellerLabel: "Продавец"
+      },
+      en: {
+        heroTitle: "4K Games, Accounts & Digital Market",
+        heroDesc: "Game accounts, software, Exness MT5 and digital services. Credentials unlock after purchase, funds release after dual confirmation.",
+        sellBtn: "⚡ Sell Account / Item",
+        askBtn: "💬 Ask About Account",
+        popularSecs: "Popular Sections",
+        allLink: "All →",
+        searchPh: "Search item, account or seller...",
+        allTile: "All",
+        openBtn: "Open",
+        buyBtn: "Buy Now",
+        escrowBuyBtn: "Buy with Escrow",
+        sellerLabel: "Seller"
+      }
+    };
+
+    function getActiveLang() {
+      const l = localStorage.getItem("tkm_locale");
+      return INDEX_I18N[l] ? l : "tk";
+    }
+
+    function formatIndexPrice(tmtVal) {
+      if (typeof tkmFmtMoney === "function") return tkmFmtMoney(tmtVal);
+      const loc = typeof TKM_LOCALE_CONFIG !== "undefined" ? TKM_LOCALE_CONFIG[getActiveLang()] : null;
+      if (!loc) return `${Number(tmtVal || 0).toLocaleString()} TMT`;
+      const num = (Number(tmtVal || 0) * loc.rateFromTmt).toFixed(2);
+      if (loc.currency === "TRY") return `${num} ₺`;
+      if (loc.currency === "USD") return `$${num}`;
+      if (loc.currency === "RUB") return `${num} ₽`;
+      return `${num} TMT`;
+    }
+
+    function applyIndexTranslations() {
+      const lang = getActiveLang();
+      const dict = INDEX_I18N[lang];
+      document.documentElement.lang = lang;
+
+      document.querySelectorAll("[data-i18n]").forEach(el => {
+        const key = el.getAttribute("data-i18n");
+        if (dict[key]) el.textContent = dict[key];
+      });
+
+      const searchInput = document.getElementById("global-search");
+      if (searchInput) searchInput.setAttribute("placeholder", dict.searchPh);
+    }
+
+    function cleanLegacyHeaderAndInjectAvatar() {
+      const header = document.querySelector("header, .topbar, .app-header, #playerok-shell header");
+      if (!header) return;
+
+      header.querySelectorAll("button, a, span, div").forEach(el => {
+        if (el.closest(".tkm-top-controls")) return;
+        const txt = (el.textContent || "").trim().toLowerCase();
+        if ((txt === "giriş et" || txt === "onlayn" || txt === "online") && el.children.length === 0) {
+          el.style.display = "none";
+        }
+      });
+
+      let ctrl = header.querySelector(".tkm-top-controls");
+      if (!ctrl) {
+        ctrl = document.createElement("div");
+        ctrl.className = "tkm-top-controls";
+        ctrl.innerHTML = `
+          <button type="button" class="tkm-theme-btn" title="Tema" onclick="toggleSiteTheme()">🌓</button>
+          <a href="profil.html" class="tkm-avatar-link" id="indexTopAvatar" title="Profil">P</a>
+        `;
+        header.appendChild(ctrl);
+      }
+
+      loadIndexAvatar();
+    }
+
+    function toggleSiteTheme() {
+      if (typeof tkmToggleTheme === "function") {
+        tkmToggleTheme();
+      } else {
+        const cur = document.documentElement.getAttribute("data-theme") === "light" ? "dark" : "light";
+        localStorage.setItem("tkm_theme", cur);
+        document.documentElement.setAttribute("data-theme", cur);
+      }
+      applyIndexTranslations();
+      renderHomeQuick5();
+      renderMarket();
+    }
+
+    async function loadIndexAvatar() {
+      const link = document.getElementById("indexTopAvatar");
+      if (!link || typeof tkmSb === "undefined") return;
+      try {
+        const { data: { session } } = await tkmSb.auth.getSession();
+        if (!session?.user) return;
+        const prof = typeof tkmGetOrCreateProfile === "function"
+          ? await tkmGetOrCreateProfile(session.user)
+          : null;
+        const name = prof?.full_name || session.user.email?.split("@")[0] || "P";
+        if (prof?.avatar_url) {
+          link.innerHTML = `<img src="${prof.avatar_url}" alt="Profil" />`;
+        } else {
+          link.textContent = name.charAt(0).toUpperCase() || "P";
+        }
+      } catch (_) {}
+    }
+
+    if (typeof mountPlayerokShell === "function") {
+      mountPlayerokShell("search", "Haryt, hasap ýa-da satyjy gözle...", false);
+    }
+
     let list = [];
 
     function renderHomeQuick5() {
+      const dict = INDEX_I18N[getActiveLang()];
       const quickIds = ["pubg-mobile", "clash-of-clans", "telegram", "tiktok"];
-      const items = quickIds.map(id => findPlatform(id)).filter(Boolean);
+      const items = typeof findPlatform === "function"
+        ? quickIds.map(id => findPlatform(id)).filter(Boolean)
+        : [];
       const wrap = document.getElementById("home-quick-5");
+      if (!wrap) return;
 
+      const safeEsc = typeof esc === "function" ? esc : (s => String(s || ""));
       wrap.innerHTML = items.map(p => `
         <button class="quick-tile" type="button" onclick="location.href='uygulama.html?slug=${encodeURIComponent(p.id)}'">
-          <div class="app-icon-box" style="width:46px; height:46px; border-radius:13px;">${renderLogoWithAsset(p)}</div>
-          <span>${esc(p.name)}</span>
+          <div class="app-icon-box" style="width:46px; height:46px; border-radius:13px;">${typeof renderLogoWithAsset === "function" ? renderLogoWithAsset(p) : ""}</div>
+          <span>${safeEsc(p.name)}</span>
         </button>
       `).join("") + `
         <button class="quick-tile active" type="button" onclick="location.href='kategoriler.html'">
           <div class="app-icon-box" style="width:46px; height:46px; border-radius:13px;">
-            ${artLogo("#6366f1", "#ec4899", "ALL", "ÄHLI", "diamond")}
+            ${typeof artLogo === "function" ? artLogo("#6366f1", "#ec4899", "ALL", "ÄHLI", "diamond") : "★"}
           </div>
-          <span>Ählisi</span>
+          <span>${safeEsc(dict.allTile)}</span>
         </button>
       `;
     }
 
     async function loadMarket() {
       try {
-        list = await sbGet("products");
+        list = typeof sbGet === "function" ? await sbGet("products") : [];
         localStorage.setItem("tkm_prod_cache", JSON.stringify(list));
-        setDbPill(true, "Onlaýn");
+        if (typeof setDbPill === "function") setDbPill(true, "Onlaýn");
       } catch (err) {
         try { list = JSON.parse(localStorage.getItem("tkm_prod_cache") || "[]"); } catch (_) { list = []; }
-        setDbPill(false, "Ýerli");
+        if (typeof setDbPill === "function") setDbPill(false, "Ýerli");
       }
       renderMarket();
     }
 
     function renderMarket() {
+      const dict = INDEX_I18N[getActiveLang()];
       const q = (document.getElementById("global-search")?.value || "").trim().toLowerCase();
       const wrap = document.getElementById("market-grid");
+      if (!wrap) return;
+
+      const safeEsc = typeof esc === "function" ? esc : (s => String(s || ""));
       const filtered = list.filter(item => !q ||
         String(item.title || "").toLowerCase().includes(q) ||
         String(item.platform_name || "").toLowerCase().includes(q) ||
@@ -94,24 +309,24 @@
       }
 
       wrap.innerHTML = filtered.map(p => {
-        const imgs = getImages(p);
+        const imgs = typeof getImages === "function" ? getImages(p) : [];
         return `
           <article class="item-card">
             <div>
-              ${imgs[0] ? `<img class="item-img" src="${esc(imgs[0])}" alt="${esc(p.title)}" loading="lazy" onerror="this.style.display='none'" />` : ""}
-              <span class="chip-cat">${esc(p.platform_name || p.cat || "HARYT")}${p.subcat ? " • " + esc(p.subcat) : ""}</span>
+              ${imgs[0] ? `<img class="item-img" src="${safeEsc(imgs[0])}" alt="${safeEsc(p.title)}" loading="lazy" onerror="this.style.display='none'" />` : ""}
+              <span class="chip-cat">${safeEsc(p.platform_name || p.cat || "HARYT")}${p.subcat ? " • " + safeEsc(p.subcat) : ""}</span>
               <span class="chip-escrow">ESCROW</span>
-              <div class="item-title">${esc(p.title)}</div>
-              <p class="item-desc">${esc(p.description || "")}</p>
-              <div class="muted">Satyjy: <strong>${esc(p.seller || "Serkanbey77")}</strong></div>
+              <div class="item-title">${safeEsc(p.title)}</div>
+              <p class="item-desc">${safeEsc(p.description || "")}</p>
+              <div class="muted">${safeEsc(dict.sellerLabel)}: <strong>${safeEsc(p.seller || "Serkanbey77")}</strong></div>
               <div class="item-price-row">
-                <div class="item-price">${Number(p.price_tmt || 0).toLocaleString()} TMT</div>
-                ${p.market_compare_tmt ? `<div class="item-old">${Number(p.market_compare_tmt).toLocaleString()} TMT</div>` : ""}
+                <div class="item-price">${formatIndexPrice(p.price_tmt || 0)}</div>
+                ${p.market_compare_tmt ? `<div class="item-old">${formatIndexPrice(p.market_compare_tmt)}</div>` : ""}
               </div>
             </div>
             <div class="btn-row">
-              <button class="btn btn-soft" type="button" style="flex:1;" onclick="openItem(${p.id})">Aç</button>
-              <button class="btn btn-main" type="button" style="flex:1;" onclick="orderItem(${p.id})">Satyn Al</button>
+              <button class="btn btn-soft" type="button" style="flex:1;" onclick="openItem(${p.id})">${safeEsc(dict.openBtn)}</button>
+              <button class="btn btn-main" type="button" style="flex:1;" onclick="orderItem(${p.id})">${safeEsc(dict.buyBtn)}</button>
             </div>
           </article>
         `;
@@ -119,24 +334,26 @@
     }
 
     function openItem(id) {
+      const dict = INDEX_I18N[getActiveLang()];
       const p = list.find(x => String(x.id) === String(id));
       if (!p) return;
-      const imgs = getImages(p);
+      const safeEsc = typeof esc === "function" ? esc : (s => String(s || ""));
+      const imgs = typeof getImages === "function" ? getImages(p) : [];
       document.getElementById("dm-title").textContent = p.title;
       document.getElementById("dm-body").innerHTML = `
-        ${imgs.map(src => `<img class="item-img" style="margin-bottom:8px;" src="${esc(src)}" alt="${esc(p.title)}" />`).join("")}
-        <span class="chip-cat">${esc(p.platform_name || p.cat || "HARYT")}${p.subcat ? " • " + esc(p.subcat) : ""}</span>
+        ${imgs.map(src => `<img class="item-img" style="margin-bottom:8px;" src="${safeEsc(src)}" alt="${safeEsc(p.title)}" />`).join("")}
+        <span class="chip-cat">${safeEsc(p.platform_name || p.cat || "HARYT")}${p.subcat ? " • " + safeEsc(p.subcat) : ""}</span>
         <span class="chip-escrow">ÇIFT ONAYLY EMANET</span>
-        <p class="item-desc" style="margin-top:8px;">${esc(p.description || "Düşündiriş ýok.")}</p>
-        <div class="muted">Satyjy: <strong>${esc(p.seller || "Serkanbey77")}</strong></div>
+        <p class="item-desc" style="margin-top:8px;">${safeEsc(p.description || "Düşündiriş ýok.")}</p>
+        <div class="muted">${safeEsc(dict.sellerLabel)}: <strong>${safeEsc(p.seller || "Serkanbey77")}</strong></div>
         <div class="cred-card">
           <div><strong>Emanet düzgüni:</strong> Hasap ady we paroly satyn alnandan soň açylýar. Satyn alan we satyjy ikisi hem tassyklamasa, pul ortada saklanýar.</div>
         </div>
         <div class="item-price-row" style="margin-top:10px;">
-          <div class="item-price">${Number(p.price_tmt || 0).toLocaleString()} TMT</div>
+          <div class="item-price">${formatIndexPrice(p.price_tmt || 0)}</div>
         </div>
         <div class="btn-row">
-          <button class="btn btn-main" type="button" style="flex:1;" onclick="document.getElementById('detail-modal').classList.remove('open'); orderItem(${p.id});">Emanet Bilen Satyn Al</button>
+          <button class="btn btn-main" type="button" style="flex:1;" onclick="document.getElementById('detail-modal').classList.remove('open'); orderItem(${p.id});">${safeEsc(dict.escrowBuyBtn)}</button>
         </div>
       `;
       document.getElementById("detail-modal").classList.add("open");
@@ -145,7 +362,7 @@
     async function orderItem(id) {
       const p = list.find(x => String(x.id) === String(id));
       if (!p) return;
-      const buyer = getUser().username;
+      const buyer = typeof getUser === "function" ? getUser().username : "Alyjy";
       const code = "TKM-" + Math.floor(100000 + Math.random() * 900000);
       const sec = String(Math.floor(1000 + Math.random() * 9000));
 
@@ -167,11 +384,19 @@
         const createdId = saved && saved.id ? saved.id : "";
         window.location.href = createdId ? `sargytlar.html?order=${encodeURIComponent(createdId)}` : "sargytlar.html";
       } catch (err) {
-        showToast("Sargyt döredilmedi: " + err.message);
+        if (typeof showToast === "function") showToast("Sargyt döredilmedi: " + err.message);
       }
     }
 
     document.getElementById("global-search")?.addEventListener("input", renderMarket);
+    window.addEventListener("storage", () => {
+      applyIndexTranslations();
+      renderHomeQuick5();
+      renderMarket();
+    });
+
+    cleanLegacyHeaderAndInjectAvatar();
+    applyIndexTranslations();
     renderHomeQuick5();
     loadMarket();
   </script>
