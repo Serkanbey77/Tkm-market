@@ -58,6 +58,11 @@
         <span>TMT (Manat)</span>
       </button>
 
+      <button type="button" class="opt-btn" id="btn-tr" onclick="choose('tr')">
+        <span>🇹🇷 Türkçe</span>
+        <span>TRY (₺)</span>
+      </button>
+
       <button type="button" class="opt-btn" id="btn-ru" onclick="choose('ru')">
         <span>🇷🇺 Русский</span>
         <span>RUB (₽)</span>
@@ -83,7 +88,7 @@
   <script>
     function refreshUi() {
       const code = tkmGetLocale();
-      ["tk", "ru", "en"].forEach(c => {
+      ["tk", "tr", "ru", "en"].forEach(c => {
         document.getElementById("btn-" + c).classList.toggle("active", c === code);
       });
       document.getElementById("previewText").innerHTML =
