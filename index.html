@@ -63,6 +63,7 @@
           <span>Ählisi</span>
         </button>
       `;
+      if (typeof applySiteLanguage === "function") applySiteLanguage();
     }
 
     async function loadMarket() {
@@ -90,6 +91,7 @@
 
       if (!filtered.length) {
         wrap.innerHTML = `<div class="panel"><p class="muted">Heniz haryt ýok. <strong>Satmak</strong> sekmesinden täze haryt goşup ýa-da <strong>Hatlar</strong> sekmesinden isleg ibere bilersiňiz.</p></div>`;
+        if (typeof applySiteLanguage === "function") applySiteLanguage();
         return;
       }
 
@@ -105,8 +107,8 @@
               <p class="item-desc">${esc(p.description || "")}</p>
               <div class="muted">Satyjy: <strong>${esc(p.seller || "Serkanbey77")}</strong></div>
               <div class="item-price-row">
-                <div class="item-price">${Number(p.price_tmt || 0).toLocaleString()} TMT</div>
-                ${p.market_compare_tmt ? `<div class="item-old">${Number(p.market_compare_tmt).toLocaleString()} TMT</div>` : ""}
+                <div class="item-price">${formatConvertedPrice(p.price_tmt || 0)}</div>
+                ${p.market_compare_tmt ? `<div class="item-old">${formatConvertedPrice(p.market_compare_tmt)}</div>` : ""}
               </div>
             </div>
             <div class="btn-row">
@@ -116,6 +118,7 @@
           </article>
         `;
       }).join("");
+      if (typeof applySiteLanguage === "function") applySiteLanguage();
     }
 
     function openItem(id) {
@@ -133,13 +136,14 @@
           <div><strong>Emanet düzgüni:</strong> Hasap ady we paroly satyn alnandan soň açylýar. Satyn alan we satyjy ikisi hem tassyklamasa, pul ortada saklanýar.</div>
         </div>
         <div class="item-price-row" style="margin-top:10px;">
-          <div class="item-price">${Number(p.price_tmt || 0).toLocaleString()} TMT</div>
+          <div class="item-price">${formatConvertedPrice(p.price_tmt || 0)}</div>
         </div>
         <div class="btn-row">
           <button class="btn btn-main" type="button" style="flex:1;" onclick="document.getElementById('detail-modal').classList.remove('open'); orderItem(${p.id});">Emanet Bilen Satyn Al</button>
         </div>
       `;
       document.getElementById("detail-modal").classList.add("open");
+      if (typeof applySiteLanguage === "function") applySiteLanguage();
     }
 
     async function orderItem(id) {
