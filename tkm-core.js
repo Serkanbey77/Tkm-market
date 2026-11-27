@@ -5,13 +5,11 @@ const tkmSb = window.supabase.createClient(TKM_SUPABASE_URL, TKM_SUPABASE_KEY, {
   auth: { persistSession: true, autoRefreshToken: true, detectSessionInUrl: true }
 });
 
-// 1 TMT bazlı örnek kur katsayıları (ihtiyaca göre tek noktadan güncellenebilir)
 const TKM_LOCALE_CONFIG = {
   tk: {
     lang: "tk",
     label: "Türkmençe (TMT)",
     currency: "TMT",
-    symbol: "TMT",
     rateFromTmt: 1,
     strings: {
       home: "Baş sahypa",
@@ -34,14 +32,44 @@ const TKM_LOCALE_CONFIG = {
       soldListings: "Satan bildirişlerim",
       cart: "Sebedim",
       langCurrency: "Dil we walýuta",
-      logout: "Çykmak"
+      logout: "Çykmak",
+      searchPlaceholder: "Haryt, hasap ýa-da satyjy gözle..."
+    }
+  },
+  tr: {
+    lang: "tr",
+    label: "Türkçe (TRY)",
+    currency: "TRY",
+    rateFromTmt: 9.85,
+    strings: {
+      home: "Ana Sayfa",
+      market: "İlan Pazarı",
+      categories: "Kategoriler",
+      wallet: "Cüzdan",
+      profile: "Profil",
+      viewProfile: "Profili Gör ›",
+      balance: "Bakiyeniz",
+      withdrawable: "Çekilebilir Bakiye",
+      verified: "✓ Doğrulanmış Profil",
+      unverified: "Doğrulama Bekleniyor",
+      verifyBtn: "🛡️ Kimlik Doğrula",
+      deposit: "Bakiye Yükle",
+      withdraw: "Para Çek",
+      addListing: "+ İlan Ekle",
+      controlCenter: "Kontrol Merkezi",
+      orders: "Siparişlerim",
+      myListings: "İlanlarım",
+      soldListings: "Sattığım İlanlar",
+      cart: "Sepetim",
+      langCurrency: "Dil ve Para Birimi",
+      logout: "Çıkış Yap",
+      searchPlaceholder: "Ürün, hesap veya satıcı ara..."
     }
   },
   ru: {
     lang: "ru",
     label: "Русский (RUB)",
     currency: "RUB",
-    symbol: "₽",
     rateFromTmt: 26.5,
     strings: {
       home: "Главная",
@@ -64,14 +92,14 @@ const TKM_LOCALE_CONFIG = {
       soldListings: "Проданные товары",
       cart: "Корзина",
       langCurrency: "Язык и валюта",
-      logout: "Выйти"
+      logout: "Выйти",
+      searchPlaceholder: "Поиск товара, аккаунта или продавца..."
     }
   },
   en: {
     lang: "en",
     label: "English (USD)",
     currency: "USD",
-    symbol: "$",
     rateFromTmt: 0.285,
     strings: {
       home: "Home",
@@ -94,7 +122,8 @@ const TKM_LOCALE_CONFIG = {
       soldListings: "Sold Listings",
       cart: "My Cart",
       langCurrency: "Language & Currency",
-      logout: "Log Out"
+      logout: "Log Out",
+      searchPlaceholder: "Search item, account or seller..."
     }
   }
 };
@@ -114,6 +143,7 @@ function tkmFmtMoney(tmtAmount) {
   const loc = TKM_LOCALE_CONFIG[tkmGetLocale()];
   const converted = (Number(tmtAmount || 0) * loc.rateFromTmt).toFixed(2);
   if (loc.currency === "TMT") return `${converted} TMT`;
+  if (loc.currency === "TRY") return `${converted} ₺`;
   if (loc.currency === "USD") return `$${converted}`;
   return `${converted} ₽`;
 }
@@ -131,6 +161,9 @@ function tkmToggleTheme() {
 function tkmApplyLocaleAndTheme() {
   const theme = tkmGetTheme();
   document.documentElement.setAttribute("data-theme", theme);
+  document.body.classList.toggle("light-mode", theme === "light");
+  document.body.classList.toggle("dark-mode", theme === "dark");
+
   if (theme === "light") {
     document.body.style.background = "#f4f7fb";
     document.body.style.color = "#0f172a";
@@ -140,9 +173,24 @@ function tkmApplyLocaleAndTheme() {
   }
 
   const loc = TKM_LOCALE_CONFIG[tkmGetLocale()];
+  document.documentElement.lang = loc.lang;
+
   document.querySelectorAll("[data-i18n]").forEach((el) => {
     const key = el.getAttribute("data-i18n");
     if (loc.strings[key]) el.textContent = loc.strings[key];
+  });
+
+  document.querySelectorAll("[data-i18n-placeholder]").forEach((el) => {
+    const key = el.getAttribute("data-i18n-placeholder");
+    if (loc.strings[key]) el.setAttribute("placeholder", loc.strings[key]);
+  });
+
+  // Ana sayfadaki eski "Giriş Et" ve "Onlayn" rozetlerini gizle
+  document.querySelectorAll("header button, header a, .topbar button, .topbar a, nav a").forEach((node) => {
+    const txt = (node.textContent || "").trim().toLowerCase();
+    if (txt === "giriş et" || txt === "onlayn" || txt === "online") {
+      node.style.display = "none";
+    }
   });
 }
 
@@ -195,9 +243,16 @@ function tkmRenderAvatar(el, profile, fallbackText = "T") {
   }
 }
 
-// Üst çubuğa tema butonu yanına yuvarlak profil avatarı yerleştirir (Giriş Et / Supabase butonlarını göstermez)
 async function tkmMountHeaderControls(containerId = "headerRightControls") {
-  const box = document.getElementById(containerId);
+  let box = document.getElementById(containerId);
+  if (!box) {
+    const header = document.querySelector("header, .topbar");
+    if (header) {
+      box = document.createElement("div");
+      box.id = containerId;
+      header.appendChild(box);
+    }
+  }
   if (!box) return;
 
   const user = await tkmRequireSession(false);
