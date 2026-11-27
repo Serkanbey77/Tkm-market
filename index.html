@@ -1,66 +1,10 @@
 <!DOCTYPE html>
-<html lang="tr">
+<html lang="tk">
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>TKM Market — 4K Oýun &amp; Sanly Bazary</title>
   <link rel="stylesheet" href="assets/tkm.css" />
-  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
-  <style>
-    .tkm-top-controls {
-      display: inline-flex;
-      align-items: center;
-      gap: 8px;
-      margin-left: auto;
-      flex-shrink: 0;
-    }
-    .tkm-theme-circle {
-      width: 34px;
-      height: 34px;
-      border-radius: 50%;
-      border: 1px solid rgba(148, 163, 184, 0.35);
-      background: #1b2440;
-      color: #fbbf24;
-      font-size: 15px;
-      cursor: pointer;
-      display: inline-flex;
-      align-items: center;
-      justify-content: center;
-    }
-    .tkm-avatar-circle {
-      width: 36px;
-      height: 36px;
-      border-radius: 50%;
-      overflow: hidden;
-      border: 2px solid #60a5fa;
-      background: linear-gradient(135deg, #3b6ef6, #5b4df5);
-      color: #ffffff;
-      font-weight: 900;
-      font-size: 14px;
-      text-decoration: none;
-      display: inline-flex;
-      align-items: center;
-      justify-content: center;
-      flex-shrink: 0;
-    }
-    .tkm-avatar-circle img {
-      width: 100%;
-      height: 100%;
-      object-fit: cover;
-      display: block;
-    }
-    html[data-theme="light"] body {
-      background: #f4f7fb !important;
-      color: #0f172a !important;
-    }
-    html[data-theme="light"] .panel,
-    html[data-theme="light"] .item-card,
-    html[data-theme="light"] .modal-card {
-      background: #ffffff !important;
-      color: #0f172a !important;
-      border-color: rgba(15, 23, 42, 0.14) !important;
-    }
-  </style>
 </head>
 <body>
   <div id="playerok-shell"></div>
@@ -98,325 +42,37 @@
 
   <script src="assets/tkm.js"></script>
   <script>
-    (function () {
-      const SB_URL = "https://piajbopfeqlyupkrsnik.supabase.co";
-      const SB_KEY = "sb_publishable_gQFoj3SUxW-TUMjYmTGrIg_5_6hwBAH";
-      if (!window.tkmSb && window.supabase) {
-        window.tkmSb = window.supabase.createClient(SB_URL, SB_KEY, {
-          auth: { persistSession: true, autoRefreshToken: true, detectSessionInUrl: true }
-        });
-      }
-
-      const LANG_DATA = {
-        tr: {
-          rate: 9.85,
-          cur: "TRY",
-          search: "Oyun veya program ara...",
-          heroTitle: "4K Oyun, Hesap & Dijital Pazarı",
-          heroDesc: "Oyun hesapları, programlar, Exness MT5 ve dijital hizmetler. Satın alındıktan sonra hesap açılır, çift onaydan sonra ödeme geçer.",
-          sellBtn: "⚡ Hesap / Ürün Sat",
-          askBtn: "💬 Mesaj Gönder",
-          popSecs: "Popüler Bölümler",
-          allArrow: "Tümü →",
-          allTile: "Tümü",
-          openBtn: "Aç",
-          buyBtn: "Satın Al",
-          games: "Oyunlar",
-          apps: "Programlar ve Dijital Hizmetler",
-          gamesCnt: "oyun",
-          appsCnt: "program",
-          navHome: "Keşfet",
-          navCats: "Kategoriler",
-          navExness: "Exness",
-          navMsgs: "Mesajlar",
-          navProf: "Profil"
-        },
-        tk: {
-          rate: 1,
-          cur: "TMT",
-          search: "Oýun ýa-da programma gözle...",
-          heroTitle: "4K Oýun, Hasap & Sanly Bazary",
-          heroDesc: "Oýun hasaplary, programmalar, Exness MT5 we sanly hyzmatlar. Satyn alnandan soň hasap açylýar, iki tassykdan soň pul geçýär.",
-          sellBtn: "⚡ Hasap / Haryt Sat",
-          askBtn: "💬 Habar Iber",
-          popSecs: "Meşhur Bölümler",
-          allArrow: "Ählisi →",
-          allTile: "Ählisi",
-          openBtn: "Aç",
-          buyBtn: "Satyn Al",
-          games: "Oýunlar",
-          apps: "Programmalar & Sanly Hyzmatlar",
-          gamesCnt: "oýun",
-          appsCnt: "programma",
-          navHome: "Gözleg",
-          navCats: "Kategorya",
-          navExness: "Exness",
-          navMsgs: "Hatlar",
-          navProf: "Profil"
-        },
-        ru: {
-          rate: 26.5,
-          cur: "RUB",
-          search: "Поиск игры или программы...",
-          heroTitle: "4K Игры, Аккаунты и Цифровой Маркет",
-          heroDesc: "Игровые аккаунты, программы, Exness MT5 и цифровые услуги. Доступ открывается после покупки, выплата после двойного подтверждения.",
-          sellBtn: "⚡ Продать Аккаунт / Товар",
-          askBtn: "💬 Написать Сообщение",
-          popSecs: "Популярные Разделы",
-          allArrow: "Все →",
-          allTile: "Все",
-          openBtn: "Открыть",
-          buyBtn: "Купить",
-          games: "Игры",
-          apps: "Программы и Цифровые Услуги",
-          gamesCnt: "игр",
-          appsCnt: "программ",
-          navHome: "Главная",
-          navCats: "Категории",
-          navExness: "Exness",
-          navMsgs: "Сообщения",
-          navProf: "Профиль"
-        },
-        en: {
-          rate: 0.285,
-          cur: "USD",
-          search: "Search game or program...",
-          heroTitle: "4K Games, Accounts & Digital Market",
-          heroDesc: "Game accounts, software, Exness MT5 and digital services. Credentials unlock after purchase, funds release after dual confirmation.",
-          sellBtn: "⚡ Sell Account / Item",
-          askBtn: "💬 Send Message",
-          popSecs: "Popular Sections",
-          allArrow: "All →",
-          allTile: "All",
-          openBtn: "Open",
-          buyBtn: "Buy Now",
-          games: "Games",
-          apps: "Software & Digital Services",
-          gamesCnt: "games",
-          appsCnt: "apps",
-          navHome: "Explore",
-          navCats: "Categories",
-          navExness: "Exness",
-          navMsgs: "Messages",
-          navProf: "Profile"
-        }
-      };
-
-      function getLang() {
-        const l = localStorage.getItem("tkm_locale");
-        return LANG_DATA[l] ? l : "tr";
-      }
-
-      function getTheme() {
-        return localStorage.getItem("tkm_theme") === "light" ? "light" : "dark";
-      }
-
-      window.fmtSiteMoney = function (tmtAmount) {
-        const d = LANG_DATA[getLang()];
-        const num = (Number(tmtAmount || 0) * d.rate).toFixed(2);
-        if (d.cur === "TRY") return `${num} ₺`;
-        if (d.cur === "RUB") return `${num} ₽`;
-        if (d.cur === "USD") return `$${num}`;
-        return `${num} TMT`;
-      };
-
-      function syncHeaderAndCleanDupes() {
-        // Arama kutusunun altına binmiş fazla kopya avatar/tema gruplarını kaldır
-        document.querySelectorAll("div").forEach((el) => {
-          if (el.closest("header, .topbar, .tkm-top-controls, .item-card, .cards-grid, .home-quick-5")) return;
-          const imgs = el.querySelectorAll("img");
-          if (imgs.length >= 2 && el.children.length <= 4 && el.offsetHeight < 110) {
-            const hasProf = Array.from(imgs).some(im => (im.src || "").includes("avatar") || (im.alt || "").toLowerCase().includes("profil"));
-            if (hasProf) el.remove();
-          }
-        });
-
-        const header = document.querySelector("header, .topbar, .app-header, #playerok-shell header");
-        if (!header) return;
-
-        header.querySelectorAll("a, button, span, div").forEach((el) => {
-          if (el.closest(".tkm-top-controls")) return;
-          const t = (el.textContent || "").trim().toLowerCase();
-          if (el.children.length === 0 && (t === "giriş et" || t === "onlayn" || t === "online" || t === "supabase" || t === "ýerli")) {
-            el.style.display = "none";
-          }
-        });
-
-        if (!header.querySelector(".tkm-top-controls")) {
-          const box = document.createElement("div");
-          box.className = "tkm-top-controls";
-          box.innerHTML = `
-            <button type="button" class="tkm-theme-circle" id="idxThemeBtn" title="Tema">🌓</button>
-            <a href="profil.html" class="tkm-avatar-circle" id="idxAvatarLink" title="Profil">P</a>
-          `;
-          header.appendChild(box);
-
-          document.getElementById("idxThemeBtn").addEventListener("click", () => {
-            const next = getTheme() === "dark" ? "light" : "dark";
-            localStorage.setItem("tkm_theme", next);
-            document.documentElement.setAttribute("data-theme", next);
-          });
-        }
-
-        hydrateIdxAvatar();
-      }
-
-      let avatarDone = false;
-      async function hydrateIdxAvatar() {
-        if (avatarDone || !window.tkmSb) return;
-        const link = document.getElementById("idxAvatarLink");
-        if (!link) return;
-        try {
-          const { data: { session } } = await window.tkmSb.auth.getSession();
-          if (!session?.user) return;
-          avatarDone = true;
-          const { data: prof } = await window.tkmSb
-            .from("profiles")
-            .select("full_name, avatar_url")
-            .eq("id", session.user.id)
-            .maybeSingle();
-          const name = (prof?.full_name || session.user.email?.split("@")[0] || "P").trim();
-          if (prof?.avatar_url) {
-            link.innerHTML = `<img src="${prof.avatar_url}" alt="Profil" />`;
-          } else {
-            link.textContent = name.charAt(0).toUpperCase() || "P";
-          }
-        } catch (_) {}
-      }
-
-      window.applyIndexLang = function () {
-        const lang = getLang();
-        const d = LANG_DATA[lang];
-        document.documentElement.lang = lang;
-        document.documentElement.setAttribute("data-theme", getTheme());
-
-        const searchEl = document.getElementById("global-search");
-        if (searchEl) searchEl.setAttribute("placeholder", d.search);
-
-        const map = {
-          "4K Oýun, Hasap & Sanly Bazary": d.heroTitle,
-          "4K Oyun, Hesap & Dijital Pazarı": d.heroTitle,
-          "4K Игры, Аккаунты и Цифровой Маркет": d.heroTitle,
-          "4K Games, Accounts & Digital Market": d.heroTitle,
-          "Oýun hasaplary, programmalar, Exness MT5 we sanly hyzmatlar. Satyn alnandan soň hasap açylýar, iki tassykdan soň pul geçýär.": d.heroDesc,
-          "⚡ Hasap / Haryt Sat": d.sellBtn,
-          "⚡ Hesap / Ürün Sat": d.sellBtn,
-          "⚡ Продать Аккаунт / Товар": d.sellBtn,
-          "⚡ Sell Account / Item": d.sellBtn,
-          "💬 Hasap Sorag Iber": d.askBtn,
-          "💬 Habar Iber": d.askBtn,
-          "💬 Mesaj Gönder": d.askBtn,
-          "💬 Написать Сообщение": d.askBtn,
-          "💬 Send Message": d.askBtn,
-          "Meşhur Bölümler": d.popSecs,
-          "Popüler Bölümler": d.popSecs,
-          "Популярные Разделы": d.popSecs,
-          "Popular Sections": d.popSecs,
-          "Ählisi →": d.allArrow,
-          "Tümü →": d.allArrow,
-          "Все →": d.allArrow,
-          "All →": d.allArrow,
-          "Ählisi": d.allTile,
-          "Tümü": d.allTile,
-          "Все": d.allTile,
-          "All": d.allTile,
-          "Aç": d.openBtn,
-          "Открыть": d.openBtn,
-          "Open": d.openBtn,
-          "Satyn Al": d.buyBtn,
-          "Satın Al": d.buyBtn,
-          "Купить": d.buyBtn,
-          "Buy Now": d.buyBtn,
-          "Oýunlar": d.games,
-          "Oyunlar": d.games,
-          "Игры": d.games,
-          "Games": d.games,
-          "Programmalar & Sanly Hyzmatlar": d.apps,
-          "Programlar ve Dijital Hizmetler": d.apps,
-          "Программы и Цифровые Услуги": d.apps,
-          "Software & Digital Services": d.apps,
-          "Gözleg": d.navHome,
-          "Keşfet": d.navHome,
-          "Главная": d.navHome,
-          "Explore": d.navHome,
-          "Kategorya": d.navCats,
-          "Kategoriler": d.navCats,
-          "Категории": d.navCats,
-          "Categories": d.navCats,
-          "Hatlar": d.navMsgs,
-          "Mesajlar": d.navMsgs,
-          "Сообщения": d.navMsgs,
-          "Messages": d.navMsgs,
-          "Giriş": d.navProf,
-          "Profil": d.navProf,
-          "Профиль": d.navProf,
-          "Profile": d.navProf
-        };
-
-        const walker = document.createTreeWalker(document.body, NodeFilter.SHOW_TEXT);
-        let n;
-        while ((n = walker.nextNode())) {
-          if (!n.parentElement || n.parentElement.closest("script, style")) continue;
-          const orig = n.nodeValue;
-          if (!orig) continue;
-          const t = orig.trim();
-          if (!t) continue;
-          if (map[t]) {
-            n.nodeValue = orig.replace(t, map[t]);
-            continue;
-          }
-          const cnt = t.match(/^(\d+)\s+(oýun|oyun|игр|games|programma|program|программ|apps)$/i);
-          if (cnt) {
-            const isG = /oýun|oyun|игр|games/i.test(cnt[2]);
-            n.nodeValue = orig.replace(t, `${cnt[1]} ${isG ? d.gamesCnt : d.appsCnt}`);
-          }
-        }
-      };
-
-      document.addEventListener("DOMContentLoaded", () => {
-        syncHeaderAndCleanDupes();
-        window.applyIndexLang();
-        setTimeout(() => { syncHeaderAndCleanDupes(); window.applyIndexLang(); }, 350);
-      });
-    })();
-
-    if (typeof mountPlayerokShell === "function") {
-      mountPlayerokShell("search", "Haryt, hasap ýa-da satyjy gözle...", false);
-    }
+    mountPlayerokShell("search", "Haryt, hasap ýa-da satyjy gözle...", false);
     let list = [];
 
     function renderHomeQuick5() {
       const quickIds = ["pubg-mobile", "clash-of-clans", "telegram", "tiktok"];
-      const items = typeof findPlatform === "function"
-        ? quickIds.map(id => findPlatform(id)).filter(Boolean)
-        : [];
+      const items = quickIds.map(id => findPlatform(id)).filter(Boolean);
       const wrap = document.getElementById("home-quick-5");
-      if (!wrap) return;
 
       wrap.innerHTML = items.map(p => `
         <button class="quick-tile" type="button" onclick="location.href='uygulama.html?slug=${encodeURIComponent(p.id)}'">
-          <div class="app-icon-box" style="width:46px; height:46px; border-radius:13px;">${typeof renderLogoWithAsset === "function" ? renderLogoWithAsset(p) : ""}</div>
+          <div class="app-icon-box" style="width:46px; height:46px; border-radius:13px;">${renderLogoWithAsset(p)}</div>
           <span>${esc(p.name)}</span>
         </button>
       `).join("") + `
         <button class="quick-tile active" type="button" onclick="location.href='kategoriler.html'">
           <div class="app-icon-box" style="width:46px; height:46px; border-radius:13px;">
-            ${typeof artLogo === "function" ? artLogo("#6366f1", "#ec4899", "ALL", "ÄHLI", "diamond") : "★"}
+            ${artLogo("#6366f1", "#ec4899", "ALL", "ÄHLI", "diamond")}
           </div>
           <span>Ählisi</span>
         </button>
       `;
-      if (typeof window.applyIndexLang === "function") window.applyIndexLang();
     }
 
     async function loadMarket() {
       try {
-        list = typeof sbGet === "function" ? await sbGet("products") : [];
+        list = await sbGet("products");
         localStorage.setItem("tkm_prod_cache", JSON.stringify(list));
-        if (typeof setDbPill === "function") setDbPill(true, "Onlaýn");
+        setDbPill(true, "Onlaýn");
       } catch (err) {
         try { list = JSON.parse(localStorage.getItem("tkm_prod_cache") || "[]"); } catch (_) { list = []; }
-        if (typeof setDbPill === "function") setDbPill(false, "Ýerli");
+        setDbPill(false, "Ýerli");
       }
       renderMarket();
     }
@@ -424,7 +80,6 @@
     function renderMarket() {
       const q = (document.getElementById("global-search")?.value || "").trim().toLowerCase();
       const wrap = document.getElementById("market-grid");
-      if (!wrap) return;
       const filtered = list.filter(item => !q ||
         String(item.title || "").toLowerCase().includes(q) ||
         String(item.platform_name || "").toLowerCase().includes(q) ||
@@ -435,12 +90,11 @@
 
       if (!filtered.length) {
         wrap.innerHTML = `<div class="panel"><p class="muted">Heniz haryt ýok. <strong>Satmak</strong> sekmesinden täze haryt goşup ýa-da <strong>Hatlar</strong> sekmesinden isleg ibere bilersiňiz.</p></div>`;
-        if (typeof window.applyIndexLang === "function") window.applyIndexLang();
         return;
       }
 
       wrap.innerHTML = filtered.map(p => {
-        const imgs = typeof getImages === "function" ? getImages(p) : [];
+        const imgs = getImages(p);
         return `
           <article class="item-card">
             <div>
@@ -451,8 +105,8 @@
               <p class="item-desc">${esc(p.description || "")}</p>
               <div class="muted">Satyjy: <strong>${esc(p.seller || "Serkanbey77")}</strong></div>
               <div class="item-price-row">
-                <div class="item-price">${window.fmtSiteMoney(p.price_tmt || 0)}</div>
-                ${p.market_compare_tmt ? `<div class="item-old">${window.fmtSiteMoney(p.market_compare_tmt)}</div>` : ""}
+                <div class="item-price">${Number(p.price_tmt || 0).toLocaleString()} TMT</div>
+                ${p.market_compare_tmt ? `<div class="item-old">${Number(p.market_compare_tmt).toLocaleString()} TMT</div>` : ""}
               </div>
             </div>
             <div class="btn-row">
@@ -462,13 +116,12 @@
           </article>
         `;
       }).join("");
-      if (typeof window.applyIndexLang === "function") window.applyIndexLang();
     }
 
     function openItem(id) {
       const p = list.find(x => String(x.id) === String(id));
       if (!p) return;
-      const imgs = typeof getImages === "function" ? getImages(p) : [];
+      const imgs = getImages(p);
       document.getElementById("dm-title").textContent = p.title;
       document.getElementById("dm-body").innerHTML = `
         ${imgs.map(src => `<img class="item-img" style="margin-bottom:8px;" src="${esc(src)}" alt="${esc(p.title)}" />`).join("")}
@@ -480,7 +133,7 @@
           <div><strong>Emanet düzgüni:</strong> Hasap ady we paroly satyn alnandan soň açylýar. Satyn alan we satyjy ikisi hem tassyklamasa, pul ortada saklanýar.</div>
         </div>
         <div class="item-price-row" style="margin-top:10px;">
-          <div class="item-price">${window.fmtSiteMoney(p.price_tmt || 0)}</div>
+          <div class="item-price">${Number(p.price_tmt || 0).toLocaleString()} TMT</div>
         </div>
         <div class="btn-row">
           <button class="btn btn-main" type="button" style="flex:1;" onclick="document.getElementById('detail-modal').classList.remove('open'); orderItem(${p.id});">Emanet Bilen Satyn Al</button>
@@ -492,7 +145,7 @@
     async function orderItem(id) {
       const p = list.find(x => String(x.id) === String(id));
       if (!p) return;
-      const buyer = typeof getUser === "function" ? getUser().username : "Alyjy";
+      const buyer = getUser().username;
       const code = "TKM-" + Math.floor(100000 + Math.random() * 900000);
       const sec = String(Math.floor(1000 + Math.random() * 9000));
 
@@ -514,7 +167,7 @@
         const createdId = saved && saved.id ? saved.id : "";
         window.location.href = createdId ? `sargytlar.html?order=${encodeURIComponent(createdId)}` : "sargytlar.html";
       } catch (err) {
-        if (typeof showToast === "function") showToast("Sargyt döredilmedi: " + err.message);
+        showToast("Sargyt döredilmedi: " + err.message);
       }
     }
 
