@@ -22,10 +22,10 @@
     .topbar a { color: #93c5fd; text-decoration: none; font-weight: 800; font-size: 13px; }
     .card {
       background: #141b30; border: 1px solid rgba(148,163,184,.16);
-      border-radius: 16px; padding: 15px; margin-bottom: 12px;
+      border-radius: 16px; padding: 15px;
     }
-    .chat-list {
-      min-height: 180px; max-height: 340px; overflow-y: auto;
+    .msg-list {
+      min-height: 220px; max-height: 360px; overflow-y: auto;
       display: flex; flex-direction: column; gap: 8px;
       background: #0b1020; border: 1px solid rgba(148,163,184,.14);
       border-radius: 12px; padding: 12px; margin-bottom: 10px;
@@ -50,29 +50,29 @@
   <div class="wrap">
     <div class="topbar">
       <a href="index.html">← Ana Sayfa</a>
-      <div id="headerRightControls"></div>
+      <div class="tkm-top-right"></div>
     </div>
 
     <div class="card">
       <div style="font-weight:900;font-size:16px;margin-bottom:10px;">Mesajlar</div>
-      <div class="chat-list" id="chatList">
+      <div class="msg-list" id="msgList">
         <div style="font-size:12px;color:#94a3b8;">Henüz mesaj yok.</div>
       </div>
       <div class="row">
-        <input type="text" id="chatInput" placeholder="Mesaj yaz..." />
-        <button type="button" onclick="pushMsg()">Gönder</button>
+        <input type="text" id="msgInput" placeholder="Mesaj yaz..." />
+        <button type="button" onclick="sendItem()">Gönder</button>
       </div>
     </div>
   </div>
 
   <script>
-    const KEY = "tkm_direct_messages";
-    function loadMsgs() {
-      try { return JSON.parse(localStorage.getItem(KEY) || "[]"); } catch (_) { return []; }
+    const STORE_KEY = "tkm_messages_box";
+    function readItems() {
+      try { return JSON.parse(localStorage.getItem(STORE_KEY) || "[]"); } catch (_) { return []; }
     }
-    function drawMsgs() {
-      const items = loadMsgs();
-      const box = document.getElementById("chatList");
+    function renderItems() {
+      const items = readItems();
+      const box = document.getElementById("msgList");
       if (!items.length) {
         box.innerHTML = `<div style="font-size:12px;color:#94a3b8;">Henüz mesaj yok.</div>`;
         return;
@@ -85,20 +85,20 @@
       `).join("");
       box.scrollTop = box.scrollHeight;
     }
-    function pushMsg() {
-      const inp = document.getElementById("chatInput");
+    function sendItem() {
+      const inp = document.getElementById("msgInput");
       const text = inp.value.trim();
       if (!text) return;
-      const items = loadMsgs();
+      const items = readItems();
       items.push({
         text,
         time: new Date().toLocaleTimeString("tr-TR", { hour: "2-digit", minute: "2-digit" })
       });
-      localStorage.setItem(KEY, JSON.stringify(items));
+      localStorage.setItem(STORE_KEY, JSON.stringify(items));
       inp.value = "";
-      drawMsgs();
+      renderItems();
     }
-    drawMsgs();
+    renderItems();
   </script>
 </body>
 </html>
