@@ -5,6 +5,7 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>TKM Market — Profil</title>
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+  <script src="tkm-core.js"></script>
   <style>
     * { box-sizing: border-box; }
     :root {
@@ -41,7 +42,7 @@
     }
     .user-left { display: flex; align-items: center; gap: 11px; min-width: 0; }
     .avatar {
-      width: 48px; height: 48px; border-radius: 13px; flex-shrink: 0;
+      width: 50px; height: 50px; border-radius: 13px; flex-shrink: 0; overflow: hidden;
       background: linear-gradient(135deg, var(--primary), var(--primary-2));
       display: flex; align-items: center; justify-content: center;
       font-weight: 900; font-size: 19px; color: #fff;
@@ -115,7 +116,6 @@
       <a class="top-btn" href="index.html">Ana Sayfa</a>
     </div>
 
-    <!-- Giriş / Üye Ol -->
     <div class="card" id="authCard" style="display:none;">
       <div class="tabs2">
         <button type="button" class="tab-btn active" id="tabIn" onclick="switchAuth('in')">Giriş Yap</button>
@@ -142,7 +142,6 @@
       <div class="feedback" id="authMsg"></div>
     </div>
 
-    <!-- Profil Menüsü -->
     <div id="profileMenuArea" style="display:none;">
       <div class="card">
         <div class="wallet-hero">
@@ -199,12 +198,6 @@
   </nav>
 
   <script>
-    const SUPABASE_URL = "https://piajbopfeqlyupkrsnik.supabase.co";
-    const SUPABASE_ANON_KEY = "sb_publishable_gQFoj3SUxW-TUMjYmTGrIg_5_6hwBAH";
-    const sb = supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY, {
-      auth: { persistSession: true, autoRefreshToken: true, detectSessionInUrl: true }
-    });
-
     function switchAuth(m) {
       document.getElementById("tabIn").classList.toggle("active", m === "in");
       document.getElementById("tabUp").classList.toggle("active", m === "up");
@@ -218,7 +211,7 @@
       const password = document.getElementById("inPass").value;
       const msg = document.getElementById("authMsg");
       if (!email || !password) { msg.className = "feedback err"; msg.textContent = "E-posta ve şifre girin."; return; }
-      const { data, error } = await sb.auth.signInWithPassword({ email, password });
+      const { data, error } = await tkmSb.auth.signInWithPassword({ email, password });
       if (error) { msg.className = "feedback err"; msg.textContent = error.message; return; }
       renderMenu(data.user);
     }
@@ -232,39 +225,34 @@
       if (!full_name || !email || password.length < 6) {
         msg.className = "feedback err"; msg.textContent = "İsim soyad, e-posta ve en az 6 karakter şifre girin."; return;
       }
-      const { data, error } = await sb.auth.signUp({ email, password, options: { data: { full_name, phone } } });
+      const { data, error } = await tkmSb.auth.signUp({ email, password, options: { data: { full_name, phone } } });
       if (error) { msg.className = "feedback err"; msg.textContent = error.message; return; }
       let u = data.session?.user;
       if (!u) {
-        const res = await sb.auth.signInWithPassword({ email, password });
+        const res = await tkmSb.auth.signInWithPassword({ email, password });
         if (res.error) { msg.className = "feedback ok"; msg.textContent = "Kayıt tamamlandı, giriş yapabilirsiniz."; return; }
         u = res.data.user;
       }
-      await sb.from("profiles").upsert({ id: u.id, email, full_name, phone, balance_tmt: 0, withdrawable_tmt: 0 });
+      await tkmSb.from("profiles").upsert({ id: u.id, email, full_name, phone, balance_tmt: 0, withdrawable_tmt: 0 });
       renderMenu(u);
     }
 
     async function doLogout() {
-      await sb.auth.signOut();
-      location.reload();
+      await tkmSb.auth.signOut();
+      window.location.reload();
     }
 
     async function renderMenu(user) {
       document.getElementById("authCard").style.display = "none";
       document.getElementById("profileMenuArea").style.display = "block";
-      let { data: prof } = await sb.from("profiles").select("*").eq("id", user.id).maybeSingle();
-      if (!prof) {
-        const fallback = user.user_metadata?.full_name || user.email?.split("@")[0] || "Üye";
-        await sb.from("profiles").upsert({ id: user.id, email: user.email, full_name: fallback, balance_tmt: 0, withdrawable_tmt: 0 });
-        prof = (await sb.from("profiles").select("*").eq("id", user.id).single()).data;
-      }
-      const name = prof.full_name || user.email?.split("@")[0] || "Kullanıcı";
-      document.getElementById("av").textContent = name.charAt(0).toUpperCase();
+      const prof = await tkmGetOrCreateProfile(user);
+      const name = prof?.full_name || user.email?.split("@")[0] || "Kullanıcı";
+      tkmRenderAvatar(document.getElementById("av"), prof, name);
       document.getElementById("topUsername").textContent = name;
-      document.getElementById("balTmt").textContent = `${Number(prof.balance_tmt || 0).toFixed(2)} TMT`;
-      document.getElementById("withTmt").textContent = `${Number(prof.withdrawable_tmt || 0).toFixed(2)} TMT`;
+      document.getElementById("balTmt").textContent = tkmFmtTmt(prof?.balance_tmt);
+      document.getElementById("withTmt").textContent = tkmFmtTmt(prof?.withdrawable_tmt);
       const badge = document.getElementById("verBadge");
-      if (prof.is_verified) {
+      if (prof?.is_verified) {
         badge.className = "pill ok";
         badge.textContent = "✓ Doğrulanmış Profil";
         document.getElementById("verifyShortcut").style.display = "none";
@@ -272,8 +260,8 @@
     }
 
     (async () => {
-      const { data: { session } } = await sb.auth.getSession();
-      if (session?.user) renderMenu(session.user);
+      const user = await tkmRequireSession(false);
+      if (user) renderMenu(user);
       else document.getElementById("authCard").style.display = "block";
     })();
   </script>
