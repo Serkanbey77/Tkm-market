@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>TKM Market — Sipariş Mesajları &amp; Onay</title>
+  <title>TKM Market — Mesajlar</title>
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
   <script src="tkm-global-fix.js"></script>
   <style>
@@ -24,31 +24,26 @@
       background: #141b30; border: 1px solid rgba(148,163,184,.16);
       border-radius: 16px; padding: 15px; margin-bottom: 12px;
     }
-    .chat-box {
-      max-height: 300px; overflow-y: auto; display: flex; flex-direction: column; gap: 8px;
-      background: #0b1020; border: 1px solid rgba(148,163,184,.14); border-radius: 12px; padding: 12px;
-      margin-bottom: 10px;
+    .chat-list {
+      min-height: 180px; max-height: 340px; overflow-y: auto;
+      display: flex; flex-direction: column; gap: 8px;
+      background: #0b1020; border: 1px solid rgba(148,163,184,.14);
+      border-radius: 12px; padding: 12px; margin-bottom: 10px;
     }
-    .msg-bubble {
-      background: #1b2440; border: 1px solid rgba(96,165,250,.25);
+    .bubble {
+      background: #1b2440; border: 1px solid rgba(96,165,250,.22);
       border-radius: 11px; padding: 9px 11px; font-size: 13px;
     }
-    .msg-meta { font-size: 11px; color: #94a3b8; margin-bottom: 3px; }
-    .send-row { display: flex; gap: 8px; }
+    .meta { font-size: 11px; color: #94a3b8; margin-bottom: 3px; }
+    .row { display: flex; gap: 8px; }
     input {
       flex: 1; padding: 11px 12px; border-radius: 10px;
       border: 1px solid rgba(148,163,184,.2); background: #0b1020; color: #fff; font-size: 14px;
     }
-    button.send {
+    button {
       padding: 11px 15px; border-radius: 10px; border: none;
       background: #2563eb; color: #fff; font-weight: 800; cursor: pointer;
     }
-    button.approve {
-      width: 100%; padding: 12px; border-radius: 11px; border: none; margin-top: 10px;
-      background: linear-gradient(135deg, #16a34a, #15803d); color: #fff;
-      font-weight: 800; font-size: 14px; cursor: pointer;
-    }
-    .status-note { font-size: 12px; color: #4ade80; font-weight: 700; margin-top: 8px; }
   </style>
 </head>
 <body>
@@ -59,77 +54,51 @@
     </div>
 
     <div class="card">
-      <div style="font-weight:900;font-size:16px;" id="orderTitle">Sipariş Mesajlaşma Odası</div>
-      <div style="font-size:12px;color:#94a3b8;margin-top:4px;" id="orderMeta">Sorunu mesajlarda çözüp teslimatı onaylayabilirsin.</div>
-    </div>
-
-    <div class="card">
-      <div class="chat-box" id="chatBox">
-        <div style="font-size:12px;color:#94a3b8;">Sipariş mesajları yükleniyor...</div>
+      <div style="font-weight:900;font-size:16px;margin-bottom:10px;">Mesajlar</div>
+      <div class="chat-list" id="chatList">
+        <div style="font-size:12px;color:#94a3b8;">Henüz mesaj yok.</div>
       </div>
-      <div class="send-row">
-        <input type="text" id="msgInput" placeholder="Mesaj yaz..." />
-        <button type="button" class="send" onclick="sendChatMsg()">Gönder</button>
+      <div class="row">
+        <input type="text" id="chatInput" placeholder="Mesaj yaz..." />
+        <button type="button" onclick="pushMsg()">Gönder</button>
       </div>
-      <button type="button" class="approve" id="approveBtn" onclick="approveOrder()">✓ Sorun Yok — Siparişi Onayla</button>
-      <div class="status-note" id="approveStatus"></div>
     </div>
   </div>
 
   <script>
-    const params = new URLSearchParams(location.search);
-    const orderKey = params.get("order") || "genel-siparis";
-    const storageKey = "tkm_order_chat_" + orderKey;
-
-    function getMsgs() {
-      try { return JSON.parse(localStorage.getItem(storageKey) || "[]"); } catch (_) { return []; }
+    const KEY = "tkm_direct_messages";
+    function loadMsgs() {
+      try { return JSON.parse(localStorage.getItem(KEY) || "[]"); } catch (_) { return []; }
     }
-
-    function renderMsgs() {
-      const list = getMsgs();
-      const box = document.getElementById("chatBox");
-      if (!list.length) {
-        box.innerHTML = `<div style="font-size:12px;color:#94a3b8;">Henüz mesaj yok. Alıcı ve satıcı buradan mesajlaşarak işlemi tamamlayabilir.</div>`;
+    function drawMsgs() {
+      const items = loadMsgs();
+      const box = document.getElementById("chatList");
+      if (!items.length) {
+        box.innerHTML = `<div style="font-size:12px;color:#94a3b8;">Henüz mesaj yok.</div>`;
         return;
       }
-      box.innerHTML = list.map(m => `
-        <div class="msg-bubble">
-          <div class="msg-meta">${m.sender} • ${m.time}</div>
+      box.innerHTML = items.map(m => `
+        <div class="bubble">
+          <div class="meta">${m.time}</div>
           <div>${m.text}</div>
         </div>
       `).join("");
       box.scrollTop = box.scrollHeight;
     }
-
-    function sendChatMsg() {
-      const inp = document.getElementById("msgInput");
+    function pushMsg() {
+      const inp = document.getElementById("chatInput");
       const text = inp.value.trim();
       if (!text) return;
-      const list = getMsgs();
-      list.push({
-        sender: "Kullanıcı",
+      const items = loadMsgs();
+      items.push({
         text,
         time: new Date().toLocaleTimeString("tr-TR", { hour: "2-digit", minute: "2-digit" })
       });
-      localStorage.setItem(storageKey, JSON.stringify(list));
+      localStorage.setItem(KEY, JSON.stringify(items));
       inp.value = "";
-      renderMsgs();
+      drawMsgs();
     }
-
-    async function approveOrder() {
-      document.getElementById("approveStatus").textContent = "✓ Sipariş onaylandı, emanet ödemesi tamamlandı.";
-      if (window.tkmSb && orderKey !== "genel-siparis") {
-        await window.tkmSb
-          .from("orders")
-          .update({ buyer_confirmed: true, status: "completed", escrow_status: "released" })
-          .eq("id", orderKey);
-      }
-    }
-
-    if (orderKey !== "genel-siparis") {
-      document.getElementById("orderTitle").textContent = `Sipariş #${orderKey} — Mesajlar`;
-    }
-    renderMsgs();
+    drawMsgs();
   </script>
 </body>
 </html>
