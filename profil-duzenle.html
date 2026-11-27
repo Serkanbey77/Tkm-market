@@ -5,6 +5,7 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>TKM Market — Profil Düzenle</title>
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+  <script src="tkm-core.js"></script>
   <style>
     * { box-sizing: border-box; }
     body {
@@ -24,6 +25,13 @@
       border-radius: 16px; padding: 16px; margin-bottom: 12px;
     }
     h2 { margin: 0 0 10px; font-size: 16px; }
+    .photo-row { display: flex; align-items: center; gap: 14px; margin-bottom: 14px; }
+    .avatar-lg {
+      width: 72px; height: 72px; border-radius: 18px; overflow: hidden; flex-shrink: 0;
+      background: linear-gradient(135deg, #3b6ef6, #5b4df5);
+      display: flex; align-items: center; justify-content: center;
+      font-size: 28px; font-weight: 900; color: #fff;
+    }
     label { display: block; font-size: 12px; font-weight: 700; color: #94a3b8; margin-bottom: 5px; }
     input, textarea {
       width: 100%; padding: 11px 12px; border-radius: 10px;
@@ -50,11 +58,18 @@
   <div class="container">
     <div class="topbar">
       <a href="profil.html">← Profil Menüsü</a>
-      <span style="font-size:13px;font-weight:800;">Profil Düzenle</span>
+      <a href="profil-gor.html">Profili Gör →</a>
     </div>
     <div class="card">
-      <h2>Kimlik &amp; İletişim Doğrulama</h2>
-      <p style="font-size:12px;color:#94a3b8;margin-top:0;">TC kimlik numarası sorulmaz. İsim soyad ve telefon numaranı kaydederek hesabını doğrula.</p>
+      <h2>Profil Fotoğrafı &amp; Kimlik Doğrulama</h2>
+      <div class="photo-row">
+        <div class="avatar-lg" id="avPreview">T</div>
+        <div style="flex:1;">
+          <label for="avatarFile" style="margin-bottom:6px;">Profil Fotoğrafı Seç</label>
+          <input type="file" id="avatarFile" accept="image/*" style="margin-bottom:0;padding:8px;" onchange="previewAvatar(event)" />
+        </div>
+      </div>
+
       <label>İsim Soyad</label>
       <input type="text" id="edName" placeholder="Adınız Soyadınız" />
       <label>E-posta Adresi</label>
@@ -63,7 +78,7 @@
       <input type="tel" id="edPhone" placeholder="+993 6x xxx xx xx" />
       <label>Adres Bilgisi (İsteğe Bağlı)</label>
       <textarea id="edAddr" placeholder="İl, ilçe ve açık adres bilginiz..."></textarea>
-      <button type="button" onclick="saveProfile()">Bilgilerimi Kaydet ve Doğrula</button>
+      <button type="button" onclick="saveProfile()">Profili Kaydet ve Doğrula</button>
       <div class="msg" id="msg"></div>
     </div>
   </div>
@@ -75,16 +90,27 @@
     <a href="profil.html" class="active">Profil</a>
   </nav>
   <script>
-    const sb = supabase.createClient("https://piajbopfeqlyupkrsnik.supabase.co", "sb_publishable_gQFoj3SUxW-TUMjYmTGrIg_5_6hwBAH");
     let uid = null;
+    let currentAvatarUrl = "";
+    let pickedFile = null;
+
+    function previewAvatar(e) {
+      const f = e.target.files?.[0];
+      if (!f) return;
+      pickedFile = f;
+      const url = URL.createObjectURL(f);
+      document.getElementById("avPreview").innerHTML = `<img src="${url}" alt="Önizleme" style="width:100%;height:100%;object-fit:cover;" />`;
+    }
 
     (async () => {
-      const { data: { session } } = await sb.auth.getSession();
-      if (!session?.user) { location.href = "profil.html"; return; }
-      uid = session.user.id;
-      const { data: prof } = await sb.from("profiles").select("*").eq("id", uid).single();
+      const u = await tkmRequireSession(true);
+      if (!u) return;
+      uid = u.id;
+      const prof = await tkmGetOrCreateProfile(u);
+      currentAvatarUrl = prof?.avatar_url || "";
+      tkmRenderAvatar(document.getElementById("avPreview"), prof, prof?.full_name || u.email);
       document.getElementById("edName").value = prof?.full_name || "";
-      document.getElementById("edEmail").value = prof?.email || session.user.email || "";
+      document.getElementById("edEmail").value = prof?.email || u.email || "";
       document.getElementById("edPhone").value = prof?.phone || "";
       document.getElementById("edAddr").value = prof?.address || "";
     })();
@@ -95,11 +121,22 @@
       const address = document.getElementById("edAddr").value.trim();
       const msg = document.getElementById("msg");
       if (!full_name || !phone) { msg.className = "msg err"; msg.textContent = "İsim soyad ve telefon numarası zorunlu."; return; }
-      const { error } = await sb.from("profiles").update({
-        full_name, phone, address, is_verified: true, updated_at: new Date().toISOString()
+
+      let avatarUrl = currentAvatarUrl;
+      if (pickedFile) {
+        avatarUrl = await tkmUploadAvatarFile(pickedFile, uid);
+      }
+
+      const { error } = await tkmSb.from("profiles").update({
+        full_name, phone, address, avatar_url: avatarUrl, is_verified: true, updated_at: new Date().toISOString()
       }).eq("id", uid);
+
       msg.className = error ? "msg err" : "msg ok";
-      msg.textContent = error ? error.message : "Bilgileriniz kaydedildi ve hesabınız doğrulandı!";
+      msg.textContent = error ? error.message : "Profil fotoğrafı ve bilgileriniz kaydedildi!";
+      if (!error) {
+        currentAvatarUrl = avatarUrl;
+        tkmRenderAvatar(document.getElementById("avPreview"), { full_name, avatar_url: avatarUrl }, full_name);
+      }
     }
   </script>
 </body>
