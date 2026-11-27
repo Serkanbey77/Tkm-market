@@ -5,6 +5,7 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>TKM Market — Sepetim</title>
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+  <script src="tkm-core.js"></script>
   <style>
     * { box-sizing: border-box; }
     body {
@@ -21,17 +22,23 @@
     .topbar a { color: #93c5fd; text-decoration: none; font-weight: 800; font-size: 13px; }
     .card {
       background: #141b30; border: 1px solid rgba(148,163,184,.16);
-      border-radius: 16px; padding: 16px; text-align: center;
+      border-radius: 16px; padding: 16px; margin-bottom: 12px;
     }
     .row {
-      display: flex; justify-content: space-between; align-items: center; text-align: left;
+      display: flex; justify-content: space-between; align-items: center; gap: 10px;
       padding: 11px 0; border-bottom: 1px solid rgba(148,163,184,.14); font-size: 13px;
     }
     .row:last-child { border-bottom: none; }
-    .shop-btn {
-      display: inline-block; margin-top: 12px; padding: 11px 18px; border-radius: 11px;
-      background: linear-gradient(135deg, #5b4df5, #3b6ef6); color: #fff; text-decoration: none; font-weight: 800;
+    .btn-buy {
+      background: #2563eb; color: #fff; border: none; border-radius: 8px;
+      padding: 7px 11px; font-size: 12px; font-weight: 800; cursor: pointer;
     }
+    .btn-del {
+      background: rgba(239,68,68,.15); color: #f87171; border: 1px solid rgba(239,68,68,.3);
+      border-radius: 8px; padding: 7px 9px; font-size: 12px; font-weight: 800; cursor: pointer;
+    }
+    .msg { font-size: 12px; font-weight: 700; margin-top: 8px; }
+    .ok { color: #4ade80; } .err { color: #f87171; }
     .muted { font-size: 12px; color: #94a3b8; }
     .bottom-nav {
       position: fixed; left: 0; right: 0; bottom: 0; display: grid; grid-template-columns: repeat(5, 1fr);
@@ -45,9 +52,16 @@
   <div class="container">
     <div class="topbar">
       <a href="profil.html">← Profil Menüsü</a>
-      <span style="font-size:13px;font-weight:800;">Sepetim</span>
+      <a href="siparislerim.html">Siparişlerim →</a>
     </div>
-    <div class="card" id="box"><div class="muted">Yükleniyor...</div></div>
+    <div class="card">
+      <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:10px;">
+        <strong>Sepetim</strong>
+        <span id="balBadge" style="color:#4ade80;font-weight:800;font-size:13px;">0.00 TMT</span>
+      </div>
+      <div id="box"><div class="muted">Yükleniyor...</div></div>
+      <div class="msg" id="msg"></div>
+    </div>
   </div>
   <nav class="bottom-nav">
     <a href="index.html">Ana Sayfa</a>
@@ -57,20 +71,45 @@
     <a href="profil.html" class="active">Profil</a>
   </nav>
   <script>
-    const sb = supabase.createClient("https://piajbopfeqlyupkrsnik.supabase.co", "sb_publishable_gQFoj3SUxW-TUMjYmTGrIg_5_6hwBAH");
-    (async () => {
-      const { data: { session } } = await sb.auth.getSession();
-      if (!session?.user) { location.href = "profil.html"; return; }
-      const { data } = await sb.from("cart_items").select("*").eq("user_id", session.user.id).order("created_at", { ascending: false });
+    let currentItems = [];
+    async function loadCart() {
+      const u = await tkmRequireSession(true);
+      if (!u) return;
+      const prof = await tkmGetOrCreateProfile(u);
+      document.getElementById("balBadge").textContent = tkmFmtTmt(prof?.balance_tmt);
+      const { data } = await tkmSb.from("cart_items").select("*").eq("user_id", u.id).order("created_at", { ascending: false });
+      currentItems = data || [];
       const box = document.getElementById("box");
-      if (!data || !data.length) {
-        box.innerHTML = `<div style="font-weight:800;margin-bottom:6px;">Sepetinizde henüz ürün bulunmuyor.</div>
-          <div class="muted">İlan pazarındaki ürünleri inceleyip sepetinize ekleyebilirsiniz.</div>
-          <a class="shop-btn" href="index.html">Alışverişe Başla</a>`;
+      if (!currentItems.length) {
+        box.innerHTML = `<div class="muted">Sepetinizde henüz ürün bulunmuyor. <a href="index.html" style="color:#93c5fd;">İlan Pazarı'na git</a></div>`;
         return;
       }
-      box.innerHTML = data.map(c => `<div class="row"><strong>${c.item_title}</strong><strong>${Number(c.price_tmt).toFixed(2)} TMT</strong></div>`).join("");
-    })();
+      box.innerHTML = currentItems.map((c, idx) => `
+        <div class="row">
+          <div><strong>${c.item_title}</strong><div class="muted">${tkmFmtTmt(c.price_tmt)}</div></div>
+          <div style="display:flex;gap:6px;">
+            <button type="button" class="btn-buy" onclick="checkoutItem(${idx})">Sipariş Ver</button>
+            <button type="button" class="btn-del" onclick="removeItem('${c.id}')">Sil</button>
+          </div>
+        </div>`).join("");
+    }
+
+    async function checkoutItem(idx) {
+      const item = currentItems[idx];
+      const msg = document.getElementById("msg");
+      const res = await tkmBuyFromCartItem(item);
+      if (!res.ok) { msg.className = "msg err"; msg.textContent = res.error; return; }
+      msg.className = "msg ok";
+      msg.textContent = "Sipariş oluşturuldu! Siparişlerim sayfasına eklendi.";
+      loadCart();
+    }
+
+    async function removeItem(id) {
+      await tkmRemoveFromCart(id);
+      loadCart();
+    }
+
+    loadCart();
   </script>
 </body>
 </html>
