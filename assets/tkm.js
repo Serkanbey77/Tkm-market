@@ -39,6 +39,177 @@ const PLATFORM_SUBCATS = {
   "trading-kurs": ["Ählisi", "Kripto Trading", "Forex & Altın", "Sinyal"]
 };
 
+const TKM_SITE_LANGS = {
+  tk: {
+    code: "tk",
+    currency: "TMT",
+    rate: 1,
+    gamesWord: "oýun",
+    appsWord: "programma",
+    map: {
+      "Gözleg": "Gözleg",
+      "Kategorya": "Kategorya",
+      "Hatlar": "Hatlar",
+      "Giriş": "Giriş",
+      "Profil": "Profil",
+      "Satmak": "Satmak",
+      "4K Oýun, Hasap & Sanly Bazary": "4K Oýun, Hasap & Sanly Bazary",
+      "Oýun hasaplary, programmalar, Exness MT5 we sanly hyzmatlar. Satyn alnandan soň hasap açylýar, iki tassykdan soň pul geçýär.": "Oýun hasaplary, programmalar, Exness MT5 we sanly hyzmatlar. Satyn alnandan soň hasap açylýar, iki tassykdan soň pul geçýär.",
+      "⚡ Hasap / Haryt Sat": "⚡ Hasap / Haryt Sat",
+      "💬 Hasap Sorag Iber": "💬 Hasap Sorag Iber",
+      "Meşhur Bölümler": "Meşhur Bölümler",
+      "Ählisi →": "Ählisi →",
+      "Ählisi": "Ählisi",
+      "Oýunlar": "Oýunlar",
+      "Programmalar & Sanly Hyzmatlar": "Programmalar & Sanly Hyzmatlar",
+      "Aç": "Aç",
+      "Satyn Al": "Satyn Al",
+      "Okuw": "Okuw"
+    }
+  },
+  tr: {
+    code: "tr",
+    currency: "TRY",
+    rate: 9.85,
+    gamesWord: "oyun",
+    appsWord: "program",
+    map: {
+      "Gözleg": "Keşfet",
+      "Kategorya": "Kategoriler",
+      "Hatlar": "Mesajlar",
+      "Giriş": "Profil",
+      "Profil": "Profil",
+      "Satmak": "Satış Yap",
+      "4K Oýun, Hasap & Sanly Bazary": "4K Oyun, Hesap & Dijital Pazarı",
+      "Oýun hasaplary, programmalar, Exness MT5 we sanly hyzmatlar. Satyn alnandan soň hasap açylýar, iki tassykdan soň pul geçýär.": "Oyun hesapları, programlar, Exness MT5 ve dijital hizmetler. Satın alındıktan sonra hesap açılır, çift onaydan sonra ödeme geçer.",
+      "⚡ Hasap / Haryt Sat": "⚡ Hesap / Ürün Sat",
+      "💬 Hasap Sorag Iber": "💬 Mesaj Gönder",
+      "Meşhur Bölümler": "Popüler Bölümler",
+      "Ählisi →": "Tümü →",
+      "Ählisi": "Tümü",
+      "Oýunlar": "Oyunlar",
+      "Programmalar & Sanly Hyzmatlar": "Programlar ve Dijital Hizmetler",
+      "Aç": "Aç",
+      "Satyn Al": "Satın Al",
+      "Okuw": "Eğitim"
+    }
+  },
+  en: {
+    code: "en",
+    currency: "USD",
+    rate: 0.285,
+    gamesWord: "games",
+    appsWord: "apps",
+    map: {
+      "Gözleg": "Explore",
+      "Kategorya": "Categories",
+      "Hatlar": "Messages",
+      "Giriş": "Profile",
+      "Profil": "Profile",
+      "Satmak": "Sell",
+      "4K Oýun, Hasap & Sanly Bazary": "4K Games, Accounts & Digital Market",
+      "Oýun hasaplary, programmalar, Exness MT5 we sanly hyzmatlar. Satyn alnandan soň hasap açylýar, iki tassykdan soň pul geçýär.": "Game accounts, software, Exness MT5 and digital services. Access unlocks after purchase, payout after dual confirmation.",
+      "⚡ Hasap / Haryt Sat": "⚡ Sell Account / Item",
+      "💬 Hasap Sorag Iber": "💬 Send Message",
+      "Meşhur Bölümler": "Popular Sections",
+      "Ählisi →": "All →",
+      "Ählisi": "All",
+      "Oýunlar": "Games",
+      "Programmalar & Sanly Hyzmatlar": "Software & Digital Services",
+      "Aç": "Open",
+      "Satyn Al": "Buy Now",
+      "Okuw": "Course"
+    }
+  },
+  ru: {
+    code: "ru",
+    currency: "RUB",
+    rate: 26.5,
+    gamesWord: "игр",
+    appsWord: "программ",
+    map: {
+      "Gözleg": "Главная",
+      "Kategorya": "Категории",
+      "Hatlar": "Сообщения",
+      "Giriş": "Профиль",
+      "Profil": "Профиль",
+      "Satmak": "Продажа",
+      "4K Oýun, Hasap & Sanly Bazary": "4K Игры, Аккаунты и Цифровой Маркет",
+      "Oýun hasaplary, programmalar, Exness MT5 we sanly hyzmatlar. Satyn alnandan soň hasap açylýar, iki tassykdan soň pul geçýär.": "Игровые аккаунты, программы, Exness MT5 и цифровые услуги. Доступ открывается после покупки, выплата после двойного подтверждения.",
+      "⚡ Hasap / Haryt Sat": "⚡ Продать Аккаунт / Товар",
+      "💬 Hasap Sorag Iber": "💬 Написать Сообщение",
+      "Meşhur Bölümler": "Популярные Разделы",
+      "Ählisi →": "Все →",
+      "Ählisi": "Все",
+      "Oýunlar": "Игры",
+      "Programmalar & Sanly Hyzmatlar": "Программы и Цифровые Услуги",
+      "Aç": "Открыть",
+      "Satyn Al": "Купить",
+      "Okuw": "Обучение"
+    }
+  }
+};
+
+function getSiteLang() {
+  const saved = localStorage.getItem("tkm_locale");
+  return TKM_SITE_LANGS[saved] ? saved : "tk";
+}
+
+function formatConvertedPrice(tmtVal) {
+  const cfg = TKM_SITE_LANGS[getSiteLang()];
+  const num = Number(tmtVal || 0);
+  if (cfg.currency === "TMT") return `${num.toLocaleString()} TMT`;
+  const val = (num * cfg.rate).toFixed(2);
+  if (cfg.currency === "TRY") return `${val} ₺`;
+  if (cfg.currency === "USD") return `$${val}`;
+  return `${val} ₽`;
+}
+
+function applySiteLanguage() {
+  const cfg = TKM_SITE_LANGS[getSiteLang()];
+  document.documentElement.lang = cfg.code;
+
+  const searchInp = document.getElementById("global-search");
+  if (searchInp) {
+    if (cfg.code === "tr") searchInp.placeholder = "Ürün, hesap veya satıcı ara...";
+    else if (cfg.code === "en") searchInp.placeholder = "Search item, account or seller...";
+    else if (cfg.code === "ru") searchInp.placeholder = "Поиск товара, аккаунта или продавца...";
+    else searchInp.placeholder = "Haryt, hasap ýa-da satyjy gözle...";
+  }
+
+  const walker = document.createTreeWalker(document.body, NodeFilter.SHOW_TEXT);
+  let node;
+  while ((node = walker.nextNode())) {
+    if (!node.parentElement || node.parentElement.closest("script, style")) continue;
+    const raw = node.nodeValue;
+    if (!raw) continue;
+    const trimmed = raw.trim();
+    if (!trimmed) continue;
+
+    if (cfg.map[trimmed]) {
+      node.nodeValue = raw.replace(trimmed, cfg.map[trimmed]);
+      continue;
+    }
+
+    const cnt = trimmed.match(/^(\d+)\s+(oýun|oyun|games|игр|programma|program|apps|программ)$/i);
+    if (cnt) {
+      const isGame = /^(oýun|oyun|games|игр)$/i.test(cnt[2]);
+      node.nodeValue = raw.replace(trimmed, `${cnt[1]} ${isGame ? cfg.gamesWord : cfg.appsWord}`);
+      continue;
+    }
+
+    const priceMatch = trimmed.match(/^([\d\s,.]+)\s*(TMT|₺|\$|₽)$/i);
+    if (priceMatch && cfg.currency !== "TMT") {
+      const baseNum = parseFloat(priceMatch[1].replace(/\s+/g, "").replace(",", "."));
+      if (!Number.isNaN(baseNum)) {
+        const val = (baseNum * cfg.rate).toFixed(2);
+        const out = cfg.currency === "TRY" ? `${val} ₺` : cfg.currency === "USD" ? `$${val}` : `${val} ₽`;
+        node.nodeValue = raw.replace(trimmed, out);
+      }
+    }
+  }
+}
+
 function artLogo(c1, c2, badge, label, motif = "ring") {
   const motifs = {
     ring: `<circle cx="40" cy="35" r="15" fill="rgba(255,255,255,0.14)" stroke="#fff" stroke-width="3"/><circle cx="40" cy="35" r="5" fill="#fde047"/>`,
@@ -286,12 +457,8 @@ function syncUserFields() {
   if (mSender && !mSender.dataset.edited && u.loggedIn) mSender.value = u.username;
 }
 
-function setDbPill(ok, text) {
-  const el = document.getElementById("db-status-pill");
-  if (!el) return;
-  el.textContent = text;
-  el.style.background = ok ? "rgba(16, 185, 129, 0.16)" : "rgba(245, 158, 11, 0.16)";
-  el.style.color = ok ? "#34d399" : "#fbbf24";
+function setDbPill() {
+  // Eski Supabase / Onlayn rozeti gizli tutulur
 }
 
 async function sbGet(table) {
@@ -381,10 +548,10 @@ async function refreshTopBalancePill() {
   if (!pill) return;
   const session = getUser();
   if (!session.loggedIn || !session.username) {
-    pill.textContent = "🔐 Giriş Et";
-    pill.href = "profil.html";
+    pill.style.display = "none";
     return;
   }
+  pill.style.display = "inline-flex";
   pill.href = "profil.html";
   const u = session.username.toLowerCase();
 
@@ -424,7 +591,19 @@ async function refreshTopBalancePill() {
   }
 
   const bal = Math.max(0, released + dep - wd);
-  pill.textContent = `💰 ${bal.toLocaleString()} TMT`;
+  pill.textContent = formatConvertedPrice(bal);
+}
+
+function hydrateTopProfileAvatar() {
+  const av = document.getElementById("shell-top-avatar");
+  if (!av) return;
+  const u = getUser();
+  const label = (u.username || "P").trim().charAt(0).toUpperCase() || "P";
+  if (u.avatar_url) {
+    av.innerHTML = `<img src="${esc(u.avatar_url)}" alt="Profil" style="width:100%;height:100%;object-fit:cover;border-radius:50%;display:block;" />`;
+  } else {
+    av.textContent = label;
+  }
 }
 
 function mountPlayerokShell(activeTab, searchPlaceholder, showBackArrow = false) {
@@ -525,10 +704,10 @@ function mountPlayerokShell(activeTab, searchPlaceholder, showBackArrow = false)
               ${backHtml}
               <a class="brand-link" href="index.html">TKM Market</a>
             </div>
-            <div class="top-right">
-              <a class="bal-pill" id="top-balance-pill" href="profil.html" title="Bakiýe we Profil">🔐 Giriş Et</a>
-              <span class="db-mini" id="db-status-pill">Supabase</span>
-              <button class="theme-switch" type="button" title="Tema" onclick="toggleTheme()">☀/☾</button>
+            <div class="top-right" style="display:flex;align-items:center;gap:8px;">
+              <a class="bal-pill" id="top-balance-pill" href="profil.html" title="Bakiýe" style="display:none;"></a>
+              <button class="theme-switch" type="button" title="Tema" onclick="toggleTheme(); applySiteLanguage();">☀/☾</button>
+              <a id="shell-top-avatar" href="profil.html" title="Profil" style="width:34px;height:34px;border-radius:50%;overflow:hidden;border:2px solid #60a5fa;background:linear-gradient(135deg,#3b6ef6,#5b4df5);color:#fff;font-weight:900;font-size:13px;text-decoration:none;display:inline-flex;align-items:center;justify-content:center;flex-shrink:0;">P</a>
             </div>
           </div>
           ${searchPlaceholder ? `
@@ -546,7 +725,11 @@ function mountPlayerokShell(activeTab, searchPlaceholder, showBackArrow = false)
     `;
 
     syncUserFields();
+    hydrateTopProfileAvatar();
     refreshTopBalancePill();
+    applySiteLanguage();
+    setTimeout(applySiteLanguage, 200);
+    setInterval(applySiteLanguage, 600);
   } catch (err) {
     console.error("Shell mount error:", err);
   }
