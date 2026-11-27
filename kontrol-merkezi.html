@@ -5,6 +5,7 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>TKM Market — Kontrol Merkezi</title>
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+  <script src="tkm-core.js"></script>
   <style>
     * { box-sizing: border-box; }
     body {
@@ -19,12 +20,21 @@
       border: 1px solid rgba(148,163,184,.16); margin-bottom: 12px;
     }
     .topbar a { color: #93c5fd; text-decoration: none; font-weight: 800; font-size: 13px; }
-    .grid { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
+    .grid { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin-bottom: 12px; }
     .box {
       background: #141b30; border: 1px solid rgba(148,163,184,.16);
       border-radius: 15px; padding: 15px;
     }
-    .num { font-size: 20px; font-weight: 900; color: #60a5fa; margin-top: 6px; }
+    .num { font-size: 19px; font-weight: 900; color: #60a5fa; margin-top: 6px; }
+    .card {
+      background: #141b30; border: 1px solid rgba(148,163,184,.16);
+      border-radius: 16px; padding: 15px;
+    }
+    .quick-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; margin-top: 10px; }
+    .q-btn {
+      display: block; text-align: center; text-decoration: none; padding: 10px;
+      border-radius: 10px; background: #1b2440; color: #fff; font-weight: 800; font-size: 12px;
+    }
     .muted { font-size: 12px; color: #94a3b8; }
     .bottom-nav {
       position: fixed; left: 0; right: 0; bottom: 0; display: grid; grid-template-columns: repeat(5, 1fr);
@@ -43,8 +53,19 @@
     <div class="grid">
       <div class="box"><div class="muted">Toplam Bakiye</div><div class="num" id="b1">0.00 TMT</div></div>
       <div class="box"><div class="muted">Çekilebilir Bakiye</div><div class="num" style="color:#4ade80;" id="b2">0.00 TMT</div></div>
-      <div class="box"><div class="muted">Aktif İlanlarım</div><div class="num" id="b3">0</div></div>
-      <div class="box"><div class="muted">Siparişlerim</div><div class="num" id="b4">0</div></div>
+      <div class="box"><div class="muted">İlanlarım</div><div class="num" id="b3">0</div></div>
+      <div class="box"><div class="muted">Sepet / Sipariş</div><div class="num" id="b4">0 / 0</div></div>
+    </div>
+    <div class="card">
+      <div style="font-weight:800;font-size:14px;">Hızlı Kontrol &amp; Yönetim</div>
+      <div class="quick-grid">
+        <a class="q-btn" href="ilanlarim.html">İlanları Yönet</a>
+        <a class="q-btn" href="sattigim-ilanlar.html">Sattığım İlanlar</a>
+        <a class="q-btn" href="siparislerim.html">Siparişlerim</a>
+        <a class="q-btn" href="sepetim.html">Sepetim</a>
+        <a class="q-btn" href="profil-duzenle.html">Profil Düzenle</a>
+        <a class="q-btn" href="bakiye-yatir.html">Bakiye Yükle</a>
+      </div>
     </div>
   </div>
   <nav class="bottom-nav">
@@ -55,20 +76,19 @@
     <a href="profil.html" class="active">Profil</a>
   </nav>
   <script>
-    const sb = supabase.createClient("https://piajbopfeqlyupkrsnik.supabase.co", "sb_publishable_gQFoj3SUxW-TUMjYmTGrIg_5_6hwBAH");
     (async () => {
-      const { data: { session } } = await sb.auth.getSession();
-      if (!session?.user) { location.href = "profil.html"; return; }
-      const uid = session.user.id;
-      const [{ data: prof }, { data: ls }, { data: os }] = await Promise.all([
-        sb.from("profiles").select("balance_tmt, withdrawable_tmt").eq("id", uid).single(),
-        sb.from("listings").select("id").eq("user_id", uid),
-        sb.from("orders").select("id").eq("buyer_id", uid)
+      const u = await tkmRequireSession(true);
+      if (!u) return;
+      const [prof, { data: ls }, { data: os }, { data: cs }] = await Promise.all([
+        tkmGetOrCreateProfile(u),
+        tkmSb.from("listings").select("id").eq("user_id", u.id),
+        tkmSb.from("orders").select("id").eq("buyer_id", u.id),
+        tkmSb.from("cart_items").select("id").eq("user_id", u.id)
       ]);
-      document.getElementById("b1").textContent = `${Number(prof?.balance_tmt || 0).toFixed(2)} TMT`;
-      document.getElementById("b2").textContent = `${Number(prof?.withdrawable_tmt || 0).toFixed(2)} TMT`;
+      document.getElementById("b1").textContent = tkmFmtTmt(prof?.balance_tmt);
+      document.getElementById("b2").textContent = tkmFmtTmt(prof?.withdrawable_tmt);
       document.getElementById("b3").textContent = String((ls || []).length);
-      document.getElementById("b4").textContent = String((os || []).length);
+      document.getElementById("b4").textContent = `${(cs || []).length} / ${(os || []).length}`;
     })();
   </script>
 </body>
