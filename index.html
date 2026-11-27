@@ -171,28 +171,6 @@
       }
     }
 
-    // Sadece üstteki eski iki butonu gizleyip sağ üste yuvarlak profil fotoğrafı koyar
-    (function fixTopOnly() {
-      const header = document.querySelector("header, .topbar, .app-header, #playerok-shell header");
-      if (!header) return;
-      header.querySelectorAll("a, button, span, div").forEach((el) => {
-        if (el.closest(".tkm-only-prof")) return;
-        const txt = (el.textContent || "").trim().toLowerCase();
-        if (el.children.length === 0 && (txt === "giriş et" || txt === "onlayn" || txt === "online" || txt === "supabase" || txt === "ýerli")) {
-          el.style.display = "none";
-        }
-      });
-      if (!header.querySelector(".tkm-only-prof")) {
-        const a = document.createElement("a");
-        a.href = "profil.html";
-        a.className = "tkm-only-prof";
-        a.title = "Profil";
-        a.style.cssText = "width:34px;height:34px;border-radius:50%;overflow:hidden;border:2px solid #60a5fa;background:#3b6ef6;color:#fff;font-weight:900;font-size:13px;text-decoration:none;display:inline-flex;align-items:center;justify-content:center;margin-left:8px;flex-shrink:0;";
-        a.textContent = "P";
-        header.appendChild(a);
-      }
-    })();
-
     document.getElementById("global-search")?.addEventListener("input", renderMarket);
     renderHomeQuick5();
     loadMarket();
