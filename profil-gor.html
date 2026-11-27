@@ -5,6 +5,7 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>TKM Market — Profili Gör</title>
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+  <script src="tkm-core.js"></script>
   <style>
     * { box-sizing: border-box; }
     body {
@@ -24,10 +25,10 @@
       border-radius: 16px; padding: 18px; margin-bottom: 12px; text-align: center;
     }
     .avatar {
-      width: 78px; height: 78px; border-radius: 18px; margin: 0 auto 10px;
+      width: 82px; height: 82px; border-radius: 20px; margin: 0 auto 10px; overflow: hidden;
       background: linear-gradient(135deg, #3b6ef6, #5b4df5);
       display: flex; align-items: center; justify-content: center;
-      font-size: 30px; font-weight: 900;
+      font-size: 30px; font-weight: 900; color: #fff;
     }
     .lvl {
       display: inline-block; background: #2563eb; color: #fff;
@@ -80,18 +81,16 @@
     <a href="profil.html" class="active">Profil</a>
   </nav>
   <script>
-    const sb = supabase.createClient("https://piajbopfeqlyupkrsnik.supabase.co", "sb_publishable_gQFoj3SUxW-TUMjYmTGrIg_5_6hwBAH");
     (async () => {
-      const { data: { session } } = await sb.auth.getSession();
-      if (!session?.user) { location.href = "profil.html"; return; }
-      const u = session.user;
-      const [{ data: prof }, { data: listings }, { data: orders }] = await Promise.all([
-        sb.from("profiles").select("*").eq("id", u.id).single(),
-        sb.from("listings").select("id").eq("user_id", u.id),
-        sb.from("orders").select("id").or(`buyer_id.eq.${u.id},seller_id.eq.${u.id}`)
+      const u = await tkmRequireSession(true);
+      if (!u) return;
+      const [prof, { data: listings }, { data: orders }] = await Promise.all([
+        tkmGetOrCreateProfile(u),
+        tkmSb.from("listings").select("id").eq("user_id", u.id),
+        tkmSb.from("orders").select("id").or(`buyer_id.eq.${u.id},seller_id.eq.${u.id}`)
       ]);
       const name = prof?.full_name || u.email.split("@")[0];
-      document.getElementById("av").textContent = name.charAt(0).toUpperCase();
+      tkmRenderAvatar(document.getElementById("av"), prof, name);
       document.getElementById("uName").textContent = name;
       document.getElementById("joinDate").textContent = "Üyelik Tarihi: " + new Date(prof?.created_at || u.created_at).toLocaleDateString("tr-TR");
       document.getElementById("verText").textContent = prof?.is_verified ? "✓ Doğrulanmış Hesap" : "Standart Hesap";
